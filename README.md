@@ -11,7 +11,7 @@ This project contains examples of Azure DevOps (azdo) [Pipelines](https://docs.m
 
 It is provided in both Pipeline formats:
 
-- Classic interface ([doc](https://docs.microsoft.com/en-us/azure/devops/pipeline:s/get-started/pipelines-get-started?view=azure-devops#define-pipelines-using-the-classic-interface)): [pipelines/azure-pipelines-classic.json](pipelines/azure-pipelines-classic.json)
+- Classic interface ([doc](https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started/pipelines-get-started?view=azure-devops#define-pipelines-using-the-classic-interface)): [pipelines/azure-pipelines-classic.json](pipelines/azure-pipelines-classic.json)
 - YAML syntax ([doc](https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started/pipelines-get-started?view=azure-devops#define-pipelines-using-yaml-syntax)): [pipelines/azure-pipelines-full.yml](pipelines/azure-pipelines-full.yml)
 
 ## [Design decisions](id:design)
