@@ -1,0 +1,32 @@
+# Template that retrieves two secrets from an Azure Key Vault:
+# - a Service Principal Application (client) ID, represented by a secret called 'spClientId' (configurable)
+# - a Service Principal Client Secret, represented by a secret called 'spClientSecret' (configurable)
+#
+
+parameters:
+- name: azureSubscription
+  displayName: 'Service connection name'
+  type: string
+
+- name: keyVaultName
+  displayName: 'Azure Key Vault Name'
+  type: string
+
+- name: secretNameOfClientId
+  displayName: 'Name of the Secret storing the Service Principal Client Id'
+  type: string
+  default: 'spClientId'
+
+- name: secretNameOfClientSecret
+  displayName: 'Name of the Secret storing the Service Principal Client Secret'
+  type: string
+  default: 'spClientSecret'
+
+
+steps:
+- task: AzureKeyVault@1
+  displayName: 'Get SP Client Id and Secret from Key Vault'
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    KeyVaultName: '${{ parameters.keyVaultName }}'
+    SecretsFilter: '${{ parameters.secretNameOfClientId }},${{ parameters.secretNameOfClientSecret }}'

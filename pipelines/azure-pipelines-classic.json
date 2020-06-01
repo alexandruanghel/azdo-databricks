@@ -1,0 +1,1623 @@
+{
+  "source": 1,
+  "description": null,
+  "isDeleted": false,
+  "variables": {
+    "adbNotebookMount": {
+      "value": "mount-adls-gen-2",
+      "allowOverride": true
+    },
+    "adbNotebookPipeline": {
+      "value": "print-current-user"
+    },
+    "adbNotebooksSourceLocation": {
+      "value": "$(System.DefaultWorkingDirectory)/repo/notebooks"
+    },
+    "adbNotebooksWorkspaceFolder": {
+      "value": "/Shared",
+      "allowOverride": true
+    },
+    "adbNsgName": {
+      "value": "databricks-nsg"
+    },
+    "adbPricingTier": {
+      "value": "premium",
+      "allowOverride": true
+    },
+    "adbPrivateSubnetCidr": {
+      "value": "10.179.0.0/18"
+    },
+    "adbPrivateSubnetName": {
+      "value": "private-subnet"
+    },
+    "adbPublicSubnetCidr": {
+      "value": "10.179.64.0/18"
+    },
+    "adbPublicSubnetName": {
+      "value": "public-subnet"
+    },
+    "adbResourceGroup": {
+      "value": "databricks-workspace-rg",
+      "allowOverride": true
+    },
+    "adbSecretScope": {
+      "value": "databricks-secret-scope"
+    },
+    "adbVnetCidr": {
+      "value": "10.179.0.0/16"
+    },
+    "adbVnetName": {
+      "value": "databricks-vnet"
+    },
+    "adbWorkspaceName": {
+      "value": "databricks-workspace",
+      "allowOverride": true
+    },
+    "armTemplatesLocation": {
+      "value": "$(System.DefaultWorkingDirectory)/repo/arm"
+    },
+    "azureLocation": {
+      "value": "West Europe"
+    },
+    "databricksUniqueId": {
+      "value": "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d"
+    },
+    "dataFactoryName": {
+      "value": "databricks-adf-unique123"
+    },
+    "dataFactoryPipelineName": {
+      "value": "databricks-pipeline"
+    },
+    "keyVaultName": {
+      "value": "databricks-akv",
+      "allowOverride": true
+    },
+    "scriptsLocation": {
+      "value": "$(System.DefaultWorkingDirectory)/repo/scripts"
+    },
+    "spRegistrationName": {
+      "value": "databricks-sp-nonadmin",
+      "allowOverride": true
+    },
+    "storageAccountName": {
+      "value": "databricksadlsunique123"
+    },
+    "storageContainerName": {
+      "value": "default"
+    }
+  },
+  "variableGroups": [],
+  "environments": [
+    {
+      "id": 27,
+      "name": "Deploy Infrastructure",
+      "rank": 1,
+      "variables": {},
+      "variableGroups": [],
+      "preDeployApprovals": {
+        "approvals": [
+          {
+            "rank": 1,
+            "isAutomated": true,
+            "isNotificationOn": false,
+            "id": 79
+          }
+        ],
+        "approvalOptions": {
+          "requiredApproverCount": null,
+          "releaseCreatorCanBeApprover": false,
+          "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+          "enforceIdentityRevalidation": false,
+          "timeoutInMinutes": 0,
+          "executionOrder": 1
+        }
+      },
+      "deployStep": {
+        "id": 84
+      },
+      "postDeployApprovals": {
+        "approvals": [
+          {
+            "rank": 1,
+            "isAutomated": true,
+            "isNotificationOn": false,
+            "id": 85
+          }
+        ],
+        "approvalOptions": {
+          "requiredApproverCount": null,
+          "releaseCreatorCanBeApprover": false,
+          "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+          "enforceIdentityRevalidation": false,
+          "timeoutInMinutes": 0,
+          "executionOrder": 2
+        }
+      },
+      "deployPhases": [
+        {
+          "deploymentInput": {
+            "parallelExecution": {
+              "parallelExecutionType": 0
+            },
+            "agentSpecification": {
+              "identifier": "ubuntu-18.04"
+            },
+            "skipArtifactsDownload": false,
+            "artifactsDownloadInput": {
+              "downloadInputs": []
+            },
+            "queueId": 11,
+            "demands": [],
+            "enableAccessToken": false,
+            "timeoutInMinutes": 0,
+            "jobCancelTimeoutInMinutes": 1,
+            "condition": "succeeded()",
+            "overrideInputs": {}
+          },
+          "rank": 1,
+          "phaseType": 1,
+          "name": "Agent job",
+          "refName": null,
+          "workflowTasks": [
+            {
+              "environment": {},
+              "taskId": "94a74903-f93f-4075-884f-dc11f34058b4",
+              "version": "2.*",
+              "name": "Deploy ADLS Storage Account",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "action": "Create Or Update Resource Group",
+                "resourceGroupName": "$(adbResourceGroup)",
+                "location": "$(azureLocation)",
+                "templateLocation": "Linked artifact",
+                "csmFileLink": "",
+                "csmParametersFileLink": "",
+                "csmFile": "$(armTemplatesLocation)/azure-adls-gen-2.json",
+                "csmParametersFile": "",
+                "overrideParameters": "-storageAccountName $(storageAccountName)",
+                "deploymentMode": "Incremental",
+                "enableDeploymentPrerequisites": "None",
+                "deploymentGroupEndpoint": "",
+                "project": "",
+                "deploymentGroupName": "",
+                "copyAzureVMTags": "true",
+                "runAgentServiceAsUser": "false",
+                "userName": "",
+                "password": "",
+                "outputVariable": "",
+                "deploymentName": "$(storageAccountName)",
+                "deploymentOutputs": "",
+                "addSpnToEnvironment": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "72a1931b-effb-4d2e-8fd8-f8472a07cb62",
+              "version": "4.*",
+              "name": "Get ObjectId of Azure Pipelines Principal",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "ScriptType": "InlineScript",
+                "ScriptPath": "",
+                "Inline": "$Context = Get-AzContext\n$AzureDevOpsServicePrincipal = Get-AzADServicePrincipal -ApplicationId $Context.Account.Id\n$spObjectId = $AzureDevOpsServicePrincipal.Id\n\nWrite-Host \"##vso[task.setvariable variable=spObjectId;]$spObjectId\"",
+                "ScriptArguments": "",
+                "errorActionPreference": "stop",
+                "FailOnStandardError": "false",
+                "TargetAzurePs": "LatestVersion",
+                "CustomTargetAzurePs": "6.13.0",
+                "pwsh": "false",
+                "workingDirectory": ""
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "94a74903-f93f-4075-884f-dc11f34058b4",
+              "version": "2.*",
+              "name": "Deploy Azure Key Vault",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "action": "Create Or Update Resource Group",
+                "resourceGroupName": "$(adbResourceGroup)",
+                "location": "$(azureLocation)",
+                "templateLocation": "Linked artifact",
+                "csmFileLink": "",
+                "csmParametersFileLink": "",
+                "csmFile": "$(armTemplatesLocation)/azure-key-vault.json",
+                "csmParametersFile": "",
+                "overrideParameters": "-keyVaultName $(keyVaultName) -enableSoftDelete false -objectId $(spObjectId) -secretsPermissions [\"all\"]",
+                "deploymentMode": "Incremental",
+                "enableDeploymentPrerequisites": "None",
+                "deploymentGroupEndpoint": "",
+                "project": "",
+                "deploymentGroupName": "",
+                "copyAzureVMTags": "true",
+                "runAgentServiceAsUser": "false",
+                "userName": "",
+                "password": "",
+                "outputVariable": "",
+                "deploymentName": "$(keyVaultName)",
+                "deploymentOutputs": "",
+                "addSpnToEnvironment": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "94a74903-f93f-4075-884f-dc11f34058b4",
+              "version": "2.*",
+              "name": "Deploy Azure Data Factory",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "action": "Create Or Update Resource Group",
+                "resourceGroupName": "$(adbResourceGroup)",
+                "location": "$(azureLocation)",
+                "templateLocation": "Linked artifact",
+                "csmFileLink": "",
+                "csmParametersFileLink": "",
+                "csmFile": "$(armTemplatesLocation)/azure-data-factory-empty.json",
+                "csmParametersFile": "",
+                "overrideParameters": "-name $(dataFactoryName)",
+                "deploymentMode": "Incremental",
+                "enableDeploymentPrerequisites": "None",
+                "deploymentGroupEndpoint": "",
+                "project": "",
+                "deploymentGroupName": "",
+                "copyAzureVMTags": "true",
+                "runAgentServiceAsUser": "false",
+                "userName": "",
+                "password": "",
+                "outputVariable": "",
+                "deploymentName": "$(dataFactoryName)",
+                "deploymentOutputs": "",
+                "addSpnToEnvironment": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "72a1931b-effb-4d2e-8fd8-f8472a07cb62",
+              "version": "4.*",
+              "name": "Get ADF Managed Identity",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "ScriptType": "FilePath",
+                "ScriptPath": "$(scriptsLocation)/getDataFactoryIdentity.ps1",
+                "Inline": "$AzureDataFactory = Get-AzDataFactoryV2 -ResourceGroupName $(adbResourceGroup) -Name $(dataFactoryName)\n$AzureDataFactoryManagedIdentity = $AzureDataFactory.Identity.PrincipalId\n\nWrite-Host \"##vso[task.setvariable variable=adfObjectId;]$AzureDataFactoryManagedIdentity\"",
+                "ScriptArguments": "'$(adbResourceGroup)' '$(dataFactoryName)'",
+                "errorActionPreference": "stop",
+                "FailOnStandardError": "false",
+                "TargetAzurePs": "LatestVersion",
+                "CustomTargetAzurePs": "6.13.0",
+                "pwsh": "false",
+                "workingDirectory": ""
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Add ADF Identity to Key Vault policies",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/doAddPrincipalToAkvPolicies.sh",
+                "inlineScript": "# required parameters\ndatabricksUniqueId=$(databricksUniqueId)\nadbResourceGroup=$(adbResourceGroup)\nadbWorkspaceName=$(adbWorkspaceName)\n\n# optional parameters - if not set it will use Azure DevOps SP\nspClientId=$(spClientId)||true\nspClientSecret=$(spClientSecret)||true\n\n\necho \"Getting the URL of Workspace $adbWorkspaceName from Resource Group $adbResourceGroup\"\nadbWorkspaceUrl=$(az resource show -g $adbResourceGroup -n $adbWorkspaceName --resource-type \"Microsoft.Databricks/workspaces\" | python -c 'import sys,json; print(json.load(sys.stdin)[\"properties\"][\"workspaceUrl\"])')\n[[ -z $adbWorkspaceUrl ]] && exit 1\necho \"Got the URL: $adbWorkspaceUrl\"\n\nif [[ ! -z $spClientId ]] && [[ \"$spClientId\" != \"0\" ]] && [[ ! -z $spClientSecret ]] && [[ \"$spClientSecret\" != \"0\" ]]\nthen\n  echo \"The App Client Id and Secret are set, trying to log in as $spClientId\"\n  aadTenantId=$(az account show | python -c 'import sys,json; print(json.load(sys.stdin)[\"tenantId\"])')\n  az logout\n  az login --service-principal --username $spClientId --password $spClientSecret --tenant $aadTenantId --allow-no-subscriptions\nfi\n  \necho \"Getting the AAD access token\"\naadAccessToken=$(az account get-access-token --resource=$databricksUniqueId | python -c 'import sys,json; print(json.load(sys.stdin)[\"accessToken\"])')\n[[ -z $aadAccessToken ]] && exit 1\necho \"Got the AAD access token\"\n\n# pass the variables\necho \"##vso[task.setvariable variable=aadAccessToken;issecret=true]\"$aadAccessToken\necho \"##vso[task.setvariable variable=adbWorkspaceUrl;issecret=false]\"$adbWorkspaceUrl\n",
+                "scriptArguments": "\"$(keyVaultName)\" \"$(adfObjectId)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "94a74903-f93f-4075-884f-dc11f34058b4",
+              "version": "2.*",
+              "name": "Deploy NSG",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "action": "Create Or Update Resource Group",
+                "resourceGroupName": "$(adbResourceGroup)",
+                "location": "$(azureLocation)",
+                "templateLocation": "Linked artifact",
+                "csmFileLink": "",
+                "csmParametersFileLink": "",
+                "csmFile": "$(armTemplatesLocation)/azure-nsg-with-databricks-rules.json",
+                "csmParametersFile": "",
+                "overrideParameters": "-nsgName $(adbNsgName)",
+                "deploymentMode": "Incremental",
+                "enableDeploymentPrerequisites": "None",
+                "deploymentGroupEndpoint": "",
+                "project": "",
+                "deploymentGroupName": "",
+                "copyAzureVMTags": "true",
+                "runAgentServiceAsUser": "false",
+                "userName": "",
+                "password": "",
+                "outputVariable": "",
+                "deploymentName": "$(adbNsgName)",
+                "deploymentOutputs": "armOutput",
+                "addSpnToEnvironment": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "72a1931b-effb-4d2e-8fd8-f8472a07cb62",
+              "version": "4.*",
+              "name": "Extract NSG Id from ARM output",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "ScriptType": "FilePath",
+                "ScriptPath": "$(scriptsLocation)/getVariableFromArmOutput.ps1",
+                "Inline": "$var=ConvertFrom-Json '$(nsgArmOutput)'\n$value=$var.customNsgId.value\n\nWrite-Host \"##vso[task.setvariable variable=customNsgId;]$value\"",
+                "ScriptArguments": "'$(armOutput)' 'customNsgId'",
+                "errorActionPreference": "stop",
+                "FailOnStandardError": "false",
+                "TargetAzurePs": "LatestVersion",
+                "CustomTargetAzurePs": "6.13.0",
+                "pwsh": "false",
+                "workingDirectory": ""
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "94a74903-f93f-4075-884f-dc11f34058b4",
+              "version": "2.*",
+              "name": "Deploy VNet",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "action": "Create Or Update Resource Group",
+                "resourceGroupName": "$(adbResourceGroup)",
+                "location": "$(azureLocation)",
+                "templateLocation": "Linked artifact",
+                "csmFileLink": "",
+                "csmParametersFileLink": "",
+                "csmFile": "$(armTemplatesLocation)/databricks-vnet-for-vnet-injection.json",
+                "csmParametersFile": "",
+                "overrideParameters": "-vnetName $(adbVnetName) -nsgId $(customNsgId) -vnetCidr $(adbVnetCidr) -privateSubnetName $(adbPrivateSubnetName) -privateSubnetCidr $(adbPrivateSubnetCidr) -publicSubnetName $(adbPublicSubnetName) -publicSubnetCidr $(adbPublicSubnetCidr)",
+                "deploymentMode": "Incremental",
+                "enableDeploymentPrerequisites": "None",
+                "deploymentGroupEndpoint": "",
+                "project": "",
+                "deploymentGroupName": "",
+                "copyAzureVMTags": "true",
+                "runAgentServiceAsUser": "false",
+                "userName": "",
+                "password": "",
+                "outputVariable": "",
+                "deploymentName": "$(adbVnetName)",
+                "deploymentOutputs": "armOutput",
+                "addSpnToEnvironment": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "72a1931b-effb-4d2e-8fd8-f8472a07cb62",
+              "version": "4.*",
+              "name": "Extract VNet Id from ARM output",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "ScriptType": "FilePath",
+                "ScriptPath": "$(scriptsLocation)/getVariableFromArmOutput.ps1",
+                "Inline": "$var=ConvertFrom-Json '$(vnetArmOutput)'\n$value=$var.customVirtualNetworkId.value\n\nWrite-Host \"##vso[task.setvariable variable=customVirtualNetworkId;]$value\"",
+                "ScriptArguments": "'$(armOutput)' 'customVirtualNetworkId'",
+                "errorActionPreference": "stop",
+                "FailOnStandardError": "false",
+                "TargetAzurePs": "LatestVersion",
+                "CustomTargetAzurePs": "6.13.0",
+                "pwsh": "false",
+                "workingDirectory": ""
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "94a74903-f93f-4075-884f-dc11f34058b4",
+              "version": "2.*",
+              "name": "Deploy Databricks Workspace",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "action": "Create Or Update Resource Group",
+                "resourceGroupName": "$(adbResourceGroup)",
+                "location": "$(azureLocation)",
+                "templateLocation": "Linked artifact",
+                "csmFileLink": "",
+                "csmParametersFileLink": "",
+                "csmFile": "$(armTemplatesLocation)/databricks-workspace-with-vnet-injection.json",
+                "csmParametersFile": "",
+                "overrideParameters": "-customVirtualNetworkId $(customVirtualNetworkId) -customPrivateSubnetName $(adbPrivateSubnetName) -customPublicSubnetName $(adbPublicSubnetName) -workspaceName $(adbWorkspaceName) -pricingTier $(adbPricingTier)",
+                "deploymentMode": "Incremental",
+                "enableDeploymentPrerequisites": "None",
+                "deploymentGroupEndpoint": "",
+                "project": "",
+                "deploymentGroupName": "",
+                "copyAzureVMTags": "true",
+                "runAgentServiceAsUser": "false",
+                "userName": "",
+                "password": "",
+                "outputVariable": "",
+                "deploymentName": "$(adbWorkspaceName)",
+                "deploymentOutputs": "",
+                "addSpnToEnvironment": "false"
+              }
+            }
+          ]
+        }
+      ],
+      "environmentOptions": {
+        "emailNotificationType": "OnlyOnFailure",
+        "emailRecipients": "release.environment.owner;release.creator",
+        "skipArtifactsDownload": false,
+        "timeoutInMinutes": 0,
+        "enableAccessToken": false,
+        "publishDeploymentStatus": true,
+        "badgeEnabled": false,
+        "autoLinkWorkItems": false,
+        "pullRequestDeploymentEnabled": false
+      },
+      "demands": [],
+      "conditions": [
+        {
+          "name": "ReleaseStarted",
+          "conditionType": 1,
+          "value": ""
+        }
+      ],
+      "executionPolicy": {
+        "concurrencyCount": 1,
+        "queueDepthCount": 0
+      },
+      "schedules": [],
+      "retentionPolicy": {
+        "daysToKeep": 30,
+        "releasesToKeep": 3,
+        "retainBuild": true
+      },
+      "processParameters": {},
+      "properties": {
+        "BoardsEnvironmentType": {
+          "$type": "System.String",
+          "$value": "unmapped"
+        },
+        "LinkBoardsWorkItems": {
+          "$type": "System.String",
+          "$value": "False"
+        }
+      },
+      "preDeploymentGates": {
+        "id": 0,
+        "gatesOptions": null,
+        "gates": []
+      },
+      "postDeploymentGates": {
+        "id": 0,
+        "gatesOptions": null,
+        "gates": []
+      },
+      "environmentTriggers": []
+    },
+    {
+      "id": 28,
+      "name": "Deploy Service Principal",
+      "rank": 2,
+      "variables": {},
+      "variableGroups": [],
+      "preDeployApprovals": {
+        "approvals": [
+          {
+            "rank": 1,
+            "isAutomated": true,
+            "isNotificationOn": false,
+            "id": 80
+          }
+        ],
+        "approvalOptions": {
+          "requiredApproverCount": null,
+          "releaseCreatorCanBeApprover": false,
+          "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+          "enforceIdentityRevalidation": false,
+          "timeoutInMinutes": 0,
+          "executionOrder": 1
+        }
+      },
+      "deployStep": {
+        "id": 83
+      },
+      "postDeployApprovals": {
+        "approvals": [
+          {
+            "rank": 1,
+            "isAutomated": true,
+            "isNotificationOn": false,
+            "id": 86
+          }
+        ],
+        "approvalOptions": {
+          "requiredApproverCount": null,
+          "releaseCreatorCanBeApprover": false,
+          "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+          "enforceIdentityRevalidation": false,
+          "timeoutInMinutes": 0,
+          "executionOrder": 2
+        }
+      },
+      "deployPhases": [
+        {
+          "deploymentInput": {
+            "parallelExecution": {
+              "parallelExecutionType": 0
+            },
+            "agentSpecification": {
+              "identifier": "ubuntu-18.04"
+            },
+            "skipArtifactsDownload": false,
+            "artifactsDownloadInput": {
+              "downloadInputs": []
+            },
+            "queueId": 11,
+            "demands": [],
+            "enableAccessToken": false,
+            "timeoutInMinutes": 0,
+            "jobCancelTimeoutInMinutes": 1,
+            "condition": "succeeded()",
+            "overrideInputs": {}
+          },
+          "rank": 1,
+          "phaseType": 1,
+          "name": "Agent job",
+          "refName": null,
+          "workflowTasks": [
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Create a new Service Principal",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/doCreateSP.sh",
+                "inlineScript": "# required parameters\nspRegistrationName=$(spRegistrationName)\n\n\necho -e \"Creating a Service Principal named $spRegistrationName\"\nnewSpResponse=$(az ad sp create-for-rbac --name \"$spRegistrationName\" --skip-assignment)\n[[ -z $newSpResponse ]] && exit 1\n\necho -e \"Getting the Service Principal Client Id and Client Secret from the JSON response\"\nnewSpClientId=$(echo $newSpResponse | python -c 'import sys,json; print(json.load(sys.stdin)[\"appId\"])')\n[[ -z $newSpClientId ]] && exit 1\necho -e \"Got the Client Id: $newSpClientId\"\n\nnewSpClientSecret=$(echo $newSpResponse | python -c 'import sys,json; print(json.load(sys.stdin)[\"password\"])')\n[[ -z $newSpClientSecret ]] && exit 1\n\necho -e \"Getting the Object Id of service principal $newSpClientId\"\nnewSpObjectId=$(az ad sp show --id $newSpClientId | python -c 'import sys,json; print(json.load(sys.stdin)[\"objectId\"])')\n[[ -z $newSpObjectId ]] && exit 1\necho -e \"Got the Object Id: $newSpObjectId\"\n\n\n# pass the variables\necho \"##vso[task.setvariable variable=newSpClientId;issecret=false]\"$newSpClientId\necho \"##vso[task.setvariable variable=newSpObjectId;issecret=false]\"$newSpObjectId\necho \"##vso[task.setvariable variable=newSpClientSecret;issecret=true]\"$newSpClientSecret\n",
+                "scriptArguments": "\"$(spRegistrationName)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Add the new SP Client Id and Secret to Key Vault",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "inlineScript",
+                "scriptPath": "$(scriptsLocation)/doAddSPDetailsToAkv.sh",
+                "inlineScript": "bash $(scriptsLocation)/doAddSecretToAkv.sh \"$(keyVaultName)\" \"spClientId\" \"$(newSpClientId)\" || exit 1\nbash $(scriptsLocation)/doAddSecretToAkv.sh \"$(keyVaultName)\" \"spObjectId\" \"$(newSpObjectId)\" || exit 1\nbash $(scriptsLocation)/doAddSecretToAkv.sh \"$(keyVaultName)\" \"spClientSecret\" \"$(newSpClientSecret)\" || exit 1\n",
+                "scriptArguments": "",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Assign Roles on Storage Account to the new SP",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/doAssignRolesOnStorageAccount.sh",
+                "inlineScript": "# required parameters\nstorageAccountName=$(storageAccountName)\nnewSpObjectId=$(newSpObjectId)\n\n\necho -e \"Getting the Resources Id of storage account $storageAccountName\"\nstorageAccountId=$(az storage account show -n $storageAccountName | python -c 'import sys,json; print(json.load(sys.stdin)[\"id\"])')\n[[ -z $storageAccountId ]] && exit 1\necho -e \"Got the Resource Id: $storageAccountId\"\n\necho -e \"Assigning Contributor role to object $newSpObjectId\"\ncontributorRoleResponse=$(az role assignment create --assignee-object-id \"$newSpObjectId\" --assignee-principal-type ServicePrincipal --role \"Contributor\" --scope \"$storageAccountId\")\n[[ -z $contributorRoleResponse ]] && exit 1\n\necho -e \"Assigning Storage Blob Data Contributor role to object $newSpObjectId\"\nblobRoleResponse=$(az role assignment create --assignee-object-id \"$newSpObjectId\" --assignee-principal-type ServicePrincipal --role \"Storage Blob Data Contributor\" --scope \"$storageAccountId\")\n[[ -z $blobRoleResponse ]] && exit 1\n\necho -e \"Roles have been assigned\"\n",
+                "scriptArguments": "\"$(storageAccountName)\" \"$(newSpObjectId)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Get Workspace URL",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/getWorkspaceUrl.sh",
+                "inlineScript": "# required parameters\nstorageAccountName=$(storageAccountName)\nnewSpObjectId=$(newSpObjectId)\n\n\necho -e \"Getting the Resources Id of storage account $storageAccountName\"\nstorageAccountId=$(az storage account show -n $storageAccountName | python -c 'import sys,json; print(json.load(sys.stdin)[\"id\"])')\n[[ -z $storageAccountId ]] && exit 1\necho -e \"Got the Resource Id: $storageAccountId\"\n\necho -e \"Assigning Contributor role to object $newSpObjectId\"\ncontributorRoleResponse=$(az role assignment create --assignee-object-id \"$newSpObjectId\" --assignee-principal-type ServicePrincipal --role \"Contributor\" --scope \"$storageAccountId\")\n[[ -z $contributorRoleResponse ]] && exit 1\n\necho -e \"Assigning Storage Blob Data Contributor role to object $newSpObjectId\"\nblobRoleResponse=$(az role assignment create --assignee-object-id \"$newSpObjectId\" --assignee-principal-type ServicePrincipal --role \"Storage Blob Data Contributor\" --scope \"$storageAccountId\")\n[[ -z $blobRoleResponse ]] && exit 1\n\necho -e \"Roles have been assigned\"\n",
+                "scriptArguments": "\"$(adbResourceGroup)\" \"$(adbWorkspaceName)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Get AAD Access Token (of Pipelines Principal)",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/getAADAccessToken.sh",
+                "inlineScript": "# required parameters\nstorageAccountName=$(storageAccountName)\nnewSpObjectId=$(newSpObjectId)\n\n\necho -e \"Getting the Resources Id of storage account $storageAccountName\"\nstorageAccountId=$(az storage account show -n $storageAccountName | python -c 'import sys,json; print(json.load(sys.stdin)[\"id\"])')\n[[ -z $storageAccountId ]] && exit 1\necho -e \"Got the Resource Id: $storageAccountId\"\n\necho -e \"Assigning Contributor role to object $newSpObjectId\"\ncontributorRoleResponse=$(az role assignment create --assignee-object-id \"$newSpObjectId\" --assignee-principal-type ServicePrincipal --role \"Contributor\" --scope \"$storageAccountId\")\n[[ -z $contributorRoleResponse ]] && exit 1\n\necho -e \"Assigning Storage Blob Data Contributor role to object $newSpObjectId\"\nblobRoleResponse=$(az role assignment create --assignee-object-id \"$newSpObjectId\" --assignee-principal-type ServicePrincipal --role \"Storage Blob Data Contributor\" --scope \"$storageAccountId\")\n[[ -z $blobRoleResponse ]] && exit 1\n\necho -e \"Roles have been assigned\"\n",
+                "scriptArguments": "\"$(databricksUniqueId)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "6c731c3c-3c68-459a-a5c9-bde6e6595b5b",
+              "version": "3.*",
+              "name": "Add the new SP to Databricks Workspace",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "targetType": "filePath",
+                "filePath": "$(scriptsLocation)/doAddSPToWorkspace.sh",
+                "arguments": "\"$(adbWorkspaceUrl)\" \"$(aadAccessToken)\" \"$(newSpClientId)\" \"$(spRegistrationName)\"",
+                "script": "# required parameters\naadAccessToken=$(aadAccessToken)\nadbWorkspaceUrl=$(adbWorkspaceUrl)\nnewSpClientId=$(newSpClientId)\nspRegistrationName=$(spRegistrationName)\n\n\necho -e \"Adding the Service Principal $spRegistrationName($newSpClientId) to workspace $adbWorkspaceUrl\"\ncurl -sS --request POST --header \"Authorization: Bearer $aadAccessToken\" --header \"Content-Type: application/scim+json\" \"https://$adbWorkspaceUrl/api/2.0/preview/scim/v2/ServicePrincipals\" -d '\n{\n  \"schemas\":[\n    \"urn:ietf:params:scim:schemas:core:2.0:ServicePrincipal\"\n  ],\n  \"applicationId\":\"'$newSpClientId'\",\n  \"displayName\":\"'$spRegistrationName'\",\n  \"entitlements\":[\n    {\n       \"value\":\"allow-cluster-create\"\n    },\n    {\n       \"value\":\"allow-instance-pool-create\"\n    }\n  ]\n}\n'\n\necho -e \"Listing all service principals from workspace $adbWorkspaceUrl\"\ncurl -sS --request GET --header \"Authorization: Bearer $aadAccessToken\" \"https://$adbWorkspaceUrl/api/2.0/preview/scim/v2/ServicePrincipals\" | python -m json.tool\n",
+                "workingDirectory": "",
+                "failOnStderr": "false",
+                "noProfile": "true",
+                "noRc": "true"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "6c731c3c-3c68-459a-a5c9-bde6e6595b5b",
+              "version": "3.*",
+              "name": "List all Users from Databricks Workspace",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "targetType": "filePath",
+                "filePath": "$(scriptsLocation)/listAllUsers.sh",
+                "arguments": "\"$(adbWorkspaceUrl)\" \"$(aadAccessToken)\"",
+                "script": "# required parameters\naadAccessToken=$(aadAccessToken)\nadbWorkspaceUrl=$(adbWorkspaceUrl)\nnewSpClientId=$(newSpClientId)\nspRegistrationName=$(spRegistrationName)\n\n\necho -e \"Adding the Service Principal $spRegistrationName($newSpClientId) to workspace $adbWorkspaceUrl\"\ncurl -sS --request POST --header \"Authorization: Bearer $aadAccessToken\" --header \"Content-Type: application/scim+json\" \"https://$adbWorkspaceUrl/api/2.0/preview/scim/v2/ServicePrincipals\" -d '\n{\n  \"schemas\":[\n    \"urn:ietf:params:scim:schemas:core:2.0:ServicePrincipal\"\n  ],\n  \"applicationId\":\"'$newSpClientId'\",\n  \"displayName\":\"'$spRegistrationName'\",\n  \"entitlements\":[\n    {\n       \"value\":\"allow-cluster-create\"\n    },\n    {\n       \"value\":\"allow-instance-pool-create\"\n    }\n  ]\n}\n'\n\necho -e \"Listing all service principals from workspace $adbWorkspaceUrl\"\ncurl -sS --request GET --header \"Authorization: Bearer $aadAccessToken\" \"https://$adbWorkspaceUrl/api/2.0/preview/scim/v2/ServicePrincipals\" | python -m json.tool\n",
+                "workingDirectory": "",
+                "failOnStderr": "false",
+                "noProfile": "true",
+                "noRc": "true"
+              }
+            }
+          ]
+        }
+      ],
+      "environmentOptions": {
+        "emailNotificationType": "OnlyOnFailure",
+        "emailRecipients": "release.environment.owner;release.creator",
+        "skipArtifactsDownload": false,
+        "timeoutInMinutes": 0,
+        "enableAccessToken": false,
+        "publishDeploymentStatus": true,
+        "badgeEnabled": false,
+        "autoLinkWorkItems": false,
+        "pullRequestDeploymentEnabled": false
+      },
+      "demands": [],
+      "conditions": [
+        {
+          "name": "Deploy Infrastructure",
+          "conditionType": 2,
+          "value": "4"
+        }
+      ],
+      "executionPolicy": {
+        "concurrencyCount": 1,
+        "queueDepthCount": 0
+      },
+      "schedules": [],
+      "retentionPolicy": {
+        "daysToKeep": 30,
+        "releasesToKeep": 3,
+        "retainBuild": true
+      },
+      "processParameters": {},
+      "properties": {
+        "BoardsEnvironmentType": {
+          "$type": "System.String",
+          "$value": "unmapped"
+        },
+        "LinkBoardsWorkItems": {
+          "$type": "System.String",
+          "$value": "False"
+        }
+      },
+      "preDeploymentGates": {
+        "id": 0,
+        "gatesOptions": null,
+        "gates": []
+      },
+      "postDeploymentGates": {
+        "id": 0,
+        "gatesOptions": null,
+        "gates": []
+      },
+      "environmentTriggers": []
+    },
+    {
+      "id": 30,
+      "name": "Run a Pipeline",
+      "rank": 4,
+      "variables": {},
+      "variableGroups": [],
+      "preDeployApprovals": {
+        "approvals": [
+          {
+            "rank": 1,
+            "isAutomated": true,
+            "isNotificationOn": false,
+            "id": 88
+          }
+        ],
+        "approvalOptions": {
+          "requiredApproverCount": null,
+          "releaseCreatorCanBeApprover": false,
+          "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+          "enforceIdentityRevalidation": false,
+          "timeoutInMinutes": 0,
+          "executionOrder": 1
+        }
+      },
+      "deployStep": {
+        "id": 91
+      },
+      "postDeployApprovals": {
+        "approvals": [
+          {
+            "rank": 1,
+            "isAutomated": true,
+            "isNotificationOn": false,
+            "id": 92
+          }
+        ],
+        "approvalOptions": {
+          "requiredApproverCount": null,
+          "releaseCreatorCanBeApprover": false,
+          "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+          "enforceIdentityRevalidation": false,
+          "timeoutInMinutes": 0,
+          "executionOrder": 2
+        }
+      },
+      "deployPhases": [
+        {
+          "deploymentInput": {
+            "parallelExecution": {
+              "parallelExecutionType": 0
+            },
+            "agentSpecification": {
+              "identifier": "ubuntu-18.04"
+            },
+            "skipArtifactsDownload": false,
+            "artifactsDownloadInput": {
+              "downloadInputs": []
+            },
+            "queueId": 11,
+            "demands": [],
+            "enableAccessToken": false,
+            "timeoutInMinutes": 0,
+            "jobCancelTimeoutInMinutes": 1,
+            "condition": "succeeded()",
+            "overrideInputs": {}
+          },
+          "rank": 1,
+          "phaseType": 1,
+          "name": "Agent job",
+          "refName": null,
+          "workflowTasks": [
+            {
+              "environment": {},
+              "taskId": "1e244d32-2dd4-4165-96fb-b7441ca9331e",
+              "version": "1.*",
+              "name": "Get SP Client Id and Secret from Key Vault",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "KeyVaultName": "$(keyVaultName)",
+                "SecretsFilter": "spClientId,spClientSecret",
+                "RunAsPreJob": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Get AAD Access Token (of new SP)",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/getAADAccessToken.sh",
+                "inlineScript": "# required parameters\ndatabricksUniqueId=$(databricksUniqueId)\nadbResourceGroup=$(adbResourceGroup)\nadbWorkspaceName=$(adbWorkspaceName)\n\n# optional parameters - if not set it will use Azure DevOps SP\nspClientId=$(spClientId)||true\nspClientSecret=$(spClientSecret)||true\n\n\necho \"Getting the URL of Workspace $adbWorkspaceName from Resource Group $adbResourceGroup\"\nadbWorkspaceUrl=$(az resource show -g $adbResourceGroup -n $adbWorkspaceName --resource-type \"Microsoft.Databricks/workspaces\" | python -c 'import sys,json; print(json.load(sys.stdin)[\"properties\"][\"workspaceUrl\"])')\n[[ -z $adbWorkspaceUrl ]] && exit 1\necho \"Got the URL: $adbWorkspaceUrl\"\n\nif [[ ! -z $spClientId ]] && [[ \"$spClientId\" != \"0\" ]] && [[ ! -z $spClientSecret ]] && [[ \"$spClientSecret\" != \"0\" ]]\nthen\n  echo \"The App Client Id and Secret are set, trying to log in as $spClientId\"\n  aadTenantId=$(az account show | python -c 'import sys,json; print(json.load(sys.stdin)[\"tenantId\"])')\n  az logout\n  az login --service-principal --username $spClientId --password $spClientSecret --tenant $aadTenantId --allow-no-subscriptions\nfi\n  \necho \"Getting the AAD access token\"\naadAccessToken=$(az account get-access-token --resource=$databricksUniqueId | python -c 'import sys,json; print(json.load(sys.stdin)[\"accessToken\"])')\n[[ -z $aadAccessToken ]] && exit 1\necho \"Got the AAD access token\"\n\n# pass the variables\necho \"##vso[task.setvariable variable=aadAccessToken;issecret=true]\"$aadAccessToken\necho \"##vso[task.setvariable variable=adbWorkspaceUrl;issecret=false]\"$adbWorkspaceUrl\n",
+                "scriptArguments": "\"$(databricksUniqueId)\" \"$(spClientId)\" \"$(spClientSecret)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Add the new SP Access Token to Key Vault",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/doAddSecretToAkv.sh",
+                "inlineScript": "# required parameters\ndatabricksUniqueId=$(databricksUniqueId)\nadbResourceGroup=$(adbResourceGroup)\nadbWorkspaceName=$(adbWorkspaceName)\n\n# optional parameters - if not set it will use Azure DevOps SP\nspClientId=$(spClientId)||true\nspClientSecret=$(spClientSecret)||true\n\n\necho \"Getting the URL of Workspace $adbWorkspaceName from Resource Group $adbResourceGroup\"\nadbWorkspaceUrl=$(az resource show -g $adbResourceGroup -n $adbWorkspaceName --resource-type \"Microsoft.Databricks/workspaces\" | python -c 'import sys,json; print(json.load(sys.stdin)[\"properties\"][\"workspaceUrl\"])')\n[[ -z $adbWorkspaceUrl ]] && exit 1\necho \"Got the URL: $adbWorkspaceUrl\"\n\nif [[ ! -z $spClientId ]] && [[ \"$spClientId\" != \"0\" ]] && [[ ! -z $spClientSecret ]] && [[ \"$spClientSecret\" != \"0\" ]]\nthen\n  echo \"The App Client Id and Secret are set, trying to log in as $spClientId\"\n  aadTenantId=$(az account show | python -c 'import sys,json; print(json.load(sys.stdin)[\"tenantId\"])')\n  az logout\n  az login --service-principal --username $spClientId --password $spClientSecret --tenant $aadTenantId --allow-no-subscriptions\nfi\n  \necho \"Getting the AAD access token\"\naadAccessToken=$(az account get-access-token --resource=$databricksUniqueId | python -c 'import sys,json; print(json.load(sys.stdin)[\"accessToken\"])')\n[[ -z $aadAccessToken ]] && exit 1\necho \"Got the AAD access token\"\n\n# pass the variables\necho \"##vso[task.setvariable variable=aadAccessToken;issecret=true]\"$aadAccessToken\necho \"##vso[task.setvariable variable=adbWorkspaceUrl;issecret=false]\"$adbWorkspaceUrl\n",
+                "scriptArguments": "\"$(keyVaultName)\" \"aadAccessToken\" \"$(aadAccessToken)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Get Workspace URL",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/getWorkspaceUrl.sh",
+                "inlineScript": "# required parameters\ndatabricksUniqueId=$(databricksUniqueId)\nadbResourceGroup=$(adbResourceGroup)\nadbWorkspaceName=$(adbWorkspaceName)\n\n# optional parameters - if not set it will use Azure DevOps SP\nspClientId=$(spClientId)||true\nspClientSecret=$(spClientSecret)||true\n\n\necho \"Getting the URL of Workspace $adbWorkspaceName from Resource Group $adbResourceGroup\"\nadbWorkspaceUrl=$(az resource show -g $adbResourceGroup -n $adbWorkspaceName --resource-type \"Microsoft.Databricks/workspaces\" | python -c 'import sys,json; print(json.load(sys.stdin)[\"properties\"][\"workspaceUrl\"])')\n[[ -z $adbWorkspaceUrl ]] && exit 1\necho \"Got the URL: $adbWorkspaceUrl\"\n\nif [[ ! -z $spClientId ]] && [[ \"$spClientId\" != \"0\" ]] && [[ ! -z $spClientSecret ]] && [[ \"$spClientSecret\" != \"0\" ]]\nthen\n  echo \"The App Client Id and Secret are set, trying to log in as $spClientId\"\n  aadTenantId=$(az account show | python -c 'import sys,json; print(json.load(sys.stdin)[\"tenantId\"])')\n  az logout\n  az login --service-principal --username $spClientId --password $spClientSecret --tenant $aadTenantId --allow-no-subscriptions\nfi\n  \necho \"Getting the AAD access token\"\naadAccessToken=$(az account get-access-token --resource=$databricksUniqueId | python -c 'import sys,json; print(json.load(sys.stdin)[\"accessToken\"])')\n[[ -z $aadAccessToken ]] && exit 1\necho \"Got the AAD access token\"\n\n# pass the variables\necho \"##vso[task.setvariable variable=aadAccessToken;issecret=true]\"$aadAccessToken\necho \"##vso[task.setvariable variable=adbWorkspaceUrl;issecret=false]\"$adbWorkspaceUrl\n",
+                "scriptArguments": "\"$(adbResourceGroup)\" \"$(adbWorkspaceName)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "72a1931b-effb-4d2e-8fd8-f8472a07cb62",
+              "version": "4.*",
+              "name": "Get Key Vault URL",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "ScriptType": "FilePath",
+                "ScriptPath": "$(scriptsLocation)/getKeyVaultUrl.ps1",
+                "Inline": "# You can write your azure powershell scripts inline here. \n# You can also pass predefined and custom variables to this script using arguments",
+                "ScriptArguments": "'$(keyVaultName)'",
+                "errorActionPreference": "stop",
+                "FailOnStandardError": "false",
+                "TargetAzurePs": "LatestVersion",
+                "CustomTargetAzurePs": "",
+                "pwsh": "false",
+                "workingDirectory": ""
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "94a74903-f93f-4075-884f-dc11f34058b4",
+              "version": "2.*",
+              "name": "Deploy Data Factory Pipeline",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "action": "Create Or Update Resource Group",
+                "resourceGroupName": "$(adbResourceGroup)",
+                "location": "$(azureLocation)",
+                "templateLocation": "Linked artifact",
+                "csmFileLink": "",
+                "csmParametersFileLink": "",
+                "csmFile": "$(armTemplatesLocation)/azure-data-factory-pipeline.json",
+                "csmParametersFile": "",
+                "overrideParameters": "-factoryName $(dataFactoryName) -pipelineName $(dataFactoryPipelineName) -workspaceUrl $(adbWorkspaceUrl) -keyVaultBaseUrl $(keyVaultUrl)",
+                "deploymentMode": "Incremental",
+                "enableDeploymentPrerequisites": "None",
+                "deploymentGroupEndpoint": "",
+                "project": "",
+                "deploymentGroupName": "",
+                "copyAzureVMTags": "true",
+                "runAgentServiceAsUser": "false",
+                "userName": "",
+                "password": "",
+                "outputVariable": "",
+                "deploymentName": "$(dataFactoryPipelineName)",
+                "deploymentOutputs": "",
+                "addSpnToEnvironment": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "72a1931b-effb-4d2e-8fd8-f8472a07cb62",
+              "version": "4.*",
+              "name": "Invoke Data Factory Pipeline",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "ScriptType": "InlineScript",
+                "ScriptPath": "",
+                "Inline": "Invoke-AzDataFactoryV2Pipeline -ResourceGroupName \"$(adbResourceGroup)\" -DataFactoryName \"$(dataFactoryName)\" -PipelineName \"$(dataFactoryPipelineName)\" -Parameter @{\"notebookPath\"=\"$(adbNotebooksWorkspaceFolder)/$(adbNotebookPipeline)\"}",
+                "ScriptArguments": "",
+                "errorActionPreference": "stop",
+                "FailOnStandardError": "false",
+                "TargetAzurePs": "LatestVersion",
+                "CustomTargetAzurePs": "",
+                "pwsh": "false",
+                "workingDirectory": ""
+              }
+            }
+          ]
+        }
+      ],
+      "environmentOptions": {
+        "emailNotificationType": "OnlyOnFailure",
+        "emailRecipients": "release.environment.owner;release.creator",
+        "skipArtifactsDownload": false,
+        "timeoutInMinutes": 0,
+        "enableAccessToken": false,
+        "publishDeploymentStatus": true,
+        "badgeEnabled": false,
+        "autoLinkWorkItems": false,
+        "pullRequestDeploymentEnabled": false
+      },
+      "demands": [],
+      "conditions": [
+        {
+          "name": "Setup Workspace",
+          "conditionType": 2,
+          "value": "4"
+        }
+      ],
+      "executionPolicy": {
+        "concurrencyCount": 1,
+        "queueDepthCount": 0
+      },
+      "schedules": [],
+      "retentionPolicy": {
+        "daysToKeep": 30,
+        "releasesToKeep": 3,
+        "retainBuild": true
+      },
+      "processParameters": {},
+      "properties": {
+        "BoardsEnvironmentType": {
+          "$type": "System.String",
+          "$value": "unmapped"
+        },
+        "LinkBoardsWorkItems": {
+          "$type": "System.String",
+          "$value": "False"
+        }
+      },
+      "preDeploymentGates": {
+        "id": 0,
+        "gatesOptions": null,
+        "gates": []
+      },
+      "postDeploymentGates": {
+        "id": 0,
+        "gatesOptions": null,
+        "gates": []
+      },
+      "environmentTriggers": []
+    },
+    {
+      "id": 31,
+      "name": "Setup Workspace",
+      "rank": 3,
+      "variables": {},
+      "variableGroups": [],
+      "preDeployApprovals": {
+        "approvals": [
+          {
+            "rank": 1,
+            "isAutomated": true,
+            "isNotificationOn": false,
+            "id": 89
+          }
+        ],
+        "approvalOptions": {
+          "requiredApproverCount": null,
+          "releaseCreatorCanBeApprover": false,
+          "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+          "enforceIdentityRevalidation": false,
+          "timeoutInMinutes": 0,
+          "executionOrder": 1
+        }
+      },
+      "deployStep": {
+        "id": 90
+      },
+      "postDeployApprovals": {
+        "approvals": [
+          {
+            "rank": 1,
+            "isAutomated": true,
+            "isNotificationOn": false,
+            "id": 93
+          }
+        ],
+        "approvalOptions": {
+          "requiredApproverCount": null,
+          "releaseCreatorCanBeApprover": false,
+          "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+          "enforceIdentityRevalidation": false,
+          "timeoutInMinutes": 0,
+          "executionOrder": 2
+        }
+      },
+      "deployPhases": [
+        {
+          "deploymentInput": {
+            "parallelExecution": {
+              "parallelExecutionType": 0
+            },
+            "agentSpecification": {
+              "identifier": "ubuntu-18.04"
+            },
+            "skipArtifactsDownload": false,
+            "artifactsDownloadInput": {
+              "downloadInputs": []
+            },
+            "queueId": 11,
+            "demands": [],
+            "enableAccessToken": false,
+            "timeoutInMinutes": 0,
+            "jobCancelTimeoutInMinutes": 1,
+            "condition": "succeeded()",
+            "overrideInputs": {}
+          },
+          "rank": 1,
+          "phaseType": 1,
+          "name": "Agent job",
+          "refName": null,
+          "workflowTasks": [
+            {
+              "environment": {},
+              "taskId": "33c63b11-352b-45a2-ba1b-54cb568a29ca",
+              "version": "0.*",
+              "name": "Use Python 3.x",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "versionSpec": "3.x",
+                "addToPath": "true",
+                "architecture": "x64"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "6c731c3c-3c68-459a-a5c9-bde6e6595b5b",
+              "version": "3.*",
+              "name": "Pip install",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "targetType": "inline",
+                "filePath": "",
+                "arguments": "",
+                "script": "pip install requests",
+                "workingDirectory": "",
+                "failOnStderr": "false",
+                "noProfile": "true",
+                "noRc": "true"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Get Workspace URL",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/getWorkspaceUrl.sh",
+                "inlineScript": "# required parameters\ndatabricksUniqueId=$(databricksUniqueId)\nadbResourceGroup=$(adbResourceGroup)\nadbWorkspaceName=$(adbWorkspaceName)\n\n# optional parameters - if not set it will use Azure DevOps SP\nspClientId=$(spClientId)||true\nspClientSecret=$(spClientSecret)||true\n\n\necho \"Getting the URL of Workspace $adbWorkspaceName from Resource Group $adbResourceGroup\"\nadbWorkspaceUrl=$(az resource show -g $adbResourceGroup -n $adbWorkspaceName --resource-type \"Microsoft.Databricks/workspaces\" | python -c 'import sys,json; print(json.load(sys.stdin)[\"properties\"][\"workspaceUrl\"])')\n[[ -z $adbWorkspaceUrl ]] && exit 1\necho \"Got the URL: $adbWorkspaceUrl\"\n\nif [[ ! -z $spClientId ]] && [[ \"$spClientId\" != \"0\" ]] && [[ ! -z $spClientSecret ]] && [[ \"$spClientSecret\" != \"0\" ]]\nthen\n  echo \"The App Client Id and Secret are set, trying to log in as $spClientId\"\n  aadTenantId=$(az account show | python -c 'import sys,json; print(json.load(sys.stdin)[\"tenantId\"])')\n  az logout\n  az login --service-principal --username $spClientId --password $spClientSecret --tenant $aadTenantId --allow-no-subscriptions\nfi\n  \necho \"Getting the AAD access token\"\naadAccessToken=$(az account get-access-token --resource=$databricksUniqueId | python -c 'import sys,json; print(json.load(sys.stdin)[\"accessToken\"])')\n[[ -z $aadAccessToken ]] && exit 1\necho \"Got the AAD access token\"\n\n# pass the variables\necho \"##vso[task.setvariable variable=aadAccessToken;issecret=true]\"$aadAccessToken\necho \"##vso[task.setvariable variable=adbWorkspaceUrl;issecret=false]\"$adbWorkspaceUrl\n",
+                "scriptArguments": "\"$(adbResourceGroup)\" \"$(adbWorkspaceName)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Get AAD Access Token (of Pipelines Principal)",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/getAADAccessToken.sh",
+                "inlineScript": "# required parameters\ndatabricksUniqueId=$(databricksUniqueId)\nadbResourceGroup=$(adbResourceGroup)\nadbWorkspaceName=$(adbWorkspaceName)\n\n# optional parameters - if not set it will use Azure DevOps SP\nspClientId=$(spClientId)||true\nspClientSecret=$(spClientSecret)||true\n\n\necho \"Getting the URL of Workspace $adbWorkspaceName from Resource Group $adbResourceGroup\"\nadbWorkspaceUrl=$(az resource show -g $adbResourceGroup -n $adbWorkspaceName --resource-type \"Microsoft.Databricks/workspaces\" | python -c 'import sys,json; print(json.load(sys.stdin)[\"properties\"][\"workspaceUrl\"])')\n[[ -z $adbWorkspaceUrl ]] && exit 1\necho \"Got the URL: $adbWorkspaceUrl\"\n\nif [[ ! -z $spClientId ]] && [[ \"$spClientId\" != \"0\" ]] && [[ ! -z $spClientSecret ]] && [[ \"$spClientSecret\" != \"0\" ]]\nthen\n  echo \"The App Client Id and Secret are set, trying to log in as $spClientId\"\n  aadTenantId=$(az account show | python -c 'import sys,json; print(json.load(sys.stdin)[\"tenantId\"])')\n  az logout\n  az login --service-principal --username $spClientId --password $spClientSecret --tenant $aadTenantId --allow-no-subscriptions\nfi\n  \necho \"Getting the AAD access token\"\naadAccessToken=$(az account get-access-token --resource=$databricksUniqueId | python -c 'import sys,json; print(json.load(sys.stdin)[\"accessToken\"])')\n[[ -z $aadAccessToken ]] && exit 1\necho \"Got the AAD access token\"\n\n# pass the variables\necho \"##vso[task.setvariable variable=aadAccessToken;issecret=true]\"$aadAccessToken\necho \"##vso[task.setvariable variable=adbWorkspaceUrl;issecret=false]\"$adbWorkspaceUrl\n",
+                "scriptArguments": "\"$(databricksUniqueId)\"",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "3830aa71-0bfb-45bd-ae00-6e82c877deae",
+              "version": "0.*",
+              "name": "Configure Databricks CLI",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "url": "$(adbWorkspaceUrl)",
+                "token": "$(aadAccessToken)"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "5ab0c91f-182c-4cc9-9098-6edcc91f3134",
+              "version": "0.*",
+              "name": "Deploy Notebooks to Workspace",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "notebooksFolderPath": "$(adbNotebooksSourceLocation)",
+                "workspaceFolder": "$(adbNotebooksWorkspaceFolder)"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "1e244d32-2dd4-4165-96fb-b7441ca9331e",
+              "version": "1.*",
+              "name": "Get SP Client Id and Secret from Key Vault",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "KeyVaultName": "$(keyVaultName)",
+                "SecretsFilter": "spClientId,spClientSecret",
+                "RunAsPreJob": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "6c731c3c-3c68-459a-a5c9-bde6e6595b5b",
+              "version": "3.*",
+              "name": "Create Databricks Secret Scope",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "targetType": "filePath",
+                "filePath": "$(scriptsLocation)/doCreateDatabricksSecretScope.sh",
+                "arguments": "\"$(adbWorkspaceUrl)\" \"$(aadAccessToken)\" \"$(adbSecretScope)\" \"$(spClientId)\" \"$(adbNotebooksWorkspaceFolder)/create-secret-scope\"",
+                "script": "#!/usr/bin/env bash\n\n### required parameters\naadAccessToken=$1\nadbWorkspaceUrl=$2\nadbSecretScope=$3\nnewSpClientId=$4\nadbNotebooksWorkspaceFolder=$5\nadbNotebooksSourceLocation=$6\n\n# optional parameters\nadbNotebookName=$7\n[[ -z ${adbNotebookName} ]] && adbNotebookName=\"create-secret-scope\"\nadbNotebookFile=$8\n[[ -z ${adbNotebookFile} ]] && adbNotebookFile=\"create-secret-scope.py\"\n\nadbNotebookPath=\"${adbNotebooksWorkspaceFolder}/${adbNotebookName}\"\n\necho && echo -e \"Checking if Secret Scope ${adbSecretScope} exists\"\n#curl -sS --request GET --header \"Authorization: Bearer ${aadAccessToken}\" --header \"Content-Type: application/json\" \"https://${adbWorkspaceUrl}/api/2.0/secrets/list?scope=${adbSecretScope}\" | python -c 'import sys,json; print(json.load(sys.stdin)[\"secrets\"])' 2>/dev/null\nif [[ $? -ne 0 ]]\nthen\n  echo && echo -e \"Creating Secret Scope ${adbSecretScope}\"\n  echo && echo -e \"Deploying notebook ${adbNotebookName} to workspace\"\n  #curl -sS --request POST --header \"Authorization: Bearer ${aadAccessToken}\" -F path=\"${adbNotebookPath}\" -F language=PYTHON -F overwrite=true -F content=@\"${adbNotebooksSourceLocation}/${adbNotebookFile}\" \"https://${adbWorkspaceUrl}/api/2.0/workspace/import\"\n\n  echo && echo -e \"Starting a run submit job with the Notebook ${adbNotebooksWorkspaceFolder}/${adbNotebookName}\"\n  #adbNotebookRunResponse=$(python $(dirname $0)/doNotebookSubmitRun.py \"${aadAccessToken}\" \"${adbWorkspaceUrl}\" \"${adbNotebookPath}\" \"{\\\"secretScope\\\":\\\"${adbSecretScope}\\\"}\")\n  [[ $? -ne 0 ]] && exit 1\n  adbNotebookRunId=$(echo ${adbNotebookRunResponse} | cut -d']' -f2)\n  \n  echo && echo -e \"Waiting for run_id ${adbNotebookRunId}\"\n  echo python $(dirname $0)/waitForJobRun.py \"${aadAccessToken}\" \"${adbWorkspaceUrl}\" \"${adbNotebooksWorkspaceFolder}/${adbNotebookName}\" \"${adbNotebookRunId}\"\n  python $(dirname $0)/waitForJobRun.py \"${aadAccessToken}\" \"${adbWorkspaceUrl}\" \"${adbNotebooksWorkspaceFolder}/${adbNotebookName}\" \"${adbNotebookRunId}\"\n  [[ $? -ne 0 ]] && exit 1\nelse\n  echo && echo -e \"Secret Scope ${adbSecretScope} already exists\"\nfi\n\necho && echo -e \"Giving READ permissions to SP ${newSpClientId} on Secret Scope ${adbSecretScope}\"\ncurl -sS --request POST --header \"Authorization: Bearer ${aadAccessToken}\" --header \"Content-Type: application/json\" \"https://${adbWorkspaceUrl}/api/2.0/secrets/acls/put\" -d '\n{\n  \"scope\": \"'${adbSecretScope}'\",\n  \"principal\": \"'${newSpClientId}'\",\n  \"permission\": \"READ\"\n}\n' || exit 1\n",
+                "workingDirectory": "",
+                "failOnStderr": "false",
+                "noProfile": "true",
+                "noRc": "true"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "6c731c3c-3c68-459a-a5c9-bde6e6595b5b",
+              "version": "3.*",
+              "name": "Add SP Client Id and Secret to Secret Scope",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "targetType": "inline",
+                "filePath": "$(scriptsLocation)/doAddSPDetailsToSecretScope.sh",
+                "arguments": "\"$(adbWorkspaceUrl)\" \"$(aadAccessToken)\" \"$(adbSecretScope)\" \"$(newSpClientId)\" \"$(newSpClientSecret)\"",
+                "script": "bash $(scriptsLocation)/doAddSecretToSecretScope.sh \"$(adbWorkspaceUrl)\" \"$(aadAccessToken)\" \"$(adbSecretScope)\" \"spClientId\" \"$(spClientId)\" || exit 1\nbash $(scriptsLocation)/doAddSecretToSecretScope.sh \"$(adbWorkspaceUrl)\" \"$(aadAccessToken)\" \"$(adbSecretScope)\" \"spClientSecret\" \"$(spClientSecret)\" || exit 1\n",
+                "workingDirectory": "",
+                "failOnStderr": "false",
+                "noProfile": "true",
+                "noRc": "true"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "version": "2.*",
+              "name": "Get AD Tenant Id",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptType": "bash",
+                "scriptLocation": "scriptPath",
+                "scriptPath": "$(scriptsLocation)/getTenantId.sh",
+                "inlineScript": "# required parameters\ndatabricksUniqueId=$(databricksUniqueId)\nadbResourceGroup=$(adbResourceGroup)\nadbWorkspaceName=$(adbWorkspaceName)\n\n# optional parameters - if not set it will use Azure DevOps SP\nspClientId=$(spClientId)||true\nspClientSecret=$(spClientSecret)||true\n\n\necho \"Getting the URL of Workspace $adbWorkspaceName from Resource Group $adbResourceGroup\"\nadbWorkspaceUrl=$(az resource show -g $adbResourceGroup -n $adbWorkspaceName --resource-type \"Microsoft.Databricks/workspaces\" | python -c 'import sys,json; print(json.load(sys.stdin)[\"properties\"][\"workspaceUrl\"])')\n[[ -z $adbWorkspaceUrl ]] && exit 1\necho \"Got the URL: $adbWorkspaceUrl\"\n\nif [[ ! -z $spClientId ]] && [[ \"$spClientId\" != \"0\" ]] && [[ ! -z $spClientSecret ]] && [[ \"$spClientSecret\" != \"0\" ]]\nthen\n  echo \"The App Client Id and Secret are set, trying to log in as $spClientId\"\n  aadTenantId=$(az account show | python -c 'import sys,json; print(json.load(sys.stdin)[\"tenantId\"])')\n  az logout\n  az login --service-principal --username $spClientId --password $spClientSecret --tenant $aadTenantId --allow-no-subscriptions\nfi\n  \necho \"Getting the AAD access token\"\naadAccessToken=$(az account get-access-token --resource=$databricksUniqueId | python -c 'import sys,json; print(json.load(sys.stdin)[\"accessToken\"])')\n[[ -z $aadAccessToken ]] && exit 1\necho \"Got the AAD access token\"\n\n# pass the variables\necho \"##vso[task.setvariable variable=aadAccessToken;issecret=true]\"$aadAccessToken\necho \"##vso[task.setvariable variable=adbWorkspaceUrl;issecret=false]\"$adbWorkspaceUrl\n",
+                "scriptArguments": "",
+                "powerShellErrorActionPreference": "stop",
+                "addSpnToEnvironment": "false",
+                "useGlobalConfig": "false",
+                "cwd": "",
+                "failOnStandardError": "false",
+                "powerShellIgnoreLASTEXITCODE": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "6392f95f-7e76-4a18-b3c7-7f078d2f7700",
+              "version": "0.*",
+              "name": "Mount ADLS Container (notebook)",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptSource": "filePath",
+                "scriptPath": "$(scriptsLocation)/doNotebookSubmitRun.py",
+                "script": "",
+                "arguments": "\"$(adbWorkspaceUrl)\" \"$(aadAccessToken)\" \"$(adbNotebooksWorkspaceFolder)/$(adbNotebookMount)\" \"{\\\"secretScopeName\\\":\\\"$(adbSecretScope)\\\", \\\"spClientIdKeyName\\\":\\\"spClientId\\\", \\\"spClientSecretKeyName\\\":\\\"spClientSecret\\\", \\\"tenantId\\\":\\\"$(tenantId)\\\", \\\"storageAccountName\\\":\\\"$(storageAccountName)\\\", \\\"storageContainerName\\\":\\\"$(storageContainerName)\\\"}\"",
+                "pythonInterpreter": "",
+                "workingDirectory": "",
+                "failOnStderr": "false"
+              }
+            },
+            {
+              "environment": {},
+              "taskId": "6392f95f-7e76-4a18-b3c7-7f078d2f7700",
+              "version": "0.*",
+              "name": "Wait for Job to complete",
+              "refName": "",
+              "enabled": true,
+              "alwaysRun": false,
+              "continueOnError": false,
+              "timeoutInMinutes": 0,
+              "definitionType": "task",
+              "overrideInputs": {},
+              "condition": "succeeded()",
+              "inputs": {
+                "scriptSource": "filePath",
+                "scriptPath": "$(scriptsLocation)/waitForJobRun.py",
+                "script": "",
+                "arguments": "\"$(adbWorkspaceUrl)\" \"$(aadAccessToken)\" \"$(adbNotebookRunId)\"",
+                "pythonInterpreter": "",
+                "workingDirectory": "",
+                "failOnStderr": "false"
+              }
+            }
+          ]
+        }
+      ],
+      "environmentOptions": {
+        "emailNotificationType": "OnlyOnFailure",
+        "emailRecipients": "release.environment.owner;release.creator",
+        "skipArtifactsDownload": false,
+        "timeoutInMinutes": 0,
+        "enableAccessToken": false,
+        "publishDeploymentStatus": true,
+        "badgeEnabled": false,
+        "autoLinkWorkItems": false,
+        "pullRequestDeploymentEnabled": false
+      },
+      "demands": [],
+      "conditions": [
+        {
+          "name": "Deploy Service Principal",
+          "conditionType": 2,
+          "value": "4"
+        }
+      ],
+      "executionPolicy": {
+        "concurrencyCount": 1,
+        "queueDepthCount": 0
+      },
+      "schedules": [],
+      "retentionPolicy": {
+        "daysToKeep": 30,
+        "releasesToKeep": 3,
+        "retainBuild": true
+      },
+      "processParameters": {},
+      "properties": {
+        "BoardsEnvironmentType": {
+          "$type": "System.String",
+          "$value": "unmapped"
+        },
+        "LinkBoardsWorkItems": {
+          "$type": "System.String",
+          "$value": "False"
+        }
+      },
+      "preDeploymentGates": {
+        "id": 0,
+        "gatesOptions": null,
+        "gates": []
+      },
+      "postDeploymentGates": {
+        "id": 0,
+        "gatesOptions": null,
+        "gates": []
+      },
+      "environmentTriggers": []
+    }
+  ],
+  "artifacts": [],
+  "triggers": [],
+  "releaseNameFormat": "Release-$(rev:r)",
+  "tags": [],
+  "properties": {
+    "DefinitionCreationSource": {
+      "$type": "System.String",
+      "$value": "ReleaseImport"
+    },
+    "IntegrateBoardsWorkItems": {
+      "$type": "System.String",
+      "$value": "False"
+    },
+    "IntegrateJiraWorkItems": {
+      "$type": "System.String",
+      "$value": "false"
+    }
+  },
+  "id": 11,
+  "name": "Deploy Databricks (classic)",
+  "path": "\\",
+  "projectReference": null
+}

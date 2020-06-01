@@ -1,0 +1,72 @@
+# Template that mounts an ADLS Gen 2 storage container using a Notebook in a Run Submit Job (https://docs.microsoft.com/en-us/azure/databricks/dev-tools/api/latest/jobs#--runs-submit).
+#
+
+parameters:
+- name: azureSubscription
+  displayName: 'Service connection name'
+  type: string
+
+- name: adbWorkspaceUrl
+  displayName: 'Azure Databricks Workspace Url'
+  type: string
+
+- name: aadAccessToken
+  displayName: 'Azure AD Access Token'
+  type: string
+
+- name: adbSecretScope
+  displayName: 'Databricks Secret Scope'
+  type: string
+
+- name: storageAccountName
+  displayName: 'Azure Storage Account Name'
+  type: string
+
+- name: storageContainerName
+  displayName: 'Azure Storage Container Name'
+  type: string
+
+- name: adbNotebooksWorkspaceFolder
+  displayName: 'Databricks Notebook Folder'
+  type: string
+
+- name: adbNotebookMount
+  displayName: 'Databricks Notebook for mounting ADLS'
+  type: string
+
+- name: secretNameOfClientId
+  displayName: 'Name of the Secret storing the Service Principal Client Id'
+  type: string
+  default: 'spClientId'
+
+- name: secretNameOfClientSecret
+  displayName: 'Name of the Secret storing the Service Principal Client Secret'
+  type: string
+  default: 'spClientSecret'
+
+- name: scriptsLocation
+  displayName: 'Location of Scripts'
+  type: string
+
+
+steps:
+- task: AzureCLI@2
+  displayName: 'Get AD Tenant Id'
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    scriptType: 'bash'
+    scriptPath: '${{ parameters.scriptsLocation }}/getTenantId.sh'
+
+- task: PythonScript@0
+  displayName: 'Mount ADLS Container (notebook)'
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: '${{ parameters.scriptsLocation }}/doNotebookSubmitRun.py'
+    arguments: '"${{ parameters.adbWorkspaceUrl }}" "${{ parameters.aadAccessToken }}" "${{ parameters.adbNotebooksWorkspaceFolder }}/${{ parameters.adbNotebookMount }}" "{\"secretScopeName\":\"${{ parameters.adbSecretScope }}\", \"spClientIdKeyName\":\"${{ parameters.secretNameOfClientId }}\", \"spClientSecretKeyName\":\"${{ parameters.secretNameOfClientSecret }}\", \"tenantId\":\"$(tenantId)\", \"storageAccountName\":\"${{ parameters.storageAccountName }}\", \"storageContainerName\":\"${{ parameters.storageContainerName }}\"}"'
+
+- task: PythonScript@0
+  displayName: 'Wait for Job to complete'
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: '${{ parameters.scriptsLocation }}/waitForJobRun.py'
+    arguments: '"${{ parameters.adbWorkspaceUrl }}" "${{ parameters.aadAccessToken }}" "$(adbNotebookRunId)"'

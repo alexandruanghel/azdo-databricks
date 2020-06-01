@@ -1,0 +1,35 @@
+# Template that adds a Service Principal to an Azure Databricks workspace using the SCIM ServicePrincipals API.
+# (api call used in this template: https://docs.microsoft.com/en-us/azure/databricks/dev-tools/api/latest/scim/scim-sp#add-service-principal)
+#
+# The Service Principal added is not an admin, it only has the 'allow-cluster-create' and 'allow-instance-pool-create' entitlements.
+#
+
+parameters:
+- name: adbWorkspaceUrl
+  displayName: 'Azure Databricks Workspace Url'
+  type: string
+
+- name: aadAccessToken
+  displayName: 'Azure AD Access Token'
+  type: string
+
+- name: spClientId
+  displayName: 'Service Principal Client Id'
+  type: string
+
+- name: spRegistrationName
+  displayName: 'Service Principal App Registration Name'
+  type: string
+
+- name: scriptsLocation
+  displayName: 'Location of Scripts'
+  type: string
+
+
+steps:
+- task: Bash@3
+  displayName: 'Add Service Principal to Databricks Workspace'
+  inputs:
+    targetType: 'filePath'
+    filePath: '${{ parameters.scriptsLocation }}/doAddSPToWorkspace.sh'
+    arguments: '"${{ parameters.adbWorkspaceUrl }}" "${{ parameters.aadAccessToken }}" "${{ parameters.spClientId }}" "${{ parameters.spRegistrationName }}"'

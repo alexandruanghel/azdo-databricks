@@ -1,0 +1,29 @@
+# Template that assigns Contributor roles on a Storage Account to a Service Principal.
+#
+
+parameters:
+- name: azureSubscription
+  displayName: 'Service connection name'
+  type: string
+
+- name: storageAccountName
+  displayName: 'Azure Storage Account Name'
+  type: string
+
+- name: spObjectId
+  displayName: 'Service Principal Object Id to store'
+  type: string
+
+- name: scriptsLocation
+  displayName: 'Location of Scripts'
+  type: string
+
+
+steps:
+- task: AzureCLI@2
+  displayName: 'Assign Roles on Storage Account to the SP'
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    scriptType: 'bash'
+    scriptPath: '${{ parameters.scriptsLocation }}/doAssignRolesOnStorageAccount.sh'
+    arguments: '${{ parameters.storageAccountName }} ${{ parameters.spObjectId }}'

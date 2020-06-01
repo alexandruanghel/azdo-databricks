@@ -1,0 +1,136 @@
+# Template that deploys a Databricks Workspace with a custom VNet using ARM Templates:
+# 1 - Network Security Group with the addition of injected Databricks NSG rules to make it idempotent
+# 2 - Virtual Network ready for Azure Databricks VNet injection (based on https://github.com/Azure/azure-quickstart-templates/tree/master/101-databricks-vnet-for-vnet-injection)
+# 3 - Databricks workspace in the VNet previously deployed (based on https://github.com/Azure/azure-quickstart-templates/tree/master/101-databricks-workspace-with-vnet-injection)
+#
+
+parameters:
+- name: azureSubscription
+  displayName: 'Service connection name'
+  type: string
+
+- name: adbResourceGroup
+  displayName: 'Azure Databricks Resource Group Name'
+  type: string
+
+- name: azureLocation
+  displayName: 'Azure Location for all resources'
+  type: string
+
+- name: adbWorkspaceName
+  displayName: 'Azure Databricks Workspace Name'
+  type: string
+
+- name: adbPricingTier
+  displayName: 'Azure Databricks Pricing Tier'
+  type: string
+  default: 'premium'
+  values:
+  - premium
+  - standard
+  - trial
+
+- name: adbNsgName
+  displayName: 'Azure Databricks NSG Name'
+  type: string
+  default: 'databricks-nsg'
+
+- name: adbVnetName
+  displayName: 'Azure Databricks VNet Name'
+  type: string
+  default: 'databricks-vnet'
+
+- name: adbVnetCidr
+  displayName: 'Cidr range for the VNet'
+  type: string
+  default: '10.179.0.0/16'
+
+- name: adbPrivateSubnetName
+  displayName: 'Azure Databricks Private Subnet Name'
+  type: string
+  default: 'private-subnet'
+
+- name: adbPrivateSubnetCidr
+  displayName: 'Cidr range for the Private Subnet'
+  type: string
+  default: '10.179.0.0/18'
+
+- name: adbPublicSubnetName
+  displayName: 'Azure Databricks Public Subnet Name'
+  type: string
+  default: 'public-subnet'
+
+- name: adbPublicSubnetCidr
+  displayName: 'Cidr range for the Public Subnet'
+  type: string
+  default: '10.179.64.0/18'
+
+- name: armTemplatesLocation
+  displayName: 'Location of ARM templates'
+  type: string
+
+- name: scriptsLocation
+  displayName: 'Location of Scripts'
+  type: string
+
+
+steps:
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy NSG'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: '${{ parameters.azureSubscription }}'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: '${{ parameters.adbResourceGroup }}'
+    location: '${{ parameters.azureLocation }}'
+    templateLocation: 'Linked artifact'
+    csmFile: '${{ parameters.armTemplatesLocation }}/azure-nsg-with-databricks-rules.json'
+    overrideParameters: '-nsgName ${{ parameters.adbNsgName }}'
+    deploymentMode: 'Incremental'
+    deploymentName: '${{ parameters.adbNsgName }}'
+    deploymentOutputs: 'armOutput'
+
+- task: AzurePowerShell@4
+  displayName: 'Extract NSG Id from ARM output'
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    ScriptPath: '${{ parameters.scriptsLocation }}/getVariableFromArmOutput.ps1'
+    ScriptArguments: '''$(armOutput)'' ''customNsgId'''
+    azurePowerShellVersion: 'LatestVersion'
+
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy VNet'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: '${{ parameters.azureSubscription }}'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: '${{ parameters.adbResourceGroup }}'
+    location: '${{ parameters.azureLocation }}'
+    templateLocation: 'Linked artifact'
+    csmFile: '${{ parameters.armTemplatesLocation }}/databricks-vnet-for-vnet-injection.json'
+    overrideParameters: '-vnetName ${{ parameters.adbVnetName }} -nsgId $(customNsgId) -vnetCidr ${{ parameters.adbVnetCidr }} -privateSubnetName ${{ parameters.adbPrivateSubnetName }} -privateSubnetCidr ${{ parameters.adbPrivateSubnetCidr }} -publicSubnetName ${{ parameters.adbPublicSubnetName }} -publicSubnetCidr ${{ parameters.adbPublicSubnetCidr }}'
+    deploymentMode: 'Incremental'
+    deploymentName: '${{ parameters.adbVnetName }}'
+    deploymentOutputs: 'armOutput'
+
+- task: AzurePowerShell@4
+  displayName: 'Extract VNet Id from ARM output'
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    ScriptPath: '${{ parameters.scriptsLocation }}/getVariableFromArmOutput.ps1'
+    ScriptArguments: '''$(armOutput)'' ''customVirtualNetworkId'''
+    azurePowerShellVersion: 'LatestVersion'
+
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy Databricks Workspace'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: '${{ parameters.azureSubscription }}'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: '${{ parameters.adbResourceGroup }}'
+    location: '${{ parameters.azureLocation }}'
+    templateLocation: 'Linked artifact'
+    csmFile: '${{ parameters.armTemplatesLocation }}/databricks-workspace-with-vnet-injection.json'
+    overrideParameters: '-customVirtualNetworkId $(customVirtualNetworkId) -customPrivateSubnetName ${{ parameters.adbPrivateSubnetName }} -customPublicSubnetName ${{ parameters.adbPublicSubnetName }} -workspaceName ${{ parameters.adbWorkspaceName }} -pricingTier ${{ parameters.adbPricingTier }}'
+    deploymentMode: 'Incremental'
+    deploymentName: '${{ parameters.adbWorkspaceName }}'

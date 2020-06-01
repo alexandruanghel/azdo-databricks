@@ -1,0 +1,133 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "factoryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Data Factory name"
+      }
+    },
+    "pipelineName": {
+      "type": "string",
+      "defaultValue": "databricks-pipeline",
+      "metadata": {
+        "description": "Data Factory Pipeline name"
+      }
+    },
+    "workspaceUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of the Databricks workspace"
+      }
+    },
+    "keyVaultBaseUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of the Azure Key Vault holding the Service Principal Access Token"
+      }
+    },
+    "keyVaultSecretName": {
+      "type": "string",
+      "defaultValue": "aadAccessToken",
+      "metadata": {
+        "description": "Name of the Secret holding the Service Principal Access Token"
+      }
+    }
+  },
+  "variables": {
+    "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]",
+    "pipelineResourceName": "[concat(parameters('factoryName'), '/', parameters('pipelineName'))]"
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('factoryName'), '/AzureKeyVaultDatabricks')]",
+      "type": "Microsoft.DataFactory/factories/linkedServices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "annotations": [
+        ],
+        "type": "AzureKeyVault",
+        "typeProperties": {
+          "baseUrl": "[parameters('keyVaultBaseUrl')]"
+        }
+      },
+      "dependsOn": [
+      ]
+    },
+    {
+      "name": "[concat(parameters('factoryName'), '/AzureDatabricks')]",
+      "type": "Microsoft.DataFactory/factories/linkedServices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "annotations": [
+        ],
+        "type": "AzureDatabricks",
+        "typeProperties": {
+          "domain": "[parameters('workspaceUrl')]",
+          "accessToken": {
+            "type": "AzureKeyVaultSecret",
+            "store": {
+              "referenceName": "AzureKeyVaultDatabricks",
+              "type": "LinkedServiceReference"
+            },
+            "secretName": "[parameters('keyVaultSecretName')]"
+          },
+          "newClusterNodeType": "Standard_F4s",
+          "newClusterNumOfWorker": "1",
+          "newClusterSparkEnvVars": {
+            "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+          },
+          "newClusterVersion": "6.5.x-scala2.11"
+        }
+      },
+      "dependsOn": [
+        "[concat(variables('factoryId'), '/linkedServices/AzureKeyVaultDatabricks')]"
+      ]
+    },
+    {
+      "name": "[variables('pipelineResourceName')]",
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "activities": [
+          {
+            "name": "Run Notebook",
+            "type": "DatabricksNotebook",
+            "dependsOn": [
+            ],
+            "policy": {
+              "timeout": "7.00:00:00",
+              "retry": 0,
+              "retryIntervalInSeconds": 30,
+              "secureOutput": false,
+              "secureInput": false
+            },
+            "userProperties": [
+            ],
+            "typeProperties": {
+              "notebookPath": {
+                "value": "@pipeline().parameters.notebookPath",
+                "type": "Expression"
+              }
+            },
+            "linkedServiceName": {
+              "referenceName": "AzureDatabricks",
+              "type": "LinkedServiceReference"
+            }
+          }
+        ],
+        "parameters": {
+          "notebookPath": {
+            "type": "string"
+          }
+        },
+        "annotations": [
+        ]
+      },
+      "dependsOn": [
+        "[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
+      ]
+    }
+  ]
+}

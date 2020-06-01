@@ -1,0 +1,26 @@
+# Template that creates an App Registration and its Service Principal using az ad sp Azure CLI command.
+# It returns the Service Principal Client Id, Object Id and the generated Secret.
+#
+
+parameters:
+- name: azureSubscription
+  displayName: 'Service connection name'
+  type: string
+
+- name: spRegistrationName
+  displayName: 'Service Principal App Registration Name'
+  type: string
+
+- name: scriptsLocation
+  displayName: 'Location of Scripts'
+  type: string
+
+
+steps:
+- task: AzureCLI@2
+  displayName: 'Create a new Service Principal'
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    scriptType: 'bash'
+    scriptPath: '${{ parameters.scriptsLocation }}/doCreateSP.sh'
+    arguments: '${{ parameters.spRegistrationName }}'
