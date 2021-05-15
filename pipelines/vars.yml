@@ -1,0 +1,33 @@
+variables:
+  DATA_SERVICE_PRINCIPAL_CLIENT_ID:    $(provisionedServicePrincipalClientId) # provisioned by the admin setup
+  PROJECT_GROUP_NAME:                  $(provisionedProjectGroupName)         # provisioned by the admin setup
+  RESOURCE_GROUP_NAME:                 $(provisionedResourceGroupName)        # provisioned by the admin setup
+  KEY_VAULT_NAME:                      $(provisionedKeyVaultName)             # provisioned by the admin setup
+  SECRET_NAME_CLIENT_SECRET:           $(provisionedSecretName)               # provisioned by the admin setup
+  STORAGE_ACCOUNT_NAME:                'dlsdatabricksunique123'               # must be unique in Azure
+  PIPELINE_CONTAINER_NAME:             'pipeline'
+  PROJECT_CONTAINER_NAME:              'project'
+  DATA_FACTORY_NAME:                   'adf-databricks-unique123'             # must be unique in Azure
+  DATA_FACTORY_PIPELINE_NAME:          'databricks-pipeline'
+  DATABRICKS_WORKSPACE_NAME:           'databricks-workspace'
+  DATABRICKS_PRICING_TIER:             'premium'
+  DATABRICKS_VNET_NAME:                'databricks-vnet'
+  DATABRICKS_VNET_CIDR:                '10.179.0.0/16'
+  DATABRICKS_PRIVATE_SUBNET_NAME:      'private-subnet'
+  DATABRICKS_PRIVATE_SUBNET_CIDR:      '10.179.0.0/18'
+  DATABRICKS_PUBLIC_SUBNET_NAME:       'public-subnet'
+  DATABRICKS_PUBLIC_SUBNET_CIDR:       '10.179.64.0/18'
+  DATABRICKS_NSG_NAME:                 'databricks-nsg'
+  DATABRICKS_SECRET_SCOPE_NAME:        'databricks-secret-scope'
+  DATABRICKS_JOBS_POOL_NAME:           'Jobs Pool'
+  DATABRICKS_JOBS_POOL_NODE_TYPE:      'Standard_F4s'
+  DATABRICKS_SHARED_POOL_NAME:         'Shared Pool'
+  DATABRICKS_SHARED_POOL_NODE_TYPE:    'Standard_D3_v2'
+  DATABRICKS_SHARED_CLUSTER_NAME:      'Shared Autoscaling'
+  DATABRICKS_SPARK_VERSION:            '7.3.x-scala2.12'
+  DATABRICKS_CLUSTER_POLICY_LOCATION:  '$(System.DefaultWorkingDirectory)/pipelines/templates/cluster-policy-single-node.json'
+  NOTEBOOKS_SHARED_SOURCE_LOCATION:    '$(System.DefaultWorkingDirectory)/notebooks/shared'
+  NOTEBOOKS_SHARED_WORKSPACE_FOLDER:   '/Shared/generic'
+  NOTEBOOKS_PROJECT_WORKSPACE_FOLDER:  '/Project'
+  NOTEBOOKS_PIPELINE_SOURCE_LOCATION:  '$(System.DefaultWorkingDirectory)/notebooks/pipeline'
+  NOTEBOOKS_PIPELINE_WORKSPACE_FOLDER: '/Pipeline'

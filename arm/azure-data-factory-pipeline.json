@@ -1,90 +1,30 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "factoryName": {
       "type": "string",
       "metadata": {
-        "description": "Data Factory name"
+        "description": "Azure Data Factory name"
       }
     },
     "pipelineName": {
       "type": "string",
-      "defaultValue": "databricks-pipeline",
       "metadata": {
-        "description": "Data Factory Pipeline name"
+        "description": "Azure Data Factory Pipeline name"
       }
     },
-    "workspaceUrl": {
+    "databricksServiceName": {
       "type": "string",
       "metadata": {
-        "description": "URL of the Databricks workspace"
-      }
-    },
-    "keyVaultBaseUrl": {
-      "type": "string",
-      "metadata": {
-        "description": "URL of the Azure Key Vault holding the Service Principal Access Token"
-      }
-    },
-    "keyVaultSecretName": {
-      "type": "string",
-      "defaultValue": "aadAccessToken",
-      "metadata": {
-        "description": "Name of the Secret holding the Service Principal Access Token"
+        "description": "Name of the Azure Databricks linked service"
       }
     }
   },
   "variables": {
-    "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]",
     "pipelineResourceName": "[concat(parameters('factoryName'), '/', parameters('pipelineName'))]"
   },
   "resources": [
-    {
-      "name": "[concat(parameters('factoryName'), '/AzureKeyVaultDatabricks')]",
-      "type": "Microsoft.DataFactory/factories/linkedServices",
-      "apiVersion": "2018-06-01",
-      "properties": {
-        "annotations": [
-        ],
-        "type": "AzureKeyVault",
-        "typeProperties": {
-          "baseUrl": "[parameters('keyVaultBaseUrl')]"
-        }
-      },
-      "dependsOn": [
-      ]
-    },
-    {
-      "name": "[concat(parameters('factoryName'), '/AzureDatabricks')]",
-      "type": "Microsoft.DataFactory/factories/linkedServices",
-      "apiVersion": "2018-06-01",
-      "properties": {
-        "annotations": [
-        ],
-        "type": "AzureDatabricks",
-        "typeProperties": {
-          "domain": "[parameters('workspaceUrl')]",
-          "accessToken": {
-            "type": "AzureKeyVaultSecret",
-            "store": {
-              "referenceName": "AzureKeyVaultDatabricks",
-              "type": "LinkedServiceReference"
-            },
-            "secretName": "[parameters('keyVaultSecretName')]"
-          },
-          "newClusterNodeType": "Standard_F4s",
-          "newClusterNumOfWorker": "1",
-          "newClusterSparkEnvVars": {
-            "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
-          },
-          "newClusterVersion": "6.5.x-scala2.11"
-        }
-      },
-      "dependsOn": [
-        "[concat(variables('factoryId'), '/linkedServices/AzureKeyVaultDatabricks')]"
-      ]
-    },
     {
       "name": "[variables('pipelineResourceName')]",
       "type": "Microsoft.DataFactory/factories/pipelines",
@@ -92,9 +32,31 @@
       "properties": {
         "activities": [
           {
-            "name": "Run Notebook",
+            "name": "Get user",
+            "type": "DatabricksNotebook",
+            "dependsOn": [],
+            "policy": {
+              "timeout": "7.00:00:00",
+              "retry": 0,
+              "retryIntervalInSeconds": 30,
+              "secureOutput": false,
+              "secureInput": false
+            },
+            "userProperties": [],
+            "typeProperties": { "notebookPath": "/Shared/generic/print-current-user" },
+            "linkedServiceName": {
+              "referenceName": "[parameters('databricksServiceName')]",
+              "type": "LinkedServiceReference"
+            }
+          },
+          {
+            "name": "Create Database",
             "type": "DatabricksNotebook",
             "dependsOn": [
+              {
+                "activity": "Get user",
+                "dependencyConditions": [ "Succeeded" ]
+              }
             ],
             "policy": {
               "timeout": "7.00:00:00",
@@ -103,31 +65,117 @@
               "secureOutput": false,
               "secureInput": false
             },
-            "userProperties": [
-            ],
+            "userProperties": [],
             "typeProperties": {
-              "notebookPath": {
-                "value": "@pipeline().parameters.notebookPath",
-                "type": "Expression"
+              "notebookPath": "/Pipeline/01-create-database",
+              "baseParameters": {
+                "DATABASE_NAME": {
+                  "value": "@pipeline().parameters.databaseName",
+                  "type": "Expression"
+                },
+                "DATABASE_LOCATION": {
+                  "value": "@pipeline().parameters.databaseLocation",
+                  "type": "Expression"
+                }
               }
             },
             "linkedServiceName": {
-              "referenceName": "AzureDatabricks",
+              "referenceName": "[parameters('databricksServiceName')]",
+              "type": "LinkedServiceReference"
+            }
+          },
+          {
+            "name": "Source to Bronze",
+            "type": "DatabricksNotebook",
+            "dependsOn": [
+              {
+                "activity": "Create Database",
+                "dependencyConditions": [ "Succeeded" ]
+              }
+            ],
+            "policy": {
+              "timeout": "7.00:00:00",
+              "retry": 0,
+              "retryIntervalInSeconds": 30,
+              "secureOutput": false,
+              "secureInput": false
+            },
+            "userProperties": [],
+            "typeProperties": {
+              "notebookPath": "/Pipeline/02-source-to-bronze",
+              "baseParameters": {
+                "sourcePath": {
+                  "value": "@pipeline().parameters.sourcePath",
+                  "type": "Expression"
+                },
+                "bronzeTable": {
+                  "value": "@concat(pipeline().parameters.databaseName, '.', pipeline().parameters.bronzeTableName)",
+                  "type": "Expression"
+                }
+              }
+            },
+            "linkedServiceName": {
+              "referenceName": "[parameters('databricksServiceName')]",
+              "type": "LinkedServiceReference"
+            }
+          },
+          {
+            "name": "Bronze to Silver",
+            "type": "DatabricksNotebook",
+            "dependsOn": [
+              {
+                "activity": "Source to Bronze",
+                "dependencyConditions": [ "Succeeded" ]
+              }
+            ],
+            "policy": {
+              "timeout": "7.00:00:00",
+              "retry": 0,
+              "retryIntervalInSeconds": 30,
+              "secureOutput": false,
+              "secureInput": false
+            },
+            "userProperties": [],
+            "typeProperties": {
+              "notebookPath": "/Pipeline/03-bronze-to-silver",
+              "baseParameters": {
+                "bronzeTable": {
+                  "value": "@concat(pipeline().parameters.databaseName, '.', pipeline().parameters.bronzeTableName)",
+                  "type": "Expression"
+                },
+                "silverTable": {
+                  "value": "@concat(pipeline().parameters.databaseName, '.', pipeline().parameters.silverTableName)",
+                  "type": "Expression"
+                }
+              }
+            },
+            "linkedServiceName": {
+              "referenceName": "[parameters('databricksServiceName')]",
               "type": "LinkedServiceReference"
             }
           }
         ],
         "parameters": {
-          "notebookPath": {
+          "databaseName": {
             "type": "string"
+          },
+          "databaseLocation": {
+            "type": "string"
+          },
+          "sourcePath": {
+            "type": "string"
+          },
+          "bronzeTableName": {
+            "type": "string",
+            "defaultValue": "bronze"
+          },
+          "silverTableName": {
+            "type": "string",
+            "defaultValue": "silver"
           }
         },
-        "annotations": [
-        ]
-      },
-      "dependsOn": [
-        "[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
-      ]
+        "annotations": []
+      }
     }
   ]
 }

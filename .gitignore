@@ -1,0 +1,17 @@
+# Local .terraform
+**/.terraform/*
+**/.terraform.lock.hcl
+# .tfstate files
+**/*.tfstate
+**/*.tfstate.*
+# Crash log files
+**/crash.log
+
+# Ignore Mac .DS_Store files
+.DS_Store
+
+# Ignored vscode files
+.vscode/
+
+# Ignore idea
+.idea/

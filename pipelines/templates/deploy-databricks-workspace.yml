@@ -1,0 +1,156 @@
+#
+# Template that deploys a Databricks workspace with a custom VNet using ARM Templates:
+#  1 - Network Security Group with the addition of injected Databricks NSG rules to make it idempotent
+#  2 - Virtual Network ready for Azure Databricks VNet injection
+#  3 - Databricks workspace in the VNet previously deployed
+#
+
+parameters:
+- name: serviceConnection
+  displayName: 'Azure Resource Manager service connection'
+  type: string
+
+- name: resourceGroupName
+  displayName: 'Azure Databricks Resource Group Name'
+  type: string
+
+- name: databricksWorkspaceName
+  displayName: 'Azure Databricks Workspace Name'
+  type: string
+
+- name: databricksPricingTier
+  displayName: 'Azure Databricks Pricing Tier'
+  type: string
+  default: 'premium'
+  values:
+  - 'premium'
+  - 'standard'
+  - 'trial'
+
+- name: databricksNsgName
+  displayName: 'Azure Databricks NSG Name'
+  type: string
+  default: 'databricks-nsg'
+
+- name: databricksVnetName
+  displayName: 'Azure Databricks VNet Name'
+  type: string
+  default: 'databricks-vnet'
+
+- name: databricksVnetCidr
+  displayName: 'Cidr range for the VNet'
+  type: string
+  default: '10.179.0.0/16'
+
+- name: databricksPrivateSubnetName
+  displayName: 'Azure Databricks Private Subnet Name'
+  type: string
+  default: 'private-subnet'
+
+- name: databricksPrivateSubnetCidr
+  displayName: 'Cidr range for the Private Subnet'
+  type: string
+  default: '10.179.0.0/18'
+
+- name: databricksPublicSubnetName
+  displayName: 'Azure Databricks Public Subnet Name'
+  type: string
+  default: 'public-subnet'
+
+- name: databricksPublicSubnetCidr
+  displayName: 'Cidr range for the Public Subnet'
+  type: string
+  default: '10.179.64.0/18'
+
+- name: armTemplatesLocation
+  displayName: 'Location of ARM templates'
+  type: string
+
+- name: scriptsLocation
+  displayName: 'Location of Scripts'
+  type: string
+
+
+steps:
+# Get the Azure Location of the Resource Group
+- task: AzureCLI@2
+  displayName: 'Get the Azure Location of ${{ parameters.resourceGroupName }}'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      rg_location=$(az group show --name "${{ parameters.resourceGroupName }}" --query location)
+      [ -n "${rg_location}" ] && echo "##vso[task.setvariable variable=resourceGroupLocation;issecret=false]${rg_location}" || exit 1
+
+# Deploy the Network Security Group
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy NSG'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: ${{ parameters.serviceConnection }}
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: $(resourceGroupLocation)
+    templateLocation: 'Linked artifact'
+    csmFile: '${{ parameters.armTemplatesLocation }}/azure-nsg-with-databricks-rules.json'
+    overrideParameters: '-nsgName ${{ parameters.databricksNsgName }}'
+    deploymentMode: 'Incremental'
+    deploymentName: ${{ parameters.databricksNsgName }}
+    deploymentOutputs: 'armOutput'
+
+# Extract the Network Security Group ID from ARM output
+- task: AzurePowerShell@5
+  displayName: 'Extract NSG ID from ARM output'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    ScriptPath: '${{ parameters.scriptsLocation }}/get_arm_output.ps1'
+    ScriptArguments: "'$(armOutput)' nsgId"
+    azurePowerShellVersion: 'LatestVersion'
+
+# Deploy a Virtual Network for Databricks
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy VNet'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: ${{ parameters.serviceConnection }}
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: $(resourceGroupLocation)
+    templateLocation: 'Linked artifact'
+    csmFile: '${{ parameters.armTemplatesLocation }}/databricks-vnet-for-vnet-injection.json'
+    overrideParameters: '-vnetName ${{ parameters.databricksVnetName }} -nsgId $(nsgId) -vnetCidr ${{ parameters.databricksVnetCidr }} -privateSubnetName ${{ parameters.databricksPrivateSubnetName }} -privateSubnetCidr ${{ parameters.databricksPrivateSubnetCidr }} -publicSubnetName ${{ parameters.databricksPublicSubnetName }} -publicSubnetCidr ${{ parameters.databricksPublicSubnetCidr }}'
+    deploymentMode: 'Incremental'
+    deploymentName: ${{ parameters.databricksVnetName }}
+    deploymentOutputs: 'armOutput'
+
+# Extract the Virtual Network ID from ARM output
+- task: AzurePowerShell@5
+  displayName: 'Extract VNet ID from ARM output'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    ScriptPath: '${{ parameters.scriptsLocation }}/get_arm_output.ps1'
+    ScriptArguments: "'$(armOutput)' virtualNetworkId"
+    azurePowerShellVersion: 'LatestVersion'
+
+# Deploy the Databricks workspace with the custom VNet
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy Databricks Workspace'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: ${{ parameters.serviceConnection }}
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: $(resourceGroupLocation)
+    templateLocation: 'Linked artifact'
+    csmFile: '${{ parameters.armTemplatesLocation }}/databricks-workspace-with-vnet-injection.json'
+    overrideParameters: '-customVirtualNetworkId $(virtualNetworkId) -customPrivateSubnetName ${{ parameters.databricksPrivateSubnetName }} -customPublicSubnetName ${{ parameters.databricksPublicSubnetName }} -workspaceName ${{ parameters.databricksWorkspaceName }} -pricingTier ${{ parameters.databricksPricingTier }}'
+    deploymentMode: 'Incremental'
+    deploymentName: ${{ parameters.databricksWorkspaceName }}
+
+# Wait for 30s to allow permissions to propagate to the Managed Resource Group
+- task: Bash@3
+  displayName: 'Wait for 30 seconds'
+  inputs:
+    targetType: 'inline'
+    script: 'sleep 30'

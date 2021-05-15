@@ -1,0 +1,54 @@
+{
+  "cluster_type": {
+    "type": "fixed",
+    "value": "all-purpose"
+  },
+  "spark_conf.spark.databricks.cluster.profile": {
+    "type": "fixed",
+    "value": "singleNode",
+    "hidden": true
+  },
+  "num_workers": {
+    "type": "fixed",
+    "value": 0,
+    "hidden": true
+  },
+  "spark_conf.spark.databricks.passthrough.enabled": {
+    "type": "fixed",
+    "value": "true",
+    "hidden": false
+  },
+  "autotermination_minutes": {
+    "type": "fixed",
+    "value": 60,
+    "hidden": true
+  },
+  "custom_tags.PolicyName": {
+    "type": "fixed",
+    "value": "Single Node",
+    "hidden": true
+  },
+  "spark_version": {
+    "type": "regex",
+    "pattern": "7.3.x-([cg]pu-ml-)?scala2.12"
+  },
+  "docker_image.url": {
+    "type": "forbidden",
+    "hidden": true
+  },
+  "instance_pool_id": {
+    "type": "unlimited",
+    "isOptional": false
+  },
+  "cluster_log_conf.path": {
+    "type": "unlimited",
+    "defaultValue": "dbfs:/cluster-logs",
+    "isOptional": false,
+    "hidden": false
+  },
+  "cluster_log_conf.type": {
+    "type": "fixed",
+    "value": "DBFS",
+    "hidden": false
+  }
+}

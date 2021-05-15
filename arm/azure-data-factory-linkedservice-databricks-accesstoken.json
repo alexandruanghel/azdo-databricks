@@ -1,0 +1,135 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "factoryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Data Factory name"
+      }
+    },
+    "keyVaultServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Key Vault linked service"
+      }
+    },
+    "keyVaultSecretName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Secret that holds the Token"
+      }
+    },
+    "databricksServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Databricks linked Service"
+      }
+    },
+    "databricksWorkspaceUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of the Databricks Workspace"
+      }
+    },
+    "databricksWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Databricks Workspace"
+      }
+    },
+    "databricksPoolId": {
+      "type": "string",
+      "metadata": {
+        "description": "ID of the Databricks Instance Pool"
+      }
+    },
+    "databricksClusterNumWorkers": {
+      "type": "string",
+      "metadata": {
+        "description": "Number of worker nodes of the Databricks Cluster"
+      }
+    },
+    "databricksClusterSparkVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Databricks Cluster Spark Version"
+      }
+    },
+    "databricksClusterLogPath": {
+      "type": "string",
+      "defaultValue": "dbfs:/cluster-logs",
+      "metadata": {
+        "description": "Location to deliver Spark driver, worker, and event logs"
+      }
+    },
+    "dataServicePrincipalClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "Data Pipeline Service Principal Client Id"
+      }
+    },
+    "databricksSecretScopeName":{
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Databricks Secret Scope"
+      }
+    },
+    "secretNameClientSecret": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the secret that holds the data pipeline Service Principal Client Secret"
+      }
+    }
+  },
+  "variables": {
+    "databricksWorkspaceId": "[resourceId('Microsoft.Databricks/workspaces', parameters('databricksWorkspaceName'))]"
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('factoryName'), '/', parameters('databricksServiceName'))]",
+      "type": "Microsoft.DataFactory/factories/linkedServices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "annotations": [],
+        "type": "AzureDatabricks",
+        "typeProperties": {
+          "domain": "[parameters('databricksWorkspaceUrl')]",
+          "accessToken": {
+            "type": "AzureKeyVaultSecret",
+            "store": {
+              "referenceName": "[parameters('keyVaultServiceName')]",
+              "type": "LinkedServiceReference"
+            },
+            "secretName": "[parameters('keyVaultSecretName')]"
+          },
+          "workspaceResourceId": "[variables('databricksWorkspaceId')]",
+          "instancePoolId": "[parameters('databricksPoolId')]",
+          "newClusterNumOfWorker": "[parameters('databricksClusterNumWorkers')]",
+          "newClusterCustomTags": {
+            "DataFactoryName": "[parameters('factoryName')]"
+          },
+          "newClusterSparkConf": {
+            "fs.azure.account.auth.type": "OAuth",
+            "fs.azure.account.oauth.provider.type": "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider",
+            "fs.azure.account.oauth2.client.id": "[parameters('dataServicePrincipalClientId')]",
+            "fs.azure.account.oauth2.client.secret": "[concat('{{secrets/', parameters('databricksSecretScopeName'), '/', parameters('secretNameClientSecret'), '}}')]",
+            "fs.azure.account.oauth2.client.endpoint": "[concat('https://login.microsoftonline.com/', subscription().tenantId, '/oauth2/token')]"
+          },
+          "newClusterLogDestination": "[parameters('databricksClusterLogPath')]",
+          "newClusterSparkEnvVars": {
+            "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+          },
+          "newClusterVersion": "[parameters('databricksClusterSparkVersion')]"
+        }
+      },
+      "dependsOn": []
+    }
+  ],
+  "outputs": {
+    "databricksServiceName": {
+      "type": "string",
+      "value": "[parameters('databricksServiceName')]"
+    }
+  }
+}

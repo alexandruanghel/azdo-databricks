@@ -60,10 +60,10 @@
   },
   "resources": [
     {
-      "apiVersion": "2019-06-01",
-      "type": "Microsoft.Network/virtualNetworks",
-      "location": "[parameters('location')]",
       "name": "[parameters('vnetName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
@@ -110,7 +110,7 @@
     }
   ],
   "outputs": {
-    "customVirtualNetworkId": {
+    "virtualNetworkId": {
       "type": "string",
       "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
     }

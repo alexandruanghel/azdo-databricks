@@ -164,9 +164,9 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[parameters('nsgName')]",
-      "apiVersion": "2019-09-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
       "properties": {
         "securityRules": "[variables('nsgSecurityRules')]"
@@ -174,7 +174,7 @@
     }
   ],
   "outputs": {
-    "customNsgId": {
+    "nsgId": {
       "type": "string",
       "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
     }

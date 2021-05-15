@@ -2,118 +2,101 @@
 
 -----------
 
-This project contains examples of Azure DevOps (azdo) [Pipelines](https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started/what-is-azure-pipelines) that demonstrate how an end-to-end Azure Databricks Workspace automation could be done:
+This repository contains examples of Azure DevOps (azdo) [Pipelines](https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started/what-is-azure-pipelines) that demonstrate how an end-to-end Azure Databricks workspace automation could be done.
 
-1. Deploys the basic Azure Infrastructure and Databricks Workspace with [ARM templates](https://docs.microsoft.com/en-us/azure/azure-databricks/quickstart-create-databricks-workspace-resource-manager-template).
-2. Creates a new Service Principal and adds it to the Workspace using the [SCIM API](https://docs.microsoft.com/en-us/azure/databricks/dev-tools/api/latest/scim/scim-sp). This SP will be used to mount the ADLS container and by Data Factory to launch the Notebook job.
-3. Bootstraps / Setups the Workspace (deploys Notebooks, creates Secret Scope - to hold the SP details previously created, mounts ADLS storage - using the SP details from the Secret Scope).
-4. Deploys a Data Factory Pipeline with a Databricks Notebook activity and triggers it. The Pipeline would use an AAD Token saved in AKV to login to the Databricks Workspace and launch a Notebook Job.
+The Azure Pipelines can use either [Terraform](pipelines/azure-pipelines-infra-with-terraform.yml) or [scripts](pipelines/azure-pipelines-infra-with-azure-cli.yml) (with Azure CLI and ARM templates).
 
-It is provided in both Pipeline formats:
+The main goal is to have a Databricks Delta pipeline orchestrated with Azure Data Factory while starting with an empty Azure account (with only an empty Subscription and DevOps Organization).
+  - all of this by simply running `./run_all.sh`:
 
-- Classic interface ([doc](https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started/pipelines-get-started?view=azure-devops#define-pipelines-using-the-classic-interface)): [pipelines/azure-pipelines-classic.json](pipelines/azure-pipelines-classic.json)
-- YAML syntax ([doc](https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started/pipelines-get-started?view=azure-devops#define-pipelines-using-yaml-syntax)): [pipelines/azure-pipelines-full.yml](pipelines/azure-pipelines-full.yml)
+![architecture-pipeline](.docs/arch0_pipeline.png)
 
-## [Design decisions](id:design)
+## [TLDR](id:tldr)
 
-This project does not attempt to show best practices, but to give an idea about what is possible. Azure Pipelines offers a lot of flexibility and 3rd party integrations so you should simply adapt to your own best practices.
+1) Customize your variables:
+    - admin setup variables: edit the `admin/vars.sh` [file](admin/vars.sh)
+    - Azure Pipelines variables: edit the `pipelines/vars.yml` [file](pipelines/vars.yml), commit and push changes
+2) Use the `run_all.sh` [script](run_all.sh):
+```
+export USE_TERRAFORM="yes"
+export AZURE_DEVOPS_ORG_URL="https://dev.azure.com/myorg/"  # or set it in vars.sh
+export AZURE_DEVOPS_EXT_PAT="xvwepmf76..."                  # not required if USE_TERRAFORM="no"
+export AZURE_DEVOPS_EXT_GITHUB_PAT="ghp_9xSDnG..."          # GitHub PAT
 
-For example:
+./run_all.sh
+```
 
-- It deploys Infrastructure using multiple ARM templates, in an iterative way. A best practice would be to use [linked templates](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates).
-- It only uses Service Principals and AAD Tokens - which expire in 1 hour (PATs are not used here).
-- It sometimes uses scripts instead of easier 3rd party tasks such as [Data Thirst](https://marketplace.visualstudio.com/items?itemName=DataThirstLtd.databricksDeployScriptsTasks). This is just to show how the API calls would look like and you should use another integration if it makes sense.
-- It uses a variety of scripts, mainly Bash with Azure CLI but also PowerShell and a couple of Python scripts. This is to show how you can pick the right tools and mix them in Pipelines, but a best practice would be to standardize around a single tool.
+## [Main steps](id:steps)
 
-## [Pipeline Stages](id:stages)
+Security was a central part in designing the main steps of this example and reflected in the minimum user privileges required for each step:
+  - step 1: administrator user (`Owner` of Subscription and `Global administrator` of the AD)
+  - step 2: infra service principal that is Owner of the project Resources Group
+  - step 3: data service principal that can deploy and run a Data Factory pipeline
 
-These are easier to show using the Classic visual interface:
+### [Step 1: Azure core infrastructure (admin setup)](id:step1)
 
-![stages-overview](.docs/stages-overview.png)
+![architecture-admin](.docs/arch1_admin.png)
 
-The `Artifact` in the screenshot above is this repository, and it contains the required files, such as ARM templates, Scripts and Notebooks.
+Builds the Azure core infrastructure (using a privileged user / Administrator):
+- this is the foundation for the next step: Resource Groups, Azure DevOps Project and Pipelines, Service Principals, Project group and role assignments.
+- the user creating these resources needs to be `Owner` of Subscription and `Global administrator` of the Active Directory tenant.
+- it can be seen as deploying an empty shell for a project or business unit including the Service Principal (the `Infra SP`) assigned to that project that would have control over the project resources.
 
-### [Stage 1: Deploy Infrastructure](id:stage1)
+To run this step use one of the s4cripts depending on the tool preference:
+- Terraform: `./admin/setup-with-terraform.sh` ([code](admin/setup-with-terraform.sh))
+- Scripts with Azure CLI: `./admin/setup-with-azure-cli.sh` ([code](admin/setup-with-azure-cli.sh))
 
-![stages-1](.docs/stages-1.png)
+Before using either, check and personalize the variables under the `admin/vars.sh` [file](admin/vars.sh).
 
-This stage first deploys a simple Azure Infrastructure: Storage Account, Key Vault, Data Factory.
 
-Then it deploys a custom VNet and the Azure Databricks workspace in this VNet. The process is described in the [documentation](https://docs.microsoft.com/en-us/azure/databricks/administration-guide/cloud-configurations/azure/vnet-inject#advanced-configuration-using-azure-resource-manager-templates).
+### [Step 2.1: Azure infrastructure for the data pipeline and project](id:step2.1)
 
-The templates are similar to the ones from the Azure Quickstart Templates repo:
+![architecture-infra](.docs/arch2_infra.png)
 
-- [101-databricks-vnet-for-vnet-injection](https://github.com/Azure/azure-quickstart-templates/tree/master/101-databricks-vnet-for-vnet-injection)
-- [101-databricks-workspace-with-vnet-injection](https://github.com/Azure/azure-quickstart-templates/tree/master/101-databricks-workspace-with-vnet-injection)
+Builds the Azure infrastructure for the data pipeline and project (using the project specific `Infra SP`):
+- this is the Azure infrastructure required to run a Databricks data pipeline, including Data Lake Gen 2 account and containers, Azure Data Factory, Azure Databricks workspace and Azure permissions.
+- the service principal creating these resources is the `Infra SP` deployed at [step 1](admin/terraform/main.tf#L61) (Resource Group [owner](admin/terraform/main.tf#L87)).
+- it is run as the [first stage](pipelines/azure-pipelines-infra-with-terraform.yml#L64) in the Azure DevOps [infra pipeline](admin/terraform/main.tf#L158) with the pipeline name defined in the [AZURE_DEVOPS_INFRA_PIPELINE_NAME](admin/vars.sh#L46) variable.
+- there are two Azure Pipelines yaml definitions for this deployment and either one can be used depending on the tool preference:
+   - Terraform: `pipelines/azure-pipelines-infra-with-terraform.yml` ([code](pipelines/azure-pipelines-infra-with-terraform.yml))
+   - ARM templates and Azure CLI: `pipelines/azure-pipelines-infra-with-azure-cli.yml` ([code](pipelines/azure-pipelines-infra-with-azure-cli.yml))
 
-An important mention is that the NSG is created from an ARM template which contains the NSG rules that Azure Databricks creates after deployment.
+To run this step:
+- either use the az cli command like `run_all.sh` [does it](run_all.sh#L44).
+- or use the Azure DevOps portal by clicking the `Run pipeline` button on the pipeline with the name defined in the [AZURE_DEVOPS_INFRA_PIPELINE_NAME](admin/vars.sh#L46) variable.
 
-Without these rules statically defined in the template, the deployment is not idempotent (it fails on subsequent deployments due to conflicts with NetworkIntentPolicy).
-This might not be the best option for your environment as the major drawback is that you'll have to maintain these rules in the template whenever Databricks updates them.
+Before using either, check and personalize the variables under the `pipelines/vars.yml` [file](pipelines/vars.yml) (don't forget to push any changes to Git before running).
 
-An alternative would be to deploy the NSG separately and only reference it in the template.
 
-### [Stage 2: Deploy Service Principal](id:stage2)
+### [Step 2.2: Databricks workspace bootstrap](id:step2.2)
 
-![stages-2](.docs/stages-2.png)
+![architecture-infra](.docs/arch3_workspace.png)
 
-This stage creates a Service Principal using the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest#az-ad-sp-create-for-rbac) and adds the SP Client Id and Secret to the Key Vault.
+This step is executed together with the one above and after deploying the Azure infrastructure and the Databricks workspace itself:
+- it bootstraps the Databricks workspace with the required workspace objects for a new project and pipeline, including Instance Pools, Clusters, Policies, Notebooks, Groups and Service Principals.
+- the service principal creating these resources is the `Infra SP` deployed at [step 1](admin/terraform/main.tf#L61) and is already a Databricks workspace admin since it [deployed the workspace](terraform/deployments/azure-infrastructure/databricks-workspace.tf).
+- it is run as the [second stage](pipelines/azure-pipelines-infra-with-terraform.yml#L93) in the Azure DevOps [infra pipeline](admin/terraform/main.tf#L158) with the pipeline name defined in the [AZURE_DEVOPS_INFRA_PIPELINE_NAME](admin/vars.sh#L46) variable.
 
-It assigns permissions to the resources this SP needs to use (Storage Account).
+This is run together with previous step but if it is needed to run it separately:
+- in the Azure DevOps portal, before clicking the `Run pipeline` button on the Infra pipeline, deselect the `Deploy infrastructure` job.
+- with Terraform, use the `terraform/deployments/run-deployment.sh` script [file](terraform/deployments/run-deployment.sh).
 
-It then adds this new SP to the Azure Databricks workspace, as a non-admin SP, using the [SCIM API](https://docs.microsoft.com/en-us/azure/databricks/dev-tools/api/latest/scim/scim-sp#add-service-principal).
 
-### [Stage 3: Setup Workspace](id:stage3)
+### [Step 3: Azure Data Factory data pipeline with Databricks](id:step3)
 
-![stages-3](.docs/stages-3.png)
+![adf-pipeline](.docs/adf_pipeline.png)
 
-In this stage, the Notebooks are deployed to the Databricks Workspace using a simple databricks cli integration by [Microsoft DevLabs](https://marketplace.visualstudio.com/items?itemName=riserrad.azdo-databricks).
+This step is executed after the infrastructure deployment and workspace bootstrap:
+  - it's a simple Azure DevOps [Pipeline](pipelines/azure-pipelines-data-factory-msi.yml) that deploys with ARM templates an Azure Data Factory [data pipeline](arm/azure-data-factory-pipeline.json) together with the Databricks [linked service](arm/azure-data-factory-linkedservice-databricks-msi.json).
+  - it then [invokes](pipelines/azure-pipelines-data-factory-msi.yml#L202) the Azure Data Factory data pipeline with the Azure DevOps Pipeline [parameters](pipelines/azure-pipelines-data-factory-msi.yml#L39).
+  - the service principal deploying and running the pipeline is the `Data SP` deployed at [step 1](admin/terraform/main.tf#L69) and it has the necessary [Databricks](terraform/deployments/workspace-bootstrap/principals.tf#L20) and [Data Factory](terraform/deployments/azure-infrastructure/azure-infrastructure.tf#L78) permissions given at step 2.
+  - this service principal also has the [permission](terraform/deployments/azure-infrastructure/azure-infrastructure.tf#L14) to write data into the Data Lake.
+  - the Databricks linked service can be of two types:
+    - using the Data Factory Managed Identity to authenticate to Databricks: `pipelines/azure-pipelines-data-factory-msi.yml` ([code](pipelines/azure-pipelines-data-factory-msi.yml))
+    - using an AAD Access Token of the `Data SP` to authenticate to Databricks: `pipelines/azure-pipelines-data-factory-accesstoken.yml` ([code](pipelines/azure-pipelines-data-factory-accesstoken.yml))
 
-It then retrieves the SP credentials from the Key Vault previously created, creates a Databricks Secret Scope and adds those credentials to the Secret Scope.
+To run this step:
+- either use the az cli command like `run_all.sh` [does it](run_all.sh#L67).
+- or use the Azure DevOps portal by clicking the `Run pipeline` button on the pipeline with the name defined in the [AZURE_DEVOPS_DATA_PIPELINE_NAME](admin/vars.sh#L49) variable.
 
-Lastly, it mounts an ADLS Gen 2 container with a Notebook Job using the [Runs Submit API](https://docs.databricks.com/dev-tools/api/latest/jobs.html#runs-submit) and the credentials from the Secret Scope previously created.
-
-### [Stage 4: Run a Pipeline](id:stage4)
-
-![stages-4](.docs/stages-4.png)
-
-In this stage, the SP credentials are retrieved from the Key Vault previously created and then they are used to login to Azure and generate an AAD Token which is stored in the Key Vault (to be used by the Data Factory Pipeline).
-
-Then a Data Factory Pipeline is created (with an [ARM template](arm/azure-data-factory-pipeline.json)) and started from PowerShell. The Pipeline would run a Databricks Notebook activity with a Notebook path passed as parameter.
-
-## [Using the pipeline](id:usage)
-
-### [Setup Azure DevOps](id:setup)
-
-Azure DevOps Pipelines connects to Azure to use the Azure Resource Manager and for this it needs a [Service Connection](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure).
-
-It can be configured automatically or you can use an [already created Service Principal](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops#create-an-azure-resource-manager-service-connection-with-an-existing-service-principal). The main aspect is that this Service Principal will be the admin user in the Databricks Workspace.
-
-This Service Principal also requires the permissions to deploy the Infrastructure and other Service Principals. These should be:
-
-- On the Subscription (or Resource Group if already provisioned): `Contributor` and `User Access Administrator` roles
-- On the AD Tenant: `Global administrator` role
-
-### [Import the Classic pipeline](id:import-classic)
-
-The [azure-pipelines-classic.json](pipelines/azure-pipelines-classic.json) file contains a sanitized Classic pipeline which can be imported in Azure Release Pipelines.
-
-Go to `Pipelines` -> `Releases`, select `Import release pipeline` and give it this file (if you don't have any release pipelines you might have to create a new empty one to see this option):
-
-![import-1](.docs/import-1.png)
-
-Then configure the pipeline with an Artifact (should be a repository similar with this one) and all of the other settings that need attention (these should only be the Agent Pool config - use Ubuntu and the Service Connection).
-
-Change the variables as required. The defaults should suffice but check the variables referencing a location as they will expect the artifact to be called `repo`.
-
-### [Import the YAML Pipeline](id:import-yaml)
-
-The [azure-pipelines-full.yml](pipelines/azure-pipelines-full.yml) file contains a YAML pipeline which can be imported in Azure Pipelines.
-
-Go to `Pipelines`, select `Create Pipeline`, select your repo, then select `Existing Azure Pipelines YAML file` and use `/pipelines/azure-pipelines-full.yml` as the path:
-
-![import-2](.docs/import-2.png)
-
-Select `Save` under the `Run` menu and now when you select `Run pipeline` you should see all its options. Make sure you set the `Service connection name` to the name of the `Service Connection` you want to use. This can be found under `Project Settings` -> `Pipelines` -> `Service connections`:
-
-![import-3](.docs/import-3.png)
+It will use some of the variables under the `pipelines/vars.yml` [file](pipelines/vars.yml) and it can be customized using [pipeline parameters](pipelines/azure-pipelines-data-factory-msi.yml#L39) like database and table names, source data location, etc.

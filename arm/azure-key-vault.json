@@ -51,6 +51,10 @@
     "enableSoftDelete": {
       "type": "bool",
       "defaultValue": true,
+      "allowedValues": [
+        true,
+        false
+      ],
       "metadata": {
         "description": "Property to specify whether the 'soft delete' functionality is enabled for this key vault. If it's not set to any value(true or false) when creating new key vault, it will be set to true by default. Once set to true, it cannot be reverted to false."
       }
@@ -64,23 +68,25 @@
         "description": "softDelete data retention days, only used if enableSoftDelete is true. It accepts >=7 and <=90."
       }
     },
-    "tenantId": {
-      "type": "string",
-      "defaultValue": "[subscription().tenantId]",
-      "metadata": {
-        "description": "Specifies the Azure Active Directory tenant ID that should be used for authenticating requests to the key vault. Get it by using Get-AzSubscription cmdlet."
-      }
-    },
     "objectId": {
       "type": "string",
       "metadata": {
-        "description": "Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets."
+        "description": "Specifies the object ID of a user, service principal or group in the Azure Active Directory tenant that would get the default permissions. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets."
       }
     },
     "keysPermissions": {
       "type": "array",
       "defaultValue": [
-        "list"
+        "get",
+        "create",
+        "delete",
+        "list",
+        "update",
+        "import",
+        "backup",
+        "restore",
+        "recover",
+        "purge"
       ],
       "metadata": {
         "description": "Specifies the permissions to keys in the vault. Valid values are: all, encrypt, decrypt, wrapKey, unwrapKey, sign, verify, get, list, create, update, import, delete, backup, restore, recover, and purge."
@@ -89,10 +95,38 @@
     "secretsPermissions": {
       "type": "array",
       "defaultValue": [
-        "list"
+        "get",
+        "list",
+        "set",
+        "delete",
+        "backup",
+        "restore",
+        "recover",
+        "purge"
       ],
       "metadata": {
         "description": "Specifies the permissions to secrets in the vault. Valid values are: all, get, list, set, delete, backup, restore, recover, and purge."
+      }
+    },
+    "certificatesPermissions": {
+      "type": "array",
+      "defaultValue": [
+        "get",
+        "list",
+        "delete",
+        "create",
+        "import",
+        "update",
+        "managecontacts",
+        "getissuers",
+        "listissuers",
+        "setissuers",
+        "deleteissuers",
+        "manageissuers",
+        "purge"
+      ],
+      "metadata": {
+        "description": "Specifies the permissions to certificates in the vault. Valid values are: all, get, list, set, delete, managecontacts, getissuers, listissuers, setissuers, deleteissuers, manageissuers, backup, and recover."
       }
     },
     "skuName": {
@@ -109,8 +143,8 @@
   },
   "resources": [
     {
-      "type": "Microsoft.KeyVault/vaults",
       "name": "[parameters('keyVaultName')]",
+      "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
       "location": "[parameters('location')]",
       "properties": {
@@ -119,14 +153,15 @@
         "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
         "enableSoftDelete": "[parameters('enableSoftDelete')]",
         "softDeleteRetentionInDays": "[if(parameters('enableSoftDelete'), parameters('softDeleteRetentionInDays'), json('null'))]",
-        "tenantId": "[parameters('tenantId')]",
+        "tenantId": "[subscription().tenantId]",
         "accessPolicies": [
           {
             "objectId": "[parameters('objectId')]",
-            "tenantId": "[parameters('tenantId')]",
+            "tenantId": "[subscription().tenantId]",
             "permissions": {
               "keys": "[parameters('keysPermissions')]",
-              "secrets": "[parameters('secretsPermissions')]"
+              "secrets": "[parameters('secretsPermissions')]",
+              "certificates": "[parameters('certificatesPermissions')]"
             }
           }
         ],
@@ -140,6 +175,15 @@
         }
       }
     }
-
-  ]
+  ],
+  "outputs": {
+    "keyVaultId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+    },
+    "keyVaultUrl": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2019-09-01', 'Full').properties.vaultUri]"
+    }
+  }
 }

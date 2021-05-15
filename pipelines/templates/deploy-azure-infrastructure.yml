@@ -1,0 +1,238 @@
+#
+# Template that builds the Azure infrastructure for the data pipeline and project.
+#
+
+parameters:
+- name: serviceConnection
+  displayName: 'Azure Resource Manager service connection'
+  type: string
+
+- name: resourceGroupName
+  displayName: 'Azure Resource Group Name'
+  type: string
+
+- name: projectGroupName
+  displayName: 'Project User Group Name'
+  type: string
+
+- name: dataServicePrincipalClientId
+  displayName: 'Data Pipeline Service Principal Client ID'
+  type: string
+
+- name: storageAccountName
+  displayName: 'ADLS Storage Account Name'
+  type: string
+
+- name: pipelineContainerName
+  displayName: 'ADLS Gen 2 Filesystem Container for the Pipeline Data'
+  type: string
+
+- name: projectContainerName
+  displayName: 'ADLS Gen 2 Filesystem Container for the Project Data'
+  type: string
+
+- name: keyVaultName
+  displayName: 'Azure Key Vault Name'
+  type: string
+
+- name: dataFactoryName
+  displayName: 'Azure Data Factory Name'
+  type: string
+
+- name: armTemplatesLocation
+  displayName: 'Location of ARM templates'
+  type: string
+
+- name: scriptsLocation
+  displayName: 'Location of Scripts'
+  type: string
+
+
+steps:
+# Get the Azure Location of the Resource Group
+- task: AzureCLI@2
+  displayName: 'Get the Azure Location of ${{ parameters.resourceGroupName }}'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      rg_location=$(az group show --name "${{ parameters.resourceGroupName }}" --query location)
+      [ -n "${rg_location}" ] && echo "##vso[task.setvariable variable=resourceGroupLocation;issecret=false]${rg_location}" || exit 1
+
+# Deploy the Azure Data Lake Gen 2 Storage Account
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy Data Lake Storage Gen2 Account'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: ${{ parameters.serviceConnection }}
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: $(resourceGroupLocation)
+    templateLocation: 'Linked artifact'
+    csmFile: '${{ parameters.armTemplatesLocation }}/azure-data-lake-gen-2.json'
+    overrideParameters: '-storageAccountName ${{ parameters.storageAccountName }}'
+    deploymentMode: 'Incremental'
+    deploymentName: ${{ parameters.storageAccountName }}
+    deploymentOutputs: 'armOutput'
+
+# Extract the Storage Account Resource ID from ARM output
+- task: AzurePowerShell@5
+  displayName: 'Extract Storage Account ID from ARM output'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    ScriptPath: '${{ parameters.scriptsLocation }}/get_arm_output.ps1'
+    ScriptArguments: "'$(armOutput)' storageAccountId"
+    azurePowerShellVersion: 'LatestVersion'
+
+# Assign the "Storage Blob Data Contributor" Role on the Storage Account to the data pipeline Service Principal
+- task: AzureCLI@2
+  displayName: 'Assign "Storage Blob Data Contributor" on Storage Account to the data pipeline Service Principal'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    scriptPath: '${{ parameters.scriptsLocation }}/add_role_assignment.sh'
+    arguments: '"Storage Blob Data Contributor" "${{ parameters.dataServicePrincipalClientId }}" "$(storageAccountId)"'
+
+# Assign the "Storage Blob Data Reader" Role on the Storage Account to the Project group
+- task: AzureCLI@2
+  displayName: 'Assign "Storage Blob Data Reader" on Storage Account to the Project group'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    scriptPath: '${{ parameters.scriptsLocation }}/add_role_assignment.sh'
+    arguments: '"Storage Blob Data Reader" "${{ parameters.projectGroupName }}" "$(storageAccountId)"'
+
+# Create the Pipeline Filesystem Container in the Azure Data Lake Storage Gen2 account
+- task: AzureCLI@2
+  displayName: 'Create Pipeline Container in the Storage Account'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    scriptPath: '${{ parameters.scriptsLocation }}/create_adls_filesystem.sh'
+    arguments: '"${{ parameters.storageAccountName }}" "${{ parameters.pipelineContainerName }}"'
+
+# Create the Project Filesystem Container in the Azure Data Lake Storage Gen2 account
+- task: AzureCLI@2
+  displayName: 'Create Project Container in the Storage Account'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    scriptPath: '${{ parameters.scriptsLocation }}/create_adls_filesystem.sh'
+    arguments: '"${{ parameters.storageAccountName }}" "${{ parameters.projectContainerName }}"'
+
+# Get the Azure Key Vault URL
+- task: AzureCLI@2
+  displayName: 'Get the Azure Location of ${{ parameters.resourceGroupName }}'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      vault_url=$(az keyvault show --resource-group "${{ parameters.resourceGroupName }}" --name ${{ parameters.keyVaultName }} --query properties.vaultUri                                                                       )
+      [ -n "${vault_url}" ] && echo "##vso[task.setvariable variable=keyVaultUrl;issecret=false]${vault_url}" || exit 1
+
+# Get the ObjectId of the Azure Pipelines Service Endpoint Principal
+- task: AzureCLI@2
+  displayName: 'Get the ObjectId of Azure Pipelines Principal'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    scriptPath: '${{ parameters.scriptsLocation }}/get_object_details.sh'
+
+# Add the Azure Pipelines Service Endpoint Principal to the Key Vault Access policies with 'list get set' permissions on secrets
+- task: AzureCLI@2
+  displayName: 'Add data pipeline Service Principal to Key Vault policies'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    ScriptPath: '${{ parameters.scriptsLocation }}/add_key_vault_policy.sh'
+    arguments: '"${{ parameters.keyVaultName }}" "$(objectId)" "list get set"'
+
+# Add the data pipeline Service Principal to the Key Vault Access policies with 'list get set' permissions on secrets
+- task: AzureCLI@2
+  displayName: 'Add data pipeline Service Principal to Key Vault policies'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    ScriptPath: '${{ parameters.scriptsLocation }}/add_key_vault_policy.sh'
+    arguments: '"${{ parameters.keyVaultName }}" "${{ parameters.dataServicePrincipalClientId }}" "list get set"'
+
+# Deploy the Azure Data Factory with a Key Vault linked service
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy Azure Data Factory'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: ${{ parameters.serviceConnection }}
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: $(resourceGroupLocation)
+    templateLocation: 'Linked artifact'
+    csmFile: '${{ parameters.armTemplatesLocation }}/azure-data-factory-with-key-vault.json'
+    overrideParameters: '-factoryName ${{ parameters.dataFactoryName }} -keyVaultName ${{ parameters.keyVaultName }} -keyVaultUrl $(keyVaultUrl)'
+    deploymentMode: 'Incremental'
+    deploymentName: ${{ parameters.dataFactoryName }}
+    deploymentOutputs: 'armOutput'
+
+# Extract the Azure Data Factory System Identity from the previous ARM output
+- task: AzurePowerShell@5
+  displayName: 'Extract ADF System Identity from ARM output'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    ScriptPath: '${{ parameters.scriptsLocation }}/get_arm_output.ps1'
+    ScriptArguments: "'$(armOutput)' dataFactorySystemIdentity"
+    azurePowerShellVersion: 'LatestVersion'
+
+# Extract the Azure Data Factory Resource ID from the previous ARM output
+- task: AzurePowerShell@5
+  displayName: 'Extract ADF Resource ID from ARM output'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    ScriptPath: '${{ parameters.scriptsLocation }}/get_arm_output.ps1'
+    ScriptArguments: "'$(armOutput)' dataFactoryId"
+    azurePowerShellVersion: 'LatestVersion'
+
+# Add the Azure Data Factory System Identity to the Key Vault Access policies with 'list get' permissions on secrets
+- task: AzureCLI@2
+  displayName: 'Add ADF Identity to Key Vault policies'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    ScriptPath: '${{ parameters.scriptsLocation }}/add_key_vault_policy.sh'
+    arguments: '"${{ parameters.keyVaultName }}" "$(dataFactorySystemIdentity)" "list get"'
+
+# Assign the "Reader" Role on the Resource Group to the data pipeline Service Principal
+- task: AzureCLI@2
+  displayName: 'Assign "Reader" on Resource Group to the data pipeline Service Principal'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    ScriptPath: '${{ parameters.scriptsLocation }}/add_role_assignment.sh'
+    arguments: '"Reader" "${{ parameters.dataServicePrincipalClientId }}" "${{ parameters.resourceGroupName }}"'
+
+# Assign the "Reader" Role on the Resource Group to the Project group
+- task: AzureCLI@2
+  displayName: 'Assign "Reader" on Resource Group to the Project group'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    ScriptPath: '${{ parameters.scriptsLocation }}/add_role_assignment.sh'
+    arguments: '"Reader" "${{ parameters.projectGroupName }}" "${{ parameters.resourceGroupName }}"'
+
+# Assign the "Data Factory Contributor" Role on the Resource Group to the data pipeline Service Principal
+- task: AzureCLI@2
+  displayName: 'Assign "Data Factory Contributor" on Resource Group to the data pipeline Service Principal'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    ScriptPath: '${{ parameters.scriptsLocation }}/add_role_assignment.sh'
+    arguments: '"Data Factory Contributor" "${{ parameters.dataServicePrincipalClientId }}" "${{ parameters.resourceGroupName }}"'
+
+# Assign the "Data Factory Contributor" Role on the Resource Group to the Project group
+- task: AzureCLI@2
+  displayName: 'Assign "Data Factory Contributor" on Resource Group to the Project group'
+  inputs:
+    azureSubscription: ${{ parameters.serviceConnection }}
+    scriptType: 'bash'
+    ScriptPath: '${{ parameters.scriptsLocation }}/add_role_assignment.sh'
+    arguments: '"Data Factory Contributor" "${{ parameters.projectGroupName }}" "${{ parameters.resourceGroupName }}"'

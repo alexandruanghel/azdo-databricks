@@ -54,9 +54,10 @@
   },
   "resources": [
     {
+      "name": "[parameters('workspaceName')]",
+      "type": "Microsoft.Databricks/workspaces",
       "apiVersion": "2018-04-01",
       "location": "[parameters('location')]",
-      "name": "[parameters('workspaceName')]",
       "sku": {
         "name": "[parameters('pricingTier')]"
       },
@@ -74,8 +75,13 @@
             "value": "[parameters('customPrivateSubnetName')]"
           }
         }
-      },
-      "type": "Microsoft.Databricks/workspaces"
+      }
     }
-  ]
+  ],
+  "outputs": {
+    "workspaceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Databricks/workspaces', parameters('workspaceName'))]"
+    }
+  }
 }

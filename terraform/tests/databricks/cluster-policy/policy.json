@@ -1,0 +1,34 @@
+{
+  "cluster_type": {
+    "type": "fixed",
+    "value": "all-purpose"
+  },
+  "spark_conf.spark.databricks.cluster.profile": {
+    "type": "fixed",
+    "value": "singleNode",
+    "hidden": true
+  },
+  "num_workers": {
+    "type": "fixed",
+    "value": 0,
+    "hidden": true
+  },
+  "autotermination_minutes": {
+    "type": "fixed",
+    "value": 60,
+    "hidden": true
+  },
+  "custom_tags.PolicyName": {
+    "type": "fixed",
+    "value": "Single Node",
+    "hidden": true
+  },
+  "spark_version": {
+    "type": "regex",
+    "pattern": "8.2.x-([cg]pu-ml-)?scala2.12"
+  },
+  "docker_image.url": {
+    "type": "forbidden",
+    "hidden": true
+  }
+}
