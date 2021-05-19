@@ -37,6 +37,7 @@ resource "azurerm_databricks_workspace" "this" {
   dynamic "custom_parameters" {
     for_each = var.virtual_network_id == null ? [] : [1]
     content {
+      no_public_ip        = var.disable_public_ip
       virtual_network_id  = var.virtual_network_id
       private_subnet_name = var.private_subnet_name
       public_subnet_name  = var.public_subnet_name

@@ -90,6 +90,7 @@ stages:
               databricksPrivateSubnetCidr: ${{ variables.DATABRICKS_PRIVATE_SUBNET_CIDR }}
               databricksPublicSubnetName: ${{ variables.DATABRICKS_PUBLIC_SUBNET_NAME }}
               databricksPublicSubnetCidr: ${{ variables.DATABRICKS_PUBLIC_SUBNET_CIDR }}
+              databricksDisablePublicIp: ${{ variables.DATABRICKS_DISABLE_PUBLIC_IP }}
               armTemplatesLocation: ${{ parameters.armTemplatesLocation }}
               scriptsLocation: ${{ parameters.scriptsLocation }}
 

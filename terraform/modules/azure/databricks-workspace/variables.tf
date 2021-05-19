@@ -11,7 +11,7 @@ variable "azure_location" {
 
 variable "workspace_name" {
   type        = string
-  description = "The name of the Databricks workspace resource."
+  description = "The name of the Azure Databricks workspace resource."
 
   validation {
     condition     = length(var.workspace_name) >= 3 && length(var.workspace_name) <= 30
@@ -52,6 +52,12 @@ variable "public_subnet_name" {
   type        = string
   description = "(Optional) The name of the Public Subnet within the Virtual Network. Default is public-subnet."
   default     = "public-subnet"
+}
+
+variable "disable_public_ip" {
+  type        = bool
+  description = "(Optional) Set to true to deploy the workspace with Secure Cluster Connectivity (No Public IP) enabled. Default is false."
+  default     = false
 }
 
 variable "tags" {

@@ -78,3 +78,41 @@ resource "azurerm_subnet_network_security_group_association" "databricks_public_
   subnet_id                 = azurerm_subnet.databricks_public_subnet.id
   network_security_group_id = azurerm_network_security_group.databricks.id
 }
+
+resource "azurerm_public_ip" "databricks" {
+  count                   = var.use_nat_gateway == true ? 1 : 0
+  name                    = var.nat_gateway_public_ip_name
+  location                = local.location
+  resource_group_name     = data.azurerm_resource_group.this.name
+  allocation_method       = "Static"
+  sku                     = "Standard"
+  ip_version              = "IPv4"
+  idle_timeout_in_minutes = 4
+}
+
+resource "azurerm_nat_gateway" "databricks" {
+  count                   = var.use_nat_gateway == true ? 1 : 0
+  name                    = var.nat_gateway_name
+  location                = local.location
+  resource_group_name     = data.azurerm_resource_group.this.name
+  sku_name                = "Standard"
+  idle_timeout_in_minutes = 4
+}
+
+resource "azurerm_nat_gateway_public_ip_association" "databricks" {
+  count                = var.use_nat_gateway == true ? 1 : 0
+  nat_gateway_id       = azurerm_nat_gateway.databricks[0].id
+  public_ip_address_id = azurerm_public_ip.databricks[0].id
+}
+
+resource "azurerm_subnet_nat_gateway_association" "databricks_private_subnet" {
+  count          = var.use_nat_gateway == true ? 1 : 0
+  subnet_id      = azurerm_subnet.databricks_private_subnet.id
+  nat_gateway_id = azurerm_nat_gateway.databricks[0].id
+}
+
+resource "azurerm_subnet_nat_gateway_association" "databricks_public_subnet" {
+  count          = var.use_nat_gateway == true ? 1 : 0
+  subnet_id      = azurerm_subnet.databricks_public_subnet.id
+  nat_gateway_id = azurerm_nat_gateway.databricks[0].id
+}

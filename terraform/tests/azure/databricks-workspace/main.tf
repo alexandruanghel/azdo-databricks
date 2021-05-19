@@ -36,15 +36,14 @@ resource "random_string" "suffix" {
 
 # Set the rest of the test variables using the random string
 locals {
-  resource_group_name         = var.resource_group_name == null ? "tftest-rg-${random_string.suffix.result}" : var.resource_group_name
-  workspace_defaults          = var.databricks_workspace_name == null ? "tftest-defaults-${random_string.suffix.result}" : var.databricks_workspace_name
-  workspace_vnet_injection    = "tftest-custom-vnet-${random_string.suffix.result}"
-  managed_resource_group_name = "tftest-managed-rg-${random_string.suffix.result}"
-  virtual_network_name        = "tftest-vnet-${random_string.suffix.result}"
-  network_security_group_name = "tftest-nsg-${random_string.suffix.result}"
-  private_subnet_name         = "tftest-private-${random_string.suffix.result}"
-  public_subnet_name          = "tftest-public-${random_string.suffix.result}"
-  custom_tags                 = { Purpose = "Terraform-test-${random_string.suffix.result}" }
+  resource_group_name           = var.resource_group_name == null ? "tftest-rg-${random_string.suffix.result}" : var.resource_group_name
+  workspace_defaults            = var.databricks_workspace_name == null ? "tftest-ws-defaults-${random_string.suffix.result}" : var.databricks_workspace_name
+  workspace_vnet_injection      = "tftest-ws-custom-vnet-${random_string.suffix.result}"
+  workspace_vnet_injection_npip = "tftest-ws-npip-vnet-${random_string.suffix.result}"
+  managed_resource_group_name   = "tftest-ws-managed-rg-${random_string.suffix.result}"
+  virtual_network_name          = "tftest-vnet-${random_string.suffix.result}"
+  virtual_network_nat_name      = "tftest-vnet-nat-${random_string.suffix.result}"
+  custom_tags                   = { Purpose = "Terraform-test-${random_string.suffix.result}" }
 }
 
 # Create an empty Resource Group to be used by the rest of the resources
@@ -76,9 +75,9 @@ module "test_databricks_vnet" {
   azure_location              = var.azure_location
   resource_group_name         = local.resource_group_name
   virtual_network_name        = local.virtual_network_name
-  network_security_group_name = local.network_security_group_name
-  private_subnet_name         = local.private_subnet_name
-  public_subnet_name          = local.public_subnet_name
+  network_security_group_name = "tftest-nsg-${random_string.suffix.result}"
+  private_subnet_name         = "tftest-private-${random_string.suffix.result}"
+  public_subnet_name          = "tftest-public-${random_string.suffix.result}"
   tags                        = local.custom_tags
   depends_on                  = [null_resource.test_dependencies]
 }
@@ -96,6 +95,34 @@ module "test_databricks_workspace_vnet_injection" {
   public_subnet_name          = module.test_databricks_vnet.public_subnet_name
   tags                        = local.custom_tags
   depends_on                  = [module.test_databricks_vnet]
+}
+
+# Build a VNet for injection with NAT gateway
+module "test_databricks_vnet_nat" {
+  source                      = "../../../modules/azure/databricks-vnet"
+  azure_location              = var.azure_location
+  resource_group_name         = local.resource_group_name
+  virtual_network_name        = local.virtual_network_nat_name
+  network_security_group_name = "tftest-nsg-nat-${random_string.suffix.result}"
+  private_subnet_name         = "tftest-private-nat-${random_string.suffix.result}"
+  public_subnet_name          = "tftest-public-nat-${random_string.suffix.result}"
+  use_nat_gateway             = true
+  tags                        = local.custom_tags
+  depends_on                  = [null_resource.test_dependencies]
+}
+
+# Build a Databricks workspace with VNet injection and no public
+module "test_databricks_workspace_npip" {
+  source              = "../../../modules/azure/databricks-workspace"
+  azure_location      = var.azure_location
+  resource_group_name = local.resource_group_name
+  workspace_name      = local.workspace_vnet_injection_npip
+  virtual_network_id  = module.test_databricks_vnet_nat.virtual_network_id
+  private_subnet_name = module.test_databricks_vnet_nat.private_subnet_name
+  public_subnet_name  = module.test_databricks_vnet_nat.public_subnet_name
+  disable_public_ip   = true
+  tags                = local.custom_tags
+  depends_on          = [module.test_databricks_vnet_nat]
 }
 
 # Terraform output
@@ -116,6 +143,14 @@ output "databricks_workspace_tests" {
       workspace_url      = module.test_databricks_workspace_vnet_injection.workspace_url
       workspace_managed_resource_group_id   = module.test_databricks_workspace_vnet_injection.managed_resource_group_id
       workspace_managed_resource_group_name = module.test_databricks_workspace_vnet_injection.managed_resource_group_name
+    }
+    test_databricks_workspace_npip = {
+      workspace_azure_id = module.test_databricks_workspace_npip.id
+      workspace_name     = module.test_databricks_workspace_npip.workspace_name
+      workspace_id       = module.test_databricks_workspace_npip.workspace_id
+      workspace_url      = module.test_databricks_workspace_npip.workspace_url
+      workspace_managed_resource_group_id   = module.test_databricks_workspace_npip.managed_resource_group_id
+      workspace_managed_resource_group_name = module.test_databricks_workspace_npip.managed_resource_group_name
     }
   }
 }

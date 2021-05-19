@@ -12,6 +12,7 @@ module "databricks_vnet" {
   private_subnet_cidr         = var.DATABRICKS_PRIVATE_SUBNET_CIDR
   public_subnet_name          = var.DATABRICKS_PUBLIC_SUBNET_NAME
   public_subnet_cidr          = var.DATABRICKS_PUBLIC_SUBNET_CIDR
+  use_nat_gateway             = tobool(var.DATABRICKS_DISABLE_PUBLIC_IP)
   tags                        = var.deployment_tags
 }
 
@@ -25,6 +26,7 @@ module "databricks_workspace_vnet_injection" {
   virtual_network_id          = module.databricks_vnet.virtual_network_id
   private_subnet_name         = module.databricks_vnet.private_subnet_name
   public_subnet_name          = module.databricks_vnet.public_subnet_name
+  disable_public_ip           = tobool(var.DATABRICKS_DISABLE_PUBLIC_IP)
   tags                        = var.deployment_tags
   depends_on                  = [module.databricks_vnet]
 }

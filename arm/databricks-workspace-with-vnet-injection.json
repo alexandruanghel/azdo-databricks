@@ -17,7 +17,14 @@
       ],
       "type": "string",
       "metadata": {
-        "description": "The pricing tier of workspace."
+        "description": "The pricing tier of the workspace."
+      }
+    },
+    "disablePublicIp": {
+      "type": "string",
+      "defaultValue": "false",
+      "metadata": {
+        "description": "Specifies whether to deploy Azure Databricks workspace with Secure Cluster Connectivity (No Public IP) enabled or not."
       }
     },
     "customVirtualNetworkId": {
@@ -49,8 +56,8 @@
     }
   },
   "variables": {
-    "managedResourceGroupId": "[concat(subscription().id, '/resourceGroups/', variables('managedResourceGroupName'))]",
-    "managedResourceGroupName": "[concat('databricks-rg-', parameters('workspaceName'), '-', uniqueString(parameters('workspaceName'), resourceGroup().id))]"
+    "managedResourceGroupName": "[concat('databricks-rg-', parameters('workspaceName'), '-', uniqueString(parameters('workspaceName'), resourceGroup().id))]",
+    "managedResourceGroupId": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('managedResourceGroupName'))]"
   },
   "resources": [
     {
@@ -63,7 +70,7 @@
       },
       "comments": "The resource group specified will be locked after deployment.",
       "properties": {
-        "ManagedResourceGroupId": "[variables('managedResourceGroupId')]",
+        "managedResourceGroupId": "[variables('managedResourceGroupId')]",
         "parameters": {
           "customVirtualNetworkId": {
             "value": "[parameters('customVirtualNetworkId')]"
@@ -73,6 +80,9 @@
           },
           "customPrivateSubnetName": {
             "value": "[parameters('customPrivateSubnetName')]"
+          },
+          "enableNoPublicIp": {
+            "value": "[bool(parameters('disablePublicIp'))]"
           }
         }
       }

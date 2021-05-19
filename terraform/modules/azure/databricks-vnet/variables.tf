@@ -26,7 +26,6 @@ variable "virtual_network_cidr" {
   }
 }
 
-
 variable "private_subnet_name" {
   type        = string
   description = "(Optional) The name of the Private Subnet within the Virtual Network. Default is private-subnet."
@@ -65,6 +64,24 @@ variable "network_security_group_name" {
   type        = string
   description = "(Optional) The name of the Databricks Network Security Group attached to the subnets. Default is databricks-nsg."
   default     = "databricks-nsg"
+}
+
+variable "use_nat_gateway" {
+  type        = bool
+  description = "(Optional) Set true to deploy a NAT gateway for no public ip subnets. Default is false."
+  default     = false
+}
+
+variable "nat_gateway_name" {
+  type        = string
+  description = "(Optional) The name of the NAT gateway to be attached to the subnets. Default is databricks-nat-gateway."
+  default     = "databricks-nat-gateway"
+}
+
+variable "nat_gateway_public_ip_name" {
+  type        = string
+  description = "(Optional) The name of the NAT gateway public IP. Default is databricks-nat-public-ip."
+  default     = "databricks-nat-public-ip"
 }
 
 variable "service_endpoints" {

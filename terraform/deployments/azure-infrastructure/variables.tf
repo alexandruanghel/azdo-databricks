@@ -45,7 +45,7 @@ variable "DATA_FACTORY_NAME" {
 
 variable "DATABRICKS_WORKSPACE_NAME" {
   type        = string
-  description = "The name of the Databricks workspace."
+  description = "The name of the Azure Databricks workspace."
 }
 
 variable "DATABRICKS_PRICING_TIER" {
@@ -94,6 +94,12 @@ variable "DATABRICKS_NSG_NAME" {
   type        = string
   description = "(Optional) The name of the Network Security Group attached to the Databricks subnets. Default is databricks-nsg."
   default     = "databricks-nsg"
+}
+
+variable "DATABRICKS_DISABLE_PUBLIC_IP" {
+  type        = bool
+  description = "(Optional) Set to true to deploy the workspace with Secure Cluster Connectivity (No Public IP) enabled. Default is false."
+  default     = false
 }
 
 variable "deployment_tags" {

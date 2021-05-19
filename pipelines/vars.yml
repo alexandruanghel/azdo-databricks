@@ -18,6 +18,7 @@ variables:
   DATABRICKS_PUBLIC_SUBNET_NAME:       'public-subnet'
   DATABRICKS_PUBLIC_SUBNET_CIDR:       '10.179.64.0/18'
   DATABRICKS_NSG_NAME:                 'databricks-nsg'
+  DATABRICKS_DISABLE_PUBLIC_IP:        false
   DATABRICKS_SECRET_SCOPE_NAME:        'databricks-secret-scope'
   DATABRICKS_JOBS_POOL_NAME:           'Jobs Pool'
   DATABRICKS_JOBS_POOL_NODE_TYPE:      'Standard_F4s'
