@@ -195,6 +195,13 @@ module "azure_devops_data_pipeline" {
   depends_on         = [module.azure_devops_project]
 }
 
+# Install the Terraform extension for Azure DevOps
+resource "null_resource" "azure_devops_terraform_extension" {
+  provisioner "local-exec" {
+    command = "/bin/bash ${path.module}/../../scripts/azdo_extension.sh install 'custom-terraform-tasks' 'ms-devlabs'"
+  }
+}
+
 
 ### Terraform output
 

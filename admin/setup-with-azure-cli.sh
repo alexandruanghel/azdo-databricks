@@ -259,6 +259,9 @@ if [ -n "${TF_RESOURCE_GROUP_NAME}" ] && [ -n "${TF_STORAGE_ACCOUNT_NAME}" ] && 
   * Terraform storage container for storing state: \"${TF_CONTAINER_NAME}\"
   "
 
+  # Install the Terraform extension for Azure DevOps
+  source "${_scripts_dir}/azdo_extension.sh" install "custom-terraform-tasks" "ms-devlabs"
+
   # Create the Terraform resource group
   echo -e "Creating the Resource Group \"${TF_RESOURCE_GROUP_NAME}\" for Terraform use\n----------------------"
   _response=$(az group create --name "${TF_RESOURCE_GROUP_NAME}" --location "${AZURE_LOCATION}")
