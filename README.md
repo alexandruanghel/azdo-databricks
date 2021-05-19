@@ -11,12 +11,15 @@ The main goal is to have a Databricks Delta pipeline orchestrated with Azure Dat
 
 ![architecture-pipeline](.docs/arch0_pipeline.png)
 
-## [TLDR](id:tldr)
+## [Quick start](id:start)
 
-1) Customize your variables:
+1) Create the Subscription and DevOps Organization. If using the free tier, request a free Azure DevOps Parallelism grant by filling out the following form: https://aka.ms/azpipelines-parallelism-request
+
+2) Customize the variables:
     - admin setup variables: edit the `admin/vars.sh` [file](admin/vars.sh)
     - Azure Pipelines variables: edit the `pipelines/vars.yml` [file](pipelines/vars.yml), commit and push changes
-2) Use the `run_all.sh` [script](run_all.sh):
+
+3) Use the `run_all.sh` [script](run_all.sh):
 ```
 export USE_TERRAFORM="yes"
 export AZURE_DEVOPS_ORG_URL="https://dev.azure.com/myorg/"  # or set it in vars.sh

@@ -119,12 +119,30 @@ _delete_endpoint() {
   fi
 }
 
+_update_endpoint() {
+  # Update a GitHub type service endpoint
+  local azdo_endpoint_name="${1}"
+  azdo_endpoint_id=$(az devops service-endpoint list --project "${AZURE_DEVOPS_PROJECT_NAME}" \
+                                                     --org "${AZURE_DEVOPS_ORG_URL}" \
+                                                     --query "[?name=='${azdo_endpoint_name}'].id" \
+                      | ${_python} -c 'import sys,json; print(json.load(sys.stdin)[0])' 2> /dev/null )
+
+  if [ -z "${azdo_endpoint_id}" ]; then
+    _create_endpoint "${azdo_endpoint_name}"
+  else
+    # No option to update the Service Principal using the cli so have to delete it first and recreate
+    echo -e "Endpoint \"${azdo_endpoint_name}\"(\"${azdo_endpoint_id}\") already exists, deleting before updating\n"
+    _delete_endpoint "${azdo_endpoint_name}"
+    _create_endpoint "${azdo_endpoint_name}"
+  fi
+}
+
 case "${1}" in
   create)
     _check_args "$@"
     _check_auth
     _install_extension
-    _create_endpoint "${2}"
+    _update_endpoint "${2}"
     ;;
   delete)
     _check_args "$@"
