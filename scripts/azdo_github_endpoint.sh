@@ -122,6 +122,8 @@ _delete_endpoint() {
 _update_endpoint() {
   # Update a GitHub type service endpoint
   local azdo_endpoint_name="${1}"
+  echo -e "Updating the GitHub type service endpoint \"${azdo_endpoint_name}\" in project \"${AZURE_DEVOPS_PROJECT_NAME}\""
+
   azdo_endpoint_id=$(az devops service-endpoint list --project "${AZURE_DEVOPS_PROJECT_NAME}" \
                                                      --org "${AZURE_DEVOPS_ORG_URL}" \
                                                      --query "[?name=='${azdo_endpoint_name}'].id" \
@@ -130,8 +132,8 @@ _update_endpoint() {
   if [ -z "${azdo_endpoint_id}" ]; then
     _create_endpoint "${azdo_endpoint_name}"
   else
-    # No option to update the Service Principal using the cli so have to delete it first and recreate
-    echo -e "Endpoint \"${azdo_endpoint_name}\"(\"${azdo_endpoint_id}\") already exists, deleting before updating\n"
+    # No option to update the GitHub PAT using the cli so have to delete it first and recreate it in case the PAT was changed
+    echo -e "Endpoint \"${azdo_endpoint_name}\"(\"${azdo_endpoint_id}\") already exists, deleting before updating"
     _delete_endpoint "${azdo_endpoint_name}"
     _create_endpoint "${azdo_endpoint_name}"
   fi

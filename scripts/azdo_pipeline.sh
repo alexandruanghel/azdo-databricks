@@ -54,10 +54,9 @@ _check_auth() {
 }
 
 _create_pipeline() {
-  # Create an Azure Pipeline for the repository hosted on Github
+  # Create an Azure Pipeline with the YAML definition hosted on GitHub
   local azdo_pipeline_name="${1}"
   local azdo_pipeline_path="${2}"
-
   echo -e "Creating the Azure Pipeline \"${azdo_pipeline_name}\" in project \"${AZURE_DEVOPS_PROJECT_NAME}\""
 
   # Additional checks for variables required to create a pipeline
@@ -112,7 +111,7 @@ _create_pipeline() {
 }
 
 _delete_pipeline() {
-  # Delete an Azure Pipeline for the repository hosted on Github
+  # Delete an Azure Pipeline
   local azdo_pipeline_name="${1}"
   echo -e "Deleting the Azure Pipeline \"${azdo_pipeline_name}\" from project \"${AZURE_DEVOPS_PROJECT_NAME}\""
 
@@ -131,12 +130,33 @@ _delete_pipeline() {
   fi
 }
 
+_update_pipeline() {
+  # Update an Azure Pipeline with the YAML definition hosted on GitHub
+  local azdo_pipeline_name="${1}"
+  local azdo_pipeline_path="${2}"
+  echo -e "Updating the Azure Pipeline \"${azdo_pipeline_name}\" in project \"${AZURE_DEVOPS_PROJECT_NAME}\""
+
+  azdo_pipeline_id=$(az pipelines show --name "${azdo_pipeline_name}" \
+                                       --project "${AZURE_DEVOPS_PROJECT_NAME}" \
+                                       --org "${AZURE_DEVOPS_ORG_URL}" \
+                      | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["id"])' 2> /dev/null)
+
+  if [ -z "${azdo_pipeline_id}" ]; then
+    _create_pipeline "${azdo_pipeline_name}" "${azdo_pipeline_path}"
+  else
+    # No option to change the GitHub type service endpoint of a Pipeline so have to recreate it in case the service endpoint was changed
+    echo -e "Pipeline \"${azdo_pipeline_name}\"(\"${azdo_pipeline_id}\") already exists, deleting before updating\n"
+    _delete_pipeline "${azdo_pipeline_name}"
+    _create_pipeline "${azdo_pipeline_name}" "${azdo_pipeline_path}"
+  fi
+}
+
 case "${1}" in
   create)
     _check_args "$@"
     _check_auth
     _install_extension
-    _create_pipeline "${2}" "${3}"
+    _update_pipeline "${2}" "${3}"
     ;;
   delete)
     _check_args "$@"

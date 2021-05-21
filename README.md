@@ -15,16 +15,18 @@ The main goal is to have a Databricks Delta pipeline orchestrated with Azure Dat
 
 1) Create the Subscription and DevOps Organization. If using the free tier, request a free Azure DevOps Parallelism grant by filling out the following form: https://aka.ms/azpipelines-parallelism-request
 
-2) Customize the variables:
-    - admin setup variables: edit the `admin/vars.sh` [file](admin/vars.sh)
+2) Fork this GitHub repository as Azure DevOps would need access to it and changing the Azure Pipelines [variables](pipelines/vars.yml) would require committing and pushing changes.
+
+3) Customize the variables:
+    - admin setup variables: edit the `admin/vars.sh` [file](admin/vars.sh) (especially `SUFFIX` and `AZURE_DEVOPS_GITHUB_REPO_URL`)
     - Azure Pipelines variables: edit the `pipelines/vars.yml` [file](pipelines/vars.yml), commit and push changes
 
-3) Use the `run_all.sh` [script](run_all.sh):
+4) Use the `run_all.sh` [script](run_all.sh):
 ```
 export USE_TERRAFORM="yes"
-export AZURE_DEVOPS_ORG_URL="https://dev.azure.com/myorg/"  # or set it in vars.sh
-export AZURE_DEVOPS_EXT_PAT="xvwepmf76..."                  # not required if USE_TERRAFORM="no"
-export AZURE_DEVOPS_EXT_GITHUB_PAT="ghp_9xSDnG..."          # GitHub PAT
+export AZDO_ORG_SERVICE_URL="https://dev.azure.com/myorg/"    # or set it in vars.sh
+export AZDO_PERSONAL_ACCESS_TOKEN="xvwepmf76..."              # not required if USE_TERRAFORM="no"
+export AZDO_GITHUB_SERVICE_CONNECTION_PAT="ghp_9xSDnG..."     # GitHub PAT
 
 ./run_all.sh
 ```

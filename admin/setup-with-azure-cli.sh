@@ -246,6 +246,9 @@ echo
 source "${_scripts_dir}/azdo_pipeline_variable.sh" create "${AZURE_DEVOPS_DATA_PIPELINE_NAME}" provisionedSecretName "${SECRET_NAME}"
 echo
 
+# Install the Microsoft DevLabs Databricks extension for Azure DevOps
+source "${_scripts_dir}/azdo_extension.sh" install "azdo-databricks" "riserrad"
+
 
 ### Azure infrastructure for Terraform
 
