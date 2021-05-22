@@ -11,7 +11,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.59"
+      version = "~> 2.60"
     }
     random = {
       source  = "hashicorp/random"
@@ -57,15 +57,19 @@ locals {
 }
 
 # Create an empty Resource Group to be used by the rest of the resources
-resource "azurerm_resource_group" "test" {
-  name     = local.resource_group_name
-  location = var.azure_location
+data "azurerm_client_config" "current" {}
+
+module "test_resource_group" {
+  source              = "../../../modules/azure/resource-group"
+  azure_location      = var.azure_location
+  resource_group_name = local.resource_group_name
+  owners              = [data.azurerm_client_config.current.object_id]
 }
 
 # Build a Databricks workspace with default parameters
 module "test_databricks_workspace_defaults" {
   source              = "../../../modules/azure/databricks-workspace"
-  resource_group_name = azurerm_resource_group.test.name
+  resource_group_name = module.test_resource_group.name
   workspace_name      = local.databricks_workspace_name
 }
 

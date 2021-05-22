@@ -11,7 +11,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.59"
+      version = "~> 2.60"
     }
     random = {
       source  = "hashicorp/random"
@@ -43,16 +43,20 @@ locals {
 }
 
 # Create an empty Resource Group to be used by the rest of the resources
-resource "azurerm_resource_group" "test" {
-  name     = local.resource_group_name
-  location = var.azure_location
-  tags     = local.custom_tags
+data "azurerm_client_config" "current" {}
+
+module "test_resource_group" {
+  source              = "../../../modules/azure/resource-group"
+  azure_location      = var.azure_location
+  resource_group_name = local.resource_group_name
+  owners              = [data.azurerm_client_config.current.object_id]
+  tags                = local.custom_tags
 }
 
 # Build a Key Vault for the Azure Data Factory linked service
 module "key_vault" {
   source              = "../../../modules/azure/key-vault"
-  resource_group_name = azurerm_resource_group.test.name
+  resource_group_name = module.test_resource_group.name
   azure_location      = var.azure_location
   key_vault_name      = local.key_vault_name
 }
@@ -60,9 +64,9 @@ module "key_vault" {
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
   triggers   = {
-    rg = join(",", [azurerm_resource_group.test.id, module.key_vault.id])
+    rg = join(",", [module.test_resource_group.id, module.key_vault.id])
   }
-  depends_on = [azurerm_resource_group.test, module.key_vault.id]
+  depends_on = [module.test_resource_group, module.key_vault.id]
 }
 
 # Build an Azure Data Factory with default parameters

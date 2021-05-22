@@ -45,8 +45,8 @@ resource "azurerm_databricks_workspace" "this" {
   }
 }
 
-# Wait for 60s to allow permissions to propagate to the Managed Resource Group
-resource "time_sleep" "wait_60_seconds" {
-  create_duration = "60s"
+# Wait for 120s to allow permissions to propagate to the Managed Resource Group
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
   depends_on = [azurerm_databricks_workspace.this]
 }

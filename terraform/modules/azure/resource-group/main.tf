@@ -1,8 +1,6 @@
 /**
 * Creates an Azure Resource Group with optional IAM roles
 */
-data "azurerm_client_config" "current" {}
-
 locals {
   tags = {
     ManagedBy = "Terraform"

@@ -43,7 +43,8 @@ resource "databricks_instance_pool" "shared" {
   preloaded_spark_versions              = [var.DATABRICKS_SPARK_VERSION]
 
   azure_attributes {
-    availability = "SPOT_AZURE"
+    availability       = "SPOT_AZURE"
+    spot_bid_max_price = -1
   }
 
   custom_tags = {

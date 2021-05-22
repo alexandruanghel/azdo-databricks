@@ -134,9 +134,9 @@ steps:
     deploymentMode: 'Incremental'
     deploymentName: ${{ parameters.databricksWorkspaceName }}
 
-# Wait for 60s to allow permissions to propagate to the Managed Resource Group
+# Wait for 120s to allow permissions to propagate to the Managed Resource Group
 - task: Bash@3
-  displayName: 'Wait for 60 seconds'
+  displayName: 'Wait for 120 seconds'
   inputs:
     targetType: 'inline'
-    script: 'sleep 60'
+    script: 'sleep 120'

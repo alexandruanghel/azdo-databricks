@@ -11,7 +11,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.59"
+      version = "~> 2.60"
     }
     random = {
       source  = "hashicorp/random"
@@ -45,18 +45,22 @@ locals {
 }
 
 # Create an empty Resource Group to be used by the rest of the resources
-resource "azurerm_resource_group" "test" {
-  name     = local.resource_group_name
-  location = var.azure_location
-  tags     = local.custom_tags
+data "azurerm_client_config" "current" {}
+
+module "test_resource_group" {
+  source              = "../../../modules/azure/resource-group"
+  azure_location      = var.azure_location
+  resource_group_name = local.resource_group_name
+  owners              = [data.azurerm_client_config.current.object_id]
+  tags                = local.custom_tags
 }
 
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
   triggers   = {
-    rg = azurerm_resource_group.test.id
+    rg = module.test_resource_group.id
   }
-  depends_on = [azurerm_resource_group.test]
+  depends_on = [module.test_resource_group]
 }
 
 # Build a VNet with default parameters

@@ -16,9 +16,9 @@ data "external" "ad_permission_id" {
 # Create the Azure App Registration
 resource "azuread_application" "sp" {
   display_name    = var.name
-  homepage        = "https://${var.name}"
   identifier_uris = ["http://${var.name}"]
   owners          = var.owners
+
   dynamic required_resource_access {
     for_each = length(var.api_permissions) > 0 ? [1] : []
     content {
@@ -30,6 +30,15 @@ resource "azuread_application" "sp" {
           type = "Role"
         }
       }
+    }
+  }
+
+  web {
+    homepage_url  = "https://${var.name}"
+    redirect_uris = []
+
+    implicit_grant {
+      access_token_issuance_enabled = false
     }
   }
 }
@@ -71,7 +80,7 @@ resource "random_password" "sp" {
 # Create the Service Principal client secret
 resource "azuread_application_password" "sp" {
   application_object_id = azuread_application.sp.id
-  description           = "Managed by Terraform"
+  display_name          = "Managed by Terraform"
   value                 = var.secret == null ? random_password.sp[0].result : var.secret
   end_date_relative     = var.secret_expiration
   depends_on            = [azuread_service_principal.sp]

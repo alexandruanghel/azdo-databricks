@@ -27,15 +27,12 @@ resource "azurerm_key_vault" "this" {
   tags                       = merge(local.tags, var.tags)
 }
 
-data "azurerm_key_vault_access_policy" "all" {
-  name = "Key, Secret, & Certificate Management"
-}
-
 resource "azurerm_key_vault_access_policy" "creator" {
   key_vault_id       = azurerm_key_vault.this.id
   tenant_id          = data.azurerm_client_config.current.tenant_id
   object_id          = data.azurerm_client_config.current.object_id
-  certificate_permissions = concat(data.azurerm_key_vault_access_policy.all.certificate_permissions, ["purge"])
-  key_permissions         = concat(data.azurerm_key_vault_access_policy.all.key_permissions, ["purge"])
-  secret_permissions      = concat(data.azurerm_key_vault_access_policy.all.secret_permissions, ["purge"])
+  certificate_permissions = ["Get", "List", "Delete", "Create", "Import", "Update", "ManageContacts", "GetIssuers", "ListIssuers", "SetIssuers", "DeleteIssuers", "ManageIssuers", "Recover", "Purge"]
+  key_permissions         = ["Get", "Create", "Delete", "List", "Update", "Import", "Backup", "Restore", "Recover", "Purge"]
+  secret_permissions      = ["Get", "List", "Set", "Delete", "Backup", "Restore", "Recover", "Purge"]
+  storage_permissions     = ["Get", "List", "Delete", "Set", "Update", "RegenerateKey", "SetSAS", "ListSAS", "GetSAS", "DeleteSAS", "Purge"]
 }

@@ -11,7 +11,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.59"
+      version = "~> 2.60"
     }
     random = {
       source  = "hashicorp/random"
@@ -38,8 +38,8 @@ resource "random_string" "suffix" {
 locals {
   resource_group_name           = var.resource_group_name == null ? "tftest-rg-${random_string.suffix.result}" : var.resource_group_name
   workspace_defaults            = var.databricks_workspace_name == null ? "tftest-ws-defaults-${random_string.suffix.result}" : var.databricks_workspace_name
-  workspace_vnet_injection      = "tftest-ws-custom-vnet-${random_string.suffix.result}"
-  workspace_vnet_injection_npip = "tftest-ws-npip-vnet-${random_string.suffix.result}"
+  workspace_vnet_injection      = "tftest-ws-vnet-pub-${random_string.suffix.result}"
+  workspace_vnet_injection_npip = "tftest-ws-vnet-npip-${random_string.suffix.result}"
   managed_resource_group_name   = "tftest-ws-managed-rg-${random_string.suffix.result}"
   virtual_network_name          = "tftest-vnet-${random_string.suffix.result}"
   virtual_network_nat_name      = "tftest-vnet-nat-${random_string.suffix.result}"
@@ -47,18 +47,22 @@ locals {
 }
 
 # Create an empty Resource Group to be used by the rest of the resources
-resource "azurerm_resource_group" "test" {
-  name     = local.resource_group_name
-  location = var.azure_location
-  tags     = local.custom_tags
+data "azurerm_client_config" "current" {}
+
+module "test_resource_group" {
+  source              = "../../../modules/azure/resource-group"
+  azure_location      = var.azure_location
+  resource_group_name = local.resource_group_name
+  owners              = [data.azurerm_client_config.current.object_id]
+  tags                = local.custom_tags
 }
 
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
-  triggers = {
-    rg = azurerm_resource_group.test.id
+  triggers   = {
+    rg = module.test_resource_group.id
   }
-  depends_on = [azurerm_resource_group.test]
+  depends_on = [module.test_resource_group]
 }
 
 # Build a Databricks workspace with default parameters

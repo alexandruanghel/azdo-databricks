@@ -3,7 +3,11 @@
 * The user executing this must be Owner on the Subscription and Global administrator on the AD Tenant.
 */
 provider "azurerm" {
-  features {}
+  features {
+    key_vault {
+      purge_soft_delete_on_destroy = true
+    }
+  }
 }
 
 terraform {
@@ -12,11 +16,11 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.58"
+      version = "~> 2.60"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.4"
+      version = "~> 1.5"
     }
     azuredevops = {
       source  = "microsoft/azuredevops"
@@ -199,6 +203,13 @@ module "azure_devops_data_pipeline" {
 resource "null_resource" "azure_devops_terraform_extension" {
   provisioner "local-exec" {
     command = "/bin/bash ${path.module}/../../scripts/azdo_extension.sh install 'custom-terraform-tasks' 'ms-devlabs'"
+  }
+}
+
+# Install the Microsoft DevLabs Databricks extension for Azure DevOps
+resource "null_resource" "azure_devops_databricks_extension" {
+  provisioner "local-exec" {
+    command = "/bin/bash ${path.module}/../../scripts/azdo_extension.sh install 'azdo-databricks' 'riserrad'"
   }
 }
 
