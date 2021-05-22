@@ -62,6 +62,25 @@ variable "AZURE_DEVOPS_DATA_PIPELINE_PATH" {}
 
 ### Azure core infrastructure
 
+# Make sure all of the required Resource Provider are registered in the Subscription
+# The Azure Provider mentions it will automatically register all of the Resource Providers but that's not the case for Microsoft.DataFactory"
+resource "null_resource" "azure_resource_providers" {
+  for_each = toset([
+    "Microsoft.Compute",
+    "Microsoft.Storage",
+    "Microsoft.DataLakeStore",
+    "Microsoft.Network",
+    "Microsoft.KeyVault",
+    "Microsoft.ManagedIdentity",
+    "Microsoft.Databricks",
+    "Microsoft.DataFactory",
+    "Microsoft.DBforMySQL",
+    "Microsoft.Sql"])
+  provisioner "local-exec" {
+    command = "az provider register --namespace ${each.key} --wait"
+  }
+}
+
 # Create the Azure Service Principal to be used for infrastructure deployment
 module "infra_service_principal" {
   source            = "../../terraform/modules/azure/service-principal"

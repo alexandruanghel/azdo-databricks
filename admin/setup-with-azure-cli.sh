@@ -101,6 +101,27 @@ if [ -n "${ARM_SUBSCRIPTION_ID}" ]; then
 fi
 echo
 
+# Make sure all of the required Resource Provider are registered in the Subscription
+echo -e "Registering the required providers\n----------------------"
+providers="
+Microsoft.Compute
+Microsoft.Storage
+Microsoft.DataLakeStore
+Microsoft.Network
+Microsoft.KeyVault
+Microsoft.ManagedIdentity
+Microsoft.Databricks
+Microsoft.DataFactory
+Microsoft.DBforMySQL
+Microsoft.Sql
+"
+
+for provider in ${providers}; do
+  echo -e "Registering the \"${provider}\" provider"
+  az provider register --namespace "${provider}" --wait || exit 1
+done
+echo
+
 # Create the Azure Service Principal to be used for infrastructure deployment
 echo -e "Creating the Azure Service Principal \"${INFRA_SP_NAME}\" to be used for infrastructure deployment\n----------------------"
 source "${_scripts_dir}/create_service_principal.sh" "${INFRA_SP_NAME}"
