@@ -64,9 +64,9 @@ payload='
 # Check if the Group already exists in the Databricks workspace
 echo -e "Checking the Group \"${_group_name}\" in workspace \"${_workspace_url}\""
 _response=$(curl -sS --request GET \
-                          --header "Authorization: Bearer ${_access_token}" \
-                          --header "Accept: application/scim+json" \
-                          "${_workspace_url}/api/2.0/preview/scim/v2/Groups?filter=displayName+eq+%22${_group_name// /$'%20'}%22")
+                     --header "Authorization: Bearer ${_access_token}" \
+                     --header "Accept: application/scim+json" \
+                     "${_workspace_url}/api/2.0/preview/scim/v2/Groups?filter=displayName+eq+%22${_group_name// /$'%20'}%22")
 group_id=$(echo "${_response}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["Resources"][0]["id"])' 2> /dev/null)
 
 # Create the Group if it doesn't exit and update the Group otherwise
@@ -86,10 +86,10 @@ else
                        -d "${payload}")
 fi
 
-# Check the response and extracts the Group Databricks ID
+# Check the response and extract the Databricks Group ID
 group_id=$(echo "${_response}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["id"])')
 [ -z "${group_id}" ] && { echo "${_response}"; exit 1; }
-echo "Group Databricks ID: ${group_id}"
+echo "Databricks Group ID: ${group_id}"
 
 # Pass the variables to Azure Pipelines
 if [ "${BASH_SOURCE[0]}" == "$0" ]; then

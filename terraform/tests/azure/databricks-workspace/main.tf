@@ -115,7 +115,7 @@ module "test_databricks_vnet_nat" {
   depends_on                  = [null_resource.test_dependencies]
 }
 
-# Build a Databricks workspace with VNet injection and no public
+# Build a Databricks workspace with VNet injection and secure cluster connectivity (No Public IP / NPIP)
 module "test_databricks_workspace_npip" {
   source              = "../../../modules/azure/databricks-workspace"
   azure_location      = var.azure_location

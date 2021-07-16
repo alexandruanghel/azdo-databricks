@@ -5,7 +5,7 @@
 # Returns the access token as a variable called accessToken in the Azure Pipelines format.
 #
 
-# Optional parameters - if not set it will use the Databricks Resource ID and the exiting CLI login
+# Optional parameters - if not set it will use the Databricks Resource ID and the existing CLI login
 _azure_resource=${1:-"2ff814a6-3304-4ab8-85cb-cd0e6f879c1d"}
 _sp_client_id=${2:-${ARM_CLIENT_ID}}
 _sp_client_secret=${3:-${ARM_CLIENT_SECRET}}

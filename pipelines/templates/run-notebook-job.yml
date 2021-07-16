@@ -1,5 +1,5 @@
 #
-# Template that mounts an Azure Data Lake Gen 2 storage container using a notebook in a Runs Submit Job
+# Template that starts a Runs submit job with a Databricks notebook and waits for it to finish
 #
 
 parameters:
