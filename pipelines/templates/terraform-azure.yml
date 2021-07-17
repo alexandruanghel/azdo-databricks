@@ -10,7 +10,7 @@ parameters:
 - name: terraformVersion
   displayName: 'Terraform version to install and use'
   type: string
-  default: '0.14.11'
+  default: '1.0.2'
 
 - name: terraformWorkingDirectory
   displayName: 'Folder path containing the Terraform files'
@@ -39,39 +39,40 @@ steps:
   inputs:
     terraformVersion: ${{ parameters.terraformVersion }}
 
-- task: TerraformTaskV1@0
+- task: TerraformTaskV2@2
   displayName: 'Run terraform init'
   inputs:
     provider: 'azurerm'
     command: 'init'
-    workingDirectory: ${{ parameters.terraformWorkingDirectory }}
     commandOptions: '--upgrade=true'
+    workingDirectory: ${{ parameters.terraformWorkingDirectory }}
     backendServiceArm: ${{ parameters.serviceConnection }}
     backendAzureRmResourceGroupName: ${{ parameters.terraformBackendResourceGroupName }}
     backendAzureRmStorageAccountName: ${{ parameters.terraformBackendStorageAccountName }}
     backendAzureRmContainerName: ${{ parameters.terraformBackendContainerName }}
     backendAzureRmKey: ${{ parameters.terraformBackendKey }}
 
-- task: TerraformTaskV1@0
+- task: TerraformTaskV2@2
   displayName: 'Run terraform validate'
   inputs:
     provider: 'azurerm'
     command: 'validate'
     workingDirectory: ${{ parameters.terraformWorkingDirectory }}
 
-- task: TerraformTaskV1@0
+- task: TerraformTaskV2@2
   displayName: 'Run terraform plan'
   inputs:
     provider: 'azurerm'
     command: 'plan'
+    commandOptions: '-out=tfplan.out'
     workingDirectory: ${{ parameters.terraformWorkingDirectory }}
     environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}
 
-- task: TerraformTaskV1@0
+- task: TerraformTaskV2@2
   displayName: 'Run terraform apply'
   inputs:
     provider: 'azurerm'
     command: 'apply'
+    commandOptions: '-parallelism=3 -auto-approve tfplan.out'
     workingDirectory: ${{ parameters.terraformWorkingDirectory }}
-    commandOptions: '-parallelism=3 -auto-approve'
     environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}

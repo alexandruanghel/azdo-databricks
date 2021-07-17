@@ -1,10 +1,10 @@
 terraform {
-  required_version = "~> 0.14"
+  required_version = "~> 1.0"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 2.60"
+      version = ">= 2.68"
     }
     random = {
       source  = "hashicorp/random"

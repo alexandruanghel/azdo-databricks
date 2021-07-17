@@ -29,7 +29,7 @@ parameters:
   - name: terraformVersion
     displayName: 'Terraform version to install and use'
     type: string
-    default: '0.14.11'
+    default: '1.0.2'
 
   - name: terraformLocation
     displayName: 'Base folder path containing the Terraform modules'
