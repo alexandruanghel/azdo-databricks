@@ -261,6 +261,14 @@
               "natGateway": {
                 "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
               },
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.Storage"
+                },
+                {
+                  "service": "Microsoft.AzureActiveDirectory"
+                }
+              ],
               "delegations": [
                 {
                   "name": "databricks-del-public",

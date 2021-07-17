@@ -12,6 +12,7 @@ module "databricks_vnet" {
   private_subnet_cidr         = var.DATABRICKS_PRIVATE_SUBNET_CIDR
   public_subnet_name          = var.DATABRICKS_PUBLIC_SUBNET_NAME
   public_subnet_cidr          = var.DATABRICKS_PUBLIC_SUBNET_CIDR
+  service_endpoints           = ["Microsoft.Storage", "Microsoft.AzureActiveDirectory"]
   use_nat_gateway             = tobool(var.DATABRICKS_DISABLE_PUBLIC_IP)
   tags                        = var.deployment_tags
 }

@@ -39,6 +39,8 @@ locals {
   storage_account_defaults = "tftestdefaults${random_string.suffix.result}"
   storage_account_blob     = "tftestblob${random_string.suffix.result}"
   storage_account_adls     = "tftestadls${random_string.suffix.result}"
+  storage_account_endpoint = "tftestendpoint${random_string.suffix.result}"
+  virtual_network_name     = "tftest-vnet-st-${random_string.suffix.result}"
   custom_tags              = { Purpose = "Terraform-test-${random_string.suffix.result}" }
 }
 
@@ -53,12 +55,26 @@ module "test_resource_group" {
   tags                = local.custom_tags
 }
 
+module "test_databricks_vnet_custom" {
+  source                      = "../../../modules/azure/databricks-vnet"
+  azure_location              = var.azure_location
+  resource_group_name         = local.resource_group_name
+  virtual_network_name        = local.virtual_network_name
+  network_security_group_name = "tftest-nsg-${random_string.suffix.result}"
+  private_subnet_name         = "tftest-private-${random_string.suffix.result}"
+  public_subnet_name          = "tftest-public-${random_string.suffix.result}"
+  service_endpoints           = ["Microsoft.Storage", "Microsoft.AzureActiveDirectory"]
+  tags                        = local.custom_tags
+  depends_on                  = [module.test_resource_group]
+}
+
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
   triggers   = {
-    rg = module.test_resource_group.id
+    rg   = module.test_resource_group.id
+    vnet = module.test_databricks_vnet_custom.virtual_network_id
   }
-  depends_on = [module.test_resource_group]
+  depends_on = [module.test_resource_group, module.test_databricks_vnet_custom]
 }
 
 # Build a Storage Account with default parameters
@@ -92,6 +108,20 @@ module "test_storage_account_adls" {
   depends_on             = [null_resource.test_dependencies]
 }
 
+# Build a Data Lake Gen 2 Storage Account with 2 filesystems and service endpoints
+module "test_storage_account_service_endpoints" {
+  source                 = "../../../modules/azure/storage-account"
+  azure_location         = var.azure_location
+  resource_group_name    = local.resource_group_name
+  storage_account_name   = local.storage_account_endpoint
+  hierarchical_namespace = true
+  storage_containers     = ["fs1", "fs2"]
+  allowed_subnet_ids     = [module.test_databricks_vnet_custom.public_subnet_id]
+  network_default_action = "Allow"
+  tags                   = local.custom_tags
+  depends_on             = [null_resource.test_dependencies]
+}
+
 # Terraform output
 output "storage_account_tests" {
   value = {
@@ -106,6 +136,10 @@ output "storage_account_tests" {
     test_storage_account_adls = {
       id       = module.test_storage_account_adls.id
       name     = module.test_storage_account_adls.name
+    }
+    test_storage_account_service_endpoints = {
+      id       = module.test_storage_account_service_endpoints.id
+      name     = module.test_storage_account_service_endpoints.name
     }
   }
 }

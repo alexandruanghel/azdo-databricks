@@ -237,6 +237,14 @@
               "networkSecurityGroup": {
                 "id": "[variables('nsgId')]"
               },
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.Storage"
+                },
+                {
+                  "service": "Microsoft.AzureActiveDirectory"
+                }
+              ],
               "delegations": [
                 {
                   "name": "databricks-del-public",

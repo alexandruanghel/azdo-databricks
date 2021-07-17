@@ -8,7 +8,10 @@ module "data_lake_gen_2" {
   storage_account_name   = var.STORAGE_ACCOUNT_NAME
   hierarchical_namespace = true
   storage_containers     = [var.PIPELINE_CONTAINER_NAME, var.PROJECT_CONTAINER_NAME]
+  allowed_subnet_ids     = [module.databricks_vnet.public_subnet_id]
+  network_default_action = "Allow"
   tags                   = var.deployment_tags
+  depends_on             = [module.databricks_vnet]
 }
 
 # Assign the "Storage Blob Data Contributor" Role on the Storage Account to the data pipeline Service Principal

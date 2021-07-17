@@ -58,6 +58,11 @@ variable "network_default_action" {
   type        = string
   description = "(Optional) Specifies the default action of allow or deny when no other rules match. Default is Allow."
   default     = "Allow"
+
+  validation {
+    condition     = contains(["Allow", "Deny"], var.network_default_action)
+    error_message = "Valid options are Deny or Allow."
+  }
 }
 
 variable "tags" {
