@@ -21,9 +21,9 @@ variables:
   DATABRICKS_DISABLE_PUBLIC_IP:        false
   DATABRICKS_SECRET_SCOPE_NAME:        'databricks-secret-scope'
   DATABRICKS_JOBS_POOL_NAME:           'Jobs Pool'
-  DATABRICKS_JOBS_POOL_NODE_TYPE:      'Standard_F4s'
+  DATABRICKS_JOBS_POOL_NODE_TYPE:      'Standard_F4s_v2'
   DATABRICKS_SHARED_POOL_NAME:         'Shared Pool'
-  DATABRICKS_SHARED_POOL_NODE_TYPE:    'Standard_D3_v2'
+  DATABRICKS_SHARED_POOL_NODE_TYPE:    'Standard_D4s_v3'
   DATABRICKS_SHARED_CLUSTER_NAME:      'Shared Autoscaling'
   DATABRICKS_SPARK_VERSION:            '7.3.x-scala2.12'
   DATABRICKS_CLUSTER_POLICY_LOCATION:  '$(System.DefaultWorkingDirectory)/pipelines/templates/cluster-policy-single-node.json'
