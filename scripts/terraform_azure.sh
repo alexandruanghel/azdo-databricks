@@ -101,11 +101,15 @@ _apply() {
 
   # Run terraform plan (and remove -auto-approve from the list of arguments)
   echo -e "\nRunning terraform plan\n----------------------"
-  terraform plan ${@//-auto-approve/} || exit 1
+  plan_args="$(for arg in "$@"; do echo "${arg}" | grep -v "\-auto-approve"; done)"
+  terraform plan ${plan_args} -out=tfplan.out || exit 1
 
-  # Run terraform apply
+  # Run terraform apply (and remove -var-file from the list of arguments since it's contained in the plan)
   echo -e "\nRunning terraform apply\n----------------------"
-  terraform apply "$@" || exit 1
+  apply_args="$(for arg in "$@"; do echo "${arg}" | grep -v "\-var"; done)"
+  terraform apply ${apply_args} tfplan.out || exit 1
+  [ -e "tfplan.out" ] && unlink "tfplan.out"
+  echo -n
 }
 
 _destroy() {
@@ -126,6 +130,8 @@ _destroy() {
   echo -e "Removing terraform.tfstate" && [ -e "terraform.tfstate" ] && unlink "terraform.tfstate"
   echo -e "Removing terraform.tfstate.backup" && [ -e "terraform.tfstate.backup" ] && unlink "terraform.tfstate.backup"
   echo -e "Removing crash.log" && [ -e "crash.log" ] && unlink "crash.log"
+  echo -e "Removing tfplan.out" && [ -e "tfplan.out" ] && unlink "tfplan.out"
+  echo -n
 }
 
 case "${1}" in
