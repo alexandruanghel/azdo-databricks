@@ -70,6 +70,18 @@ module "test_databricks_workspace_defaults" {
   workspace_name      = local.databricks_workspace_name
 }
 
+# Marker for test dependencies
+resource "null_resource" "test_dependencies" {
+  triggers   = {
+    uuid = random_uuid.sp_client_id.id
+    ws   = module.test_databricks_workspace_defaults.id
+  }
+  depends_on = [
+    random_uuid.sp_client_id,
+    module.test_databricks_workspace_defaults
+  ]
+}
+
 # Get information about the Databricks workspace
 data "azurerm_databricks_workspace" "main" {
   name                = local.databricks_workspace_name
@@ -87,6 +99,7 @@ module "test_group" {
   source               = "../../../modules/databricks/databricks-principal"
   principal_type       = "group"
   principal_identifier = local.group_name
+  depends_on           = [null_resource.test_dependencies]
 }
 
 # Build two test Users
@@ -94,12 +107,14 @@ module "test_user_1" {
   source               = "../../../modules/databricks/databricks-principal"
   principal_type       = "user"
   principal_identifier = local.user_1_name
+  depends_on           = [null_resource.test_dependencies]
 }
 
 module "test_user_2" {
   source               = "../../../modules/databricks/databricks-principal"
   principal_type       = "user"
   principal_identifier = local.user_2_name
+  depends_on           = [null_resource.test_dependencies]
 }
 
 # Build a test Service Principal
@@ -107,23 +122,7 @@ module "test_sp" {
   source               = "../../../modules/databricks/databricks-principal"
   principal_type       = "service_principal"
   principal_identifier = random_uuid.sp_client_id.result
-}
-
-# Marker for test dependencies
-resource "null_resource" "test_dependencies" {
-  triggers   = {
-    ws     = module.test_databricks_workspace_defaults.id
-    users  = join(",", [module.test_user_1.id, module.test_user_2.id])
-    sps    = join(",", [module.test_sp.id])
-    groups = join(",", [module.test_group.id])
-  }
-  depends_on = [
-    module.test_databricks_workspace_defaults,
-    module.test_user_1,
-    module.test_user_2,
-    module.test_sp,
-    module.test_group
-  ]
+  depends_on           = [null_resource.test_dependencies]
 }
 
 # Create a folder with default parameters
@@ -139,7 +138,7 @@ module "test_folder_with_users" {
   folder_path = local.folder_with_users
   permissions = [{principal = local.user_1_name, type = "user", permission = "CAN_READ"},
                  {principal = local.user_2_name, type = "user", permission = "CAN_READ"}]
-  depends_on  = [null_resource.test_dependencies]
+  depends_on  = [null_resource.test_dependencies, module.test_user_1, module.test_user_2]
 }
 
 # Create a folder with users, groups, service principals
@@ -150,7 +149,13 @@ module "test_folder_with_everything" {
                  {principal = local.user_2_name, type = "user", permission = "CAN_MANAGE"},
                  {principal = random_uuid.sp_client_id.result, type = "service_principal", permission = "CAN_RUN"},
                  {principal = local.group_name, type = "group", permission = "CAN_EDIT"}]
-  depends_on  = [null_resource.test_dependencies]
+  depends_on = [
+    null_resource.test_dependencies,
+    module.test_user_1,
+    module.test_user_2,
+    module.test_sp,
+    module.test_group
+  ]
 }
 
 # Terraform output

@@ -118,50 +118,55 @@ resource "azuread_group" "empty" {
 resource "azuread_group" "one_user" {
   display_name            = local.group_with_one_user
   prevent_duplicate_names = true
-  members = [
+  members    = [
     azuread_user.test_users[0].object_id
   ]
+  depends_on = [azuread_user.test_users]
 }
 
 # Create a group with one service principal
 resource "azuread_group" "one_sp" {
   display_name            = local.group_with_one_sp
   prevent_duplicate_names = true
-  members = [
+  members    = [
     azuread_service_principal.test_sps[0].object_id
   ]
+  depends_on = [azuread_service_principal.test_sps]
 }
 
 # Create a group with one user and one service principal
 resource "azuread_group" "one_of_each" {
   display_name            = local.group_with_one_of_each
   prevent_duplicate_names = true
-  members = [
+  members    = [
     azuread_user.test_users[1].object_id,
     azuread_service_principal.test_sps[1].object_id
   ]
+  depends_on = [azuread_user.test_users, azuread_service_principal.test_sps]
 }
 
 # Create a group with one user and two service principals
 resource "azuread_group" "mixed1" {
   display_name            = local.group_mixed1
   prevent_duplicate_names = true
-  members = [
+  members    = [
     azuread_user.test_users[2].object_id,
     azuread_service_principal.test_sps[2].object_id,
     azuread_service_principal.test_sps[3].object_id
   ]
+  depends_on = [azuread_user.test_users, azuread_service_principal.test_sps]
 }
 
 # Create a group with two users and one service principal
 resource "azuread_group" "mixed2" {
   display_name            = local.group_mixed2
   prevent_duplicate_names = true
-  members = [
+  members    = [
     azuread_user.test_users[2].object_id,
     azuread_user.test_users[3].object_id,
     azuread_service_principal.test_sps[2].object_id
   ]
+  depends_on = [azuread_user.test_users, azuread_service_principal.test_sps]
 }
 
 # Marker for test dependencies

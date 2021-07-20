@@ -20,7 +20,7 @@ resource "databricks_user" "user" {
 resource "databricks_service_principal" "sp" {
   count                      = var.principal_type == "service_principal" ? 1 : 0
   application_id             = var.principal_identifier
-  display_name               = var.display_name
+  display_name               = var.display_name == "" ? "sp-${var.principal_identifier}" : var.display_name
   allow_cluster_create       = var.allow_cluster_create
   allow_instance_pool_create = var.allow_instance_pool_create
   active                     = true

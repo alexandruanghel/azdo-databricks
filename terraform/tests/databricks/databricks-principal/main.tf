@@ -71,9 +71,11 @@ module "test_databricks_workspace_defaults" {
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
   triggers   = {
-    ws     = module.test_databricks_workspace_defaults.id
+    uuid = random_uuid.sp_client_id.id
+    ws   = module.test_databricks_workspace_defaults.id
   }
   depends_on = [
+    random_uuid.sp_client_id,
     module.test_databricks_workspace_defaults
   ]
 }
@@ -82,7 +84,7 @@ resource "null_resource" "test_dependencies" {
 data "azurerm_databricks_workspace" "main" {
   name                = local.databricks_workspace_name
   resource_group_name = local.resource_group_name
-  depends_on          = [module.test_databricks_workspace_defaults]
+  depends_on          = [null_resource.test_dependencies]
 }
 
 # Configure the Databricks Terraform provider
@@ -95,6 +97,7 @@ module "test_group_defaults" {
   source               = "../../../modules/databricks/databricks-principal"
   principal_type       = "group"
   principal_identifier = local.group_defaults
+  depends_on           = [null_resource.test_dependencies]
 }
 
 # Build a User with default parameters
@@ -102,6 +105,7 @@ module "test_user_defaults" {
   source               = "../../../modules/databricks/databricks-principal"
   principal_type       = "user"
   principal_identifier = local.user_defaults
+  depends_on           = [null_resource.test_dependencies]
 }
 
 # Build a Service Principal with default parameters
@@ -109,6 +113,7 @@ module "test_sp_defaults" {
   source               = "../../../modules/databricks/databricks-principal"
   principal_type       = "service_principal"
   principal_identifier = random_uuid.sp_client_id.result
+  depends_on           = [null_resource.test_dependencies]
 }
 
 # Build a User that is part of a group
@@ -127,6 +132,7 @@ module "test_user_with_entitlements" {
   principal_identifier       = local.user_with_entitlements
   allow_cluster_create       = true
   allow_instance_pool_create = true
+  depends_on                 = [null_resource.test_dependencies]
 }
 
 # Terraform output
