@@ -85,18 +85,17 @@ else
   # Optionally try to get Data Factory run details
   _adf_updated_before="$(date -u +%Y-%m-%d'T'%H:%M:%S'Z')"
   _data_factory_name="$(grep DATA_FACTORY_NAME "${_this_script_dir}/pipelines/vars.yml" | cut -d':' -f2 | cut -d'#' -f1 | tr -d "'" | tr -d '"' | tr -d '[:space:]')"
-  [ -z "${_data_factory_name}" ] && exit 0
+  [ -z "${_data_factory_name}" ] && { echo "Could not get the Data Factory name"; exit 1; }
 
   # Install the Azure Data Factory cli extension
-  az extension add --name datafactory 2> /dev/null || exit 0
-
+  az extension add --name datafactory 2> /dev/null || { az extension add --name datafactory --debug; exit 1; }
   # Get the data factory resource id
-  _adf_id=$(az datafactory factory show --name "${_data_factory_name}" --resource-group "${DATABRICKS_RESOURCE_GROUP_NAME}" --query id 2> /dev/null | tr -d '"')
-  [ -z "${_adf_id}" ] && exit 0
+  _adf_id=$(az datafactory show --name "${_data_factory_name}" --resource-group "${DATABRICKS_RESOURCE_GROUP_NAME}" --query id 2> /dev/null | tr -d '"')
+  [ -z "${_adf_id}" ] && { echo "Could not get the Data Factory resource id"; exit 1; }
 
   # Get the data pipeline run id
   _adf_run_id=$(az datafactory pipeline-run query-by-factory --factory-name "${_data_factory_name}" --resource-group "${DATABRICKS_RESOURCE_GROUP_NAME}" --last-updated-after "${_adf_updated_after}" --last-updated-before "${_adf_updated_before}" --query value[0].runId 2> /dev/null | tr -d '"')
-  [ -z "${_adf_run_id}" ] && exit 0
+  [ -z "${_adf_run_id}" ] && { echo "Could not get the Data Factory pipeline run id"; exit 1; }
 
   _adf_run_url="https://adf.azure.com/monitoring/pipelineruns/${_adf_run_id}?factory=$_adf_id"
 
