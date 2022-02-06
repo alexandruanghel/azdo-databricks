@@ -115,8 +115,8 @@ variable "DATABRICKS_SHARED_CLUSTER_MAX_WORKERS" {
 
 variable "DATABRICKS_SPARK_VERSION" {
   type        = string
-  description = "(Optional) The Databricks Spark Version used by the Instance Pools and the Shared Cluster. Default is `7.3.x-scala2.12`."
-  default     = "7.3.x-scala2.12"
+  description = "(Optional) The Databricks Spark Version used by the Instance Pools and the Shared Cluster. Default is `9.1.x-scala2.12`."
+  default     = "9.1.x-scala2.12"
 }
 
 variable "DATABRICKS_CLUSTER_POLICY_LOCATION" {

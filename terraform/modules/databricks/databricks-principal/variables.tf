@@ -31,6 +31,12 @@ variable "allow_instance_pool_create" {
   default     = false
 }
 
+variable "databricks_sql_access" {
+  type        = bool
+  description = "(Optional) Allows the principal to have access to Databricks SQL feature. Default is false."
+  default     = false
+}
+
 variable "groups" {
   type        = list(string)
   description = "(Optional) A list of groups this principal should be member of."

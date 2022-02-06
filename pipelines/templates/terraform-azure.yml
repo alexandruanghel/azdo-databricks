@@ -3,76 +3,76 @@
 #
 
 parameters:
-- name: serviceConnection
-  displayName: 'Azure Resource Manager service connection'
-  type: string
+  - name: serviceConnection
+    displayName: 'Azure Resource Manager service connection'
+    type: string
 
-- name: terraformVersion
-  displayName: 'Terraform version to install and use'
-  type: string
-  default: '1.0.2'
+  - name: terraformVersion
+    displayName: 'Terraform version to install and use'
+    type: string
+    default: '1.1.5'
 
-- name: terraformWorkingDirectory
-  displayName: 'Folder path containing the Terraform files'
-  type: string
+  - name: terraformWorkingDirectory
+    displayName: 'Folder path containing the Terraform files'
+    type: string
 
-- name: terraformBackendStorageAccountName
-  displayName: 'The name of the Storage Account for Terraform Backend'
-  type: string
+  - name: terraformBackendStorageAccountName
+    displayName: 'The name of the Storage Account for Terraform Backend'
+    type: string
 
-- name: terraformBackendResourceGroupName
-  displayName: 'The name of the Resource Group in which the Terraform Storage Account exists'
-  type: string
+  - name: terraformBackendResourceGroupName
+    displayName: 'The name of the Resource Group in which the Terraform Storage Account exists'
+    type: string
 
-- name: terraformBackendContainerName
-  displayName: 'The name of the Storage Container used by Terraform State files'
-  type: string
+  - name: terraformBackendContainerName
+    displayName: 'The name of the Storage Container used by Terraform State files'
+    type: string
 
-- name: terraformBackendKey
-  displayName: 'The name of the Blob used for storing Terraform State file'
-  type: string
+  - name: terraformBackendKey
+    displayName: 'The name of the Blob used for storing Terraform State file'
+    type: string
 
 
 steps:
-- task: TerraformInstaller@0
-  displayName: 'Install Terraform Version ${{ parameters.terraformVersion }}'
-  inputs:
-    terraformVersion: ${{ parameters.terraformVersion }}
+  - task: TerraformInstaller@0
+    displayName: 'Install Terraform Version ${{ parameters.terraformVersion }}'
+    inputs:
+      terraformVersion: ${{ parameters.terraformVersion }}
 
-- task: TerraformTaskV2@2
-  displayName: 'Run terraform init'
-  inputs:
-    provider: 'azurerm'
-    command: 'init'
-    commandOptions: '--upgrade=true'
-    workingDirectory: ${{ parameters.terraformWorkingDirectory }}
-    backendServiceArm: ${{ parameters.serviceConnection }}
-    backendAzureRmResourceGroupName: ${{ parameters.terraformBackendResourceGroupName }}
-    backendAzureRmStorageAccountName: ${{ parameters.terraformBackendStorageAccountName }}
-    backendAzureRmContainerName: ${{ parameters.terraformBackendContainerName }}
-    backendAzureRmKey: ${{ parameters.terraformBackendKey }}
+  - task: TerraformTaskV2@2
+    displayName: 'Run terraform init'
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      commandOptions: '-upgrade=true -input=false'
+      workingDirectory: ${{ parameters.terraformWorkingDirectory }}
+      backendServiceArm: ${{ parameters.serviceConnection }}
+      backendAzureRmResourceGroupName: ${{ parameters.terraformBackendResourceGroupName }}
+      backendAzureRmStorageAccountName: ${{ parameters.terraformBackendStorageAccountName }}
+      backendAzureRmContainerName: ${{ parameters.terraformBackendContainerName }}
+      backendAzureRmKey: ${{ parameters.terraformBackendKey }}
 
-- task: TerraformTaskV2@2
-  displayName: 'Run terraform validate'
-  inputs:
-    provider: 'azurerm'
-    command: 'validate'
-    workingDirectory: ${{ parameters.terraformWorkingDirectory }}
+  - task: TerraformTaskV2@2
+    displayName: 'Run terraform validate'
+    inputs:
+      provider: 'azurerm'
+      command: 'validate'
+      workingDirectory: ${{ parameters.terraformWorkingDirectory }}
 
-- task: TerraformTaskV2@2
-  displayName: 'Run terraform plan'
-  inputs:
-    provider: 'azurerm'
-    command: 'plan'
-    commandOptions: '-out=tfplan.out'
-    workingDirectory: ${{ parameters.terraformWorkingDirectory }}
-    environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}
+  - task: TerraformTaskV2@2
+    displayName: 'Run terraform plan'
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      commandOptions: '-input=false -out=tfplan.out'
+      workingDirectory: ${{ parameters.terraformWorkingDirectory }}
+      environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}
 
-- task: TerraformTaskV2@2
-  displayName: 'Run terraform apply'
-  inputs:
-    provider: 'azurerm'
-    command: 'apply'
-    commandOptions: '-parallelism=3 -auto-approve tfplan.out'
-    workingDirectory: ${{ parameters.terraformWorkingDirectory }}
-    environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}
+  - task: TerraformTaskV2@2
+    displayName: 'Run terraform apply'
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      commandOptions: '-input=false -parallelism=3 -auto-approve tfplan.out'
+      workingDirectory: ${{ parameters.terraformWorkingDirectory }}
+      environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}

@@ -6,16 +6,16 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.1"
 
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.6"
+      version = "~> 2"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.68"
+      version = "~> 2"
     }
     azuredevops = {
       source  = "microsoft/azuredevops"
@@ -52,7 +52,7 @@ locals {
 # Create the test app registration
 resource "azuread_application" "test_app" {
   display_name    = "TF Test ${local.service_principal}"
-  identifier_uris = ["http://${local.service_principal}"]
+  identifier_uris = ["api://${local.service_principal}"]
 }
 
 # Create the test service principal
@@ -61,12 +61,13 @@ resource "azuread_service_principal" "test_sp" {
   depends_on     = [azuread_application.test_app]
 }
 
-resource "azuread_service_principal_password" "test_sp" {
-  service_principal_id = azuread_service_principal.test_sp.object_id
-  description          = "tftest"
-  value                = "Secret${random_string.suffix.result}"
-  end_date_relative    = "24h"
+resource "azuread_application_password" "test_sp" {
+  application_object_id = azuread_application.test_app.id
+  display_name          = "tftest"
+  end_date_relative     = "24h"
+  depends_on            = [azuread_service_principal.test_sp]
 }
+
 
 # Build an Azure DevOps project with default parameters
 module "test_project_defaults" {
@@ -89,7 +90,7 @@ module "test_project_with_arm_endpoint" {
   arm_endpoints = [{
     name          = local.arm_endpoint1
     client_id     = azuread_service_principal.test_sp.application_id
-    client_secret = azuread_service_principal_password.test_sp.value
+    client_secret = azuread_application_password.test_sp.value
   }]
 }
 
@@ -102,11 +103,11 @@ module "test_project_mixed" {
   arm_endpoints    = [{
     name          = local.arm_endpoint1
     client_id     = azuread_service_principal.test_sp.application_id
-    client_secret = azuread_service_principal_password.test_sp.value
+    client_secret = azuread_application_password.test_sp.value
   },{
     name          = local.arm_endpoint2
     client_id     = azuread_service_principal.test_sp.application_id
-    client_secret = azuread_service_principal_password.test_sp.value
+    client_secret = azuread_application_password.test_sp.value
   }]
 }
 

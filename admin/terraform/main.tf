@@ -11,16 +11,16 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.1"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.68"
+      version = "~> 2"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.6"
+      version = "~> 2"
     }
     azuredevops = {
       source  = "microsoft/azuredevops"
@@ -85,7 +85,7 @@ resource "null_resource" "azure_resource_providers" {
 module "infra_service_principal" {
   source            = "../../terraform/modules/azure/service-principal"
   name              = var.INFRA_SP_NAME
-  api_permissions   = ["Directory.Read.All"]
+  api_permissions   = ["User.Read.All", "GroupMember.Read.All", "Application.Read.All"]
   secret_expiration = "17520h"
 }
 
@@ -100,6 +100,7 @@ module "data_service_principal" {
 resource "azuread_group" "project_group" {
   display_name            = var.PROJECT_GROUP_NAME
   prevent_duplicate_names = true
+  security_enabled        = true
 }
 
 # Create the Databricks resource group
@@ -256,7 +257,7 @@ output "databricks_resources" {
     infra_service_principal_object_id      = module.infra_service_principal.object_id
     data_service_principal_application_id  = module.data_service_principal.application_id
     data_service_principal_object_id       = module.data_service_principal.object_id
-    project_group_name                     = azuread_group.project_group.name
+    project_group_name                     = azuread_group.project_group.display_name
     project_group_object_id                = azuread_group.project_group.object_id
   }
 }

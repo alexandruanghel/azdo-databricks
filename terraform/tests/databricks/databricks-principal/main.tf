@@ -6,12 +6,12 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.1"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.68"
+      version = "~> 2"
     }
     random = {
       source  = "hashicorp/random"
@@ -19,7 +19,7 @@ terraform {
     }
     databricks = {
       source  = "databrickslabs/databricks"
-      version = "~> 0.3"
+      version = "~> 0.4"
     }
   }
 }
@@ -132,6 +132,7 @@ module "test_user_with_entitlements" {
   principal_identifier       = local.user_with_entitlements
   allow_cluster_create       = true
   allow_instance_pool_create = true
+  databricks_sql_access      = true
   depends_on                 = [null_resource.test_dependencies]
 }
 

@@ -1,5 +1,5 @@
 /**
-* Creates an Azure Storage Account with optional Key Vault linked services
+* Creates an Azure Storage Account with containers and network rules
 */
 data "azurerm_resource_group" "this" {
   name = var.resource_group_name
@@ -42,8 +42,7 @@ resource "azurerm_storage_data_lake_gen2_filesystem" "default" {
 }
 
 resource "azurerm_storage_account_network_rules" "default" {
-  resource_group_name        = data.azurerm_resource_group.this.name
-  storage_account_name       = azurerm_storage_account.this.name
+  storage_account_id         = azurerm_storage_account.this.id
   default_action             = var.network_default_action
   ip_rules                   = var.allowed_ips
   virtual_network_subnet_ids = var.allowed_subnet_ids

@@ -3,15 +3,15 @@
 #
 
 steps:
-- task: UsePythonVersion@0
-  displayName: 'Use Python 3.x'
-  inputs:
-    versionSpec: '3.x'
-    addToPath: true
-    architecture: 'x64'
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+      architecture: 'x64'
 
-- task: Bash@3
-  displayName: 'Pip install dependencies'
-  inputs:
-    targetType: 'inline'
-    script: 'pip install requests'
+  - task: Bash@3
+    displayName: 'Pip install dependencies'
+    inputs:
+      targetType: 'inline'
+      script: 'pip install requests'

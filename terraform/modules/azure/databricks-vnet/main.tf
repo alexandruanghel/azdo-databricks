@@ -13,7 +13,7 @@ locals {
   }
 }
 
-resource "azurerm_virtual_network" "core" {
+resource "azurerm_virtual_network" "databricks_vnet" {
   name                = var.virtual_network_name
   location            = local.location
   resource_group_name = data.azurerm_resource_group.this.name
@@ -21,7 +21,7 @@ resource "azurerm_virtual_network" "core" {
   tags                = merge(local.tags, var.tags)
 }
 
-resource "azurerm_network_security_group" "databricks" {
+resource "azurerm_network_security_group" "databricks_nsg" {
   name                = var.network_security_group_name
   location            = local.location
   resource_group_name = data.azurerm_resource_group.this.name
@@ -31,7 +31,7 @@ resource "azurerm_network_security_group" "databricks" {
 resource "azurerm_subnet" "databricks_private_subnet" {
   name                 = var.private_subnet_name
   resource_group_name  = data.azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.core.name
+  virtual_network_name = azurerm_virtual_network.databricks_vnet.name
   address_prefixes     = [var.private_subnet_cidr]
 
   delegation {
@@ -50,13 +50,13 @@ resource "azurerm_subnet" "databricks_private_subnet" {
 
 resource "azurerm_subnet_network_security_group_association" "databricks_private_nsg" {
   subnet_id                 = azurerm_subnet.databricks_private_subnet.id
-  network_security_group_id = azurerm_network_security_group.databricks.id
+  network_security_group_id = azurerm_network_security_group.databricks_nsg.id
 }
 
 resource "azurerm_subnet" "databricks_public_subnet" {
   name                 = var.public_subnet_name
   resource_group_name  = data.azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.core.name
+  virtual_network_name = azurerm_virtual_network.databricks_vnet.name
   address_prefixes     = [var.public_subnet_cidr]
   service_endpoints    = var.service_endpoints
 
@@ -76,7 +76,7 @@ resource "azurerm_subnet" "databricks_public_subnet" {
 
 resource "azurerm_subnet_network_security_group_association" "databricks_public_nsg" {
   subnet_id                 = azurerm_subnet.databricks_public_subnet.id
-  network_security_group_id = azurerm_network_security_group.databricks.id
+  network_security_group_id = azurerm_network_security_group.databricks_nsg.id
 }
 
 resource "azurerm_public_ip" "databricks" {

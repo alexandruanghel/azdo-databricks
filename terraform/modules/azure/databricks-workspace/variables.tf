@@ -36,7 +36,7 @@ variable "pricing_tier" {
   }
 }
 
-variable "virtual_network_id" {
+variable "virtual_network_name" {
   type        = string
   description = "(Optional) The Azure Resource ID of the Virtual Network for VNet injection. If not set, a new Virtual Network will be created in the Managed Resource Group."
   default     = null

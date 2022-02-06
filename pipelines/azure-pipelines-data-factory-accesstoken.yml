@@ -3,7 +3,7 @@
 #
 
 trigger:
-- none
+  - none
 
 variables:
   - template: vars.yml  # Template reference
@@ -34,7 +34,7 @@ parameters:
   - name: databricksClusterSparkVersion
     displayName: 'Azure Databricks Cluster Spark Version'
     type: string
-    default: '7.3.x-scala2.12'
+    default: '9.1.x-scala2.12'
 
   - name: pipelineDatabaseName
     displayName: 'Name of the Database used by the Pipeline'
@@ -77,157 +77,157 @@ parameters:
     default: '$(System.DefaultWorkingDirectory)/scripts'
 
 stages:
-- stage: dataPipelineDeployment
-  displayName: 'Deploy data pipeline'
-  jobs:
-  - deployment: deployDataPipeline
+  - stage: dataPipelineDeployment
     displayName: 'Deploy data pipeline'
-    pool: ${{ parameters.pool }}
-    variables:
-      databricksServiceName: "${{ variables.DATABRICKS_WORKSPACE_NAME }}_accesstoken"
-      keyVaultServiceName: ${{ variables.KEY_VAULT_NAME }}
-      secretNameAccessToken: 'dataServicePrincipalAccessToken'
-      databricksClusterLogPath: 'dbfs:/cluster-logs'
-    environment: ${{ parameters.environment }}
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - checkout: self
+    jobs:
+      - deployment: deployDataPipeline
+        displayName: 'Deploy data pipeline'
+        pool: ${{ parameters.pool }}
+        variables:
+          databricksServiceName: "${{ variables.DATABRICKS_WORKSPACE_NAME }}_accesstoken"
+          keyVaultServiceName: ${{ variables.KEY_VAULT_NAME }}
+          secretNameAccessToken: 'dataServicePrincipalAccessToken'
+          databricksClusterLogPath: 'dbfs:/cluster-logs'
+        environment: ${{ parameters.environment }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
 
-          # Get the Azure Location of the Resource Group
-          - task: AzureCLI@2
-            displayName: 'Get the Azure Location of ${{ variables.RESOURCE_GROUP_NAME }}'
+                # Get the Azure Location of the Resource Group
+                - task: AzureCLI@2
+                  displayName: 'Get the Azure Location of ${{ variables.RESOURCE_GROUP_NAME }}'
+                  inputs:
+                    azureSubscription: ${{ parameters.serviceConnection }}
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      rg_location=$(az group show --name "${{ variables.RESOURCE_GROUP_NAME }}" --query location)
+                      [ -n "${rg_location}" ] && echo "##vso[task.setvariable variable=resourceGroupLocation;issecret=false]${rg_location}" || exit 1
+
+                # Get the Databricks workspace URL and AAD Access Token of the Azure DevOps Service Principal
+                - template: 'templates/get-workspace-login.yml'  # Template reference
+                  parameters:
+                    serviceConnection: ${{ parameters.serviceConnection }}
+                    resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
+                    databricksWorkspaceName: ${{ variables.DATABRICKS_WORKSPACE_NAME }}
+                    scriptsLocation: ${{ parameters.scriptsLocation }}
+
+                # Add the newly generated Access Token to the Key Vault
+                - task: AzureCLI@2
+                  displayName: 'Add the Access Token to Key Vault'
+                  inputs:
+                    azureSubscription: ${{ parameters.serviceConnection }}
+                    scriptType: 'bash'
+                    scriptPath: '${{ parameters.scriptsLocation }}/add_secret_to_key_vault.sh'
+                    arguments: '"${{ variables.KEY_VAULT_NAME }}"
+                                "$(secretNameAccessToken)"
+                                "$(accessToken)"'
+
+                # Get the data pipeline Service Principal Client Id and Secret (from the Azure DevOps Service Principal)
+                - task: AzureCLI@2
+                  displayName: 'Get the running Pipeline Service Principal Client Id and Secret'
+                  inputs:
+                    azureSubscription: ${{ parameters.serviceConnection }}
+                    addSpnToEnvironment: true
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      [ -n "${servicePrincipalId}" ] && echo "##vso[task.setvariable variable=dataServicePrincipalClientId;issecret=false]${servicePrincipalId}" || exit 1
+                      [ -n "${servicePrincipalKey}" ] && echo "##vso[task.setvariable variable=dataServicePrincipalClientSecret;issecret=true]${servicePrincipalKey}" || exit 1
+
+                # Add the data pipeline Service Principal Client Secret to the Databricks Secret Scope
+                # This needs to be done until Key Vault backed Secret Scopes are supported with Service Principals
+                - task: AzureCLI@2
+                  displayName: 'Add the Client Secret to Databricks Secret Scope'
+                  inputs:
+                    azureSubscription: '${{ parameters.serviceConnection }}'
+                    scriptType: 'bash'
+                    scriptPath: '${{ parameters.scriptsLocation }}/add_secret_to_secret_scope.sh'
+                    arguments: '"$(databricksWorkspaceUrl)"
+                                "$(accessToken)"
+                                "${{ variables.DATABRICKS_SECRET_SCOPE_NAME }}"
+                                "${{ variables.SECRET_NAME_CLIENT_SECRET }}"
+                                "$(dataServicePrincipalClientSecret)"'
+
+                # Get the Instance Pool ID
+                - task: Bash@3
+                  displayName: 'Get the ID of ${{ variables.DATABRICKS_JOBS_POOL_NAME }}'
+                  inputs:
+                    targetType: 'filePath'
+                    filePath: '${{ parameters.scriptsLocation }}/get_instance_pool.sh'
+                    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ variables.DATABRICKS_JOBS_POOL_NAME }}"'
+
+                # Setup Python
+                - template: 'templates/configure-python.yml'  # Template reference
+
+                # Deploy the Databricks data pipeline notebooks
+                - template: 'templates/deploy-notebooks.yml'  # Template reference
+                  parameters:
+                    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+                    accessToken: $(accessToken)
+                    notebooksSourceLocation: ${{ variables.NOTEBOOKS_PIPELINE_SOURCE_LOCATION }}
+                    notebooksWorkspaceFolder: ${{ variables.NOTEBOOKS_PIPELINE_WORKSPACE_FOLDER }}
+
+                # Deploy the Databricks linked service with Access Token
+                - task: AzureResourceManagerTemplateDeployment@3
+                  displayName: 'Deploy Azure Databricks linked service'
+                  inputs:
+                    deploymentScope: 'Resource Group'
+                    azureResourceManagerConnection: ${{ parameters.serviceConnection }}
+                    action: 'Create Or Update Resource Group'
+                    resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
+                    location: $(resourceGroupLocation)
+                    templateLocation: 'Linked artifact'
+                    csmFile: '${{ parameters.armTemplatesLocation }}/${{ parameters.dataFactoryLinkedServiceArmTemplate }}'
+                    overrideParameters: '-factoryName "${{ variables.DATA_FACTORY_NAME }}" -keyVaultServiceName "$(keyVaultServiceName)" -keyVaultSecretName "$(secretNameAccessToken)" -databricksServiceName "$(databricksServiceName)" -databricksWorkspaceUrl "$(databricksWorkspaceUrl)" -databricksWorkspaceName "${{ variables.DATABRICKS_WORKSPACE_NAME }}" -databricksPoolId "$(databricksPoolId)" -databricksClusterNumWorkers "${{ parameters.databricksClusterNumWorkers }}" -databricksClusterSparkVersion "${{ parameters.databricksClusterSparkVersion }}" -databricksClusterLogPath "$(databricksClusterLogPath)" -dataServicePrincipalClientId "$(dataServicePrincipalClientId)" -databricksSecretScopeName "${{ variables.DATABRICKS_SECRET_SCOPE_NAME }}" -secretNameClientSecret "${{ variables.SECRET_NAME_CLIENT_SECRET }}"'
+                    deploymentMode: 'Incremental'
+                    deploymentName: $(databricksServiceName)
+                    deploymentOutputs: 'armOutput'
+
+                # Deploy the Azure Data Factory Pipeline
+                - task: AzureResourceManagerTemplateDeployment@3
+                  displayName: 'Deploy Azure Data Factory Pipeline'
+                  inputs:
+                    deploymentScope: 'Resource Group'
+                    azureResourceManagerConnection: ${{ parameters.serviceConnection }}
+                    action: 'Create Or Update Resource Group'
+                    resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
+                    location: $(resourceGroupLocation)
+                    templateLocation: 'Linked artifact'
+                    csmFile: '${{ parameters.armTemplatesLocation }}/${{ parameters.dataFactoryPipelineArmTemplate }}'
+                    overrideParameters: '-factoryName "${{ variables.DATA_FACTORY_NAME }}" -pipelineName "${{ variables.DATA_FACTORY_PIPELINE_NAME }}" -databricksServiceName "$(databricksServiceName)"'
+                    deploymentMode: 'Incremental'
+                    deploymentName: ${{ variables.DATA_FACTORY_PIPELINE_NAME }}
+                    deploymentOutputs: 'armOutput'
+
+  - stage: dataPipelineRun
+    displayName: 'Run Data Pipeline'
+    dependsOn: dataPipelineDeployment
+    jobs:
+      - job: runDataPipeline
+        displayName: 'Run Azure Data Factory Pipeline'
+        pool: ${{ parameters.pool }}
+
+        steps:
+          # Invoke the Azure Data Factory Pipeline deployed in the previous step
+          - task: AzurePowerShell@5
+            displayName: 'Invoke Azure Data Factory Pipeline'
             inputs:
               azureSubscription: ${{ parameters.serviceConnection }}
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                rg_location=$(az group show --name "${{ variables.RESOURCE_GROUP_NAME }}" --query location)
-                [ -n "${rg_location}" ] && echo "##vso[task.setvariable variable=resourceGroupLocation;issecret=false]${rg_location}" || exit 1
-
-          # Get the Databricks workspace URL and AAD Access Token of the Azure DevOps Service Principal
-          - template: 'templates/get-workspace-login.yml'  # Template reference
-            parameters:
-              serviceConnection: ${{ parameters.serviceConnection }}
-              resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
-              databricksWorkspaceName: ${{ variables.DATABRICKS_WORKSPACE_NAME }}
-              scriptsLocation: ${{ parameters.scriptsLocation }}
-
-          # Add the newly generated Access Token to the Key Vault
-          - task: AzureCLI@2
-            displayName: 'Add the Access Token to Key Vault'
-            inputs:
-              azureSubscription: ${{ parameters.serviceConnection }}
-              scriptType: 'bash'
-              scriptPath: '${{ parameters.scriptsLocation }}/add_secret_to_key_vault.sh'
-              arguments: '"${{ variables.KEY_VAULT_NAME }}"
-                          "$(secretNameAccessToken)"
-                          "$(accessToken)"'
-
-          # Get the data pipeline Service Principal Client Id and Secret (from the Azure DevOps Service Principal)
-          - task: AzureCLI@2
-            displayName: 'Get the running Pipeline Service Principal Client Id and Secret'
-            inputs:
-              azureSubscription: ${{ parameters.serviceConnection }}
-              addSpnToEnvironment: true
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                [ -n "${servicePrincipalId}" ] && echo "##vso[task.setvariable variable=dataServicePrincipalClientId;issecret=false]${servicePrincipalId}" || exit 1
-                [ -n "${servicePrincipalKey}" ] && echo "##vso[task.setvariable variable=dataServicePrincipalClientSecret;issecret=true]${servicePrincipalKey}" || exit 1
-
-          # Add the data pipeline Service Principal Client Secret to the Databricks Secret Scope
-          # This needs to be done until Key Vault backed Secret Scopes are supported with Service Principals
-          - task: AzureCLI@2
-            displayName: 'Add the Client Secret to Databricks Secret Scope'
-            inputs:
-              azureSubscription: '${{ parameters.serviceConnection }}'
-              scriptType: 'bash'
-              scriptPath: '${{ parameters.scriptsLocation }}/add_secret_to_secret_scope.sh'
-              arguments: '"$(databricksWorkspaceUrl)"
-                          "$(accessToken)"
-                          "${{ variables.DATABRICKS_SECRET_SCOPE_NAME }}"
-                          "${{ variables.SECRET_NAME_CLIENT_SECRET }}"
-                          "$(dataServicePrincipalClientSecret)"'
-
-          # Get the Instance Pool ID
-          - task: Bash@3
-            displayName: 'Get the ID of ${{ variables.DATABRICKS_JOBS_POOL_NAME }}'
-            inputs:
-              targetType: 'filePath'
-              filePath: '${{ parameters.scriptsLocation }}/get_instance_pool.sh'
-              arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ variables.DATABRICKS_JOBS_POOL_NAME }}"'
-
-          # Setup Python
-          - template: 'templates/configure-python.yml'  # Template reference
-
-          # Deploy the Databricks data pipeline notebooks
-          - template: 'templates/deploy-notebooks.yml'  # Template reference
-            parameters:
-              databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-              accessToken: $(accessToken)
-              notebooksSourceLocation: ${{ variables.NOTEBOOKS_PIPELINE_SOURCE_LOCATION }}
-              notebooksWorkspaceFolder: ${{ variables.NOTEBOOKS_PIPELINE_WORKSPACE_FOLDER }}
-
-          # Deploy the Databricks linked service with Access Token
-          - task: AzureResourceManagerTemplateDeployment@3
-            displayName: 'Deploy Azure Databricks linked service'
-            inputs:
-              deploymentScope: 'Resource Group'
-              azureResourceManagerConnection: ${{ parameters.serviceConnection }}
-              action: 'Create Or Update Resource Group'
-              resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
-              location: $(resourceGroupLocation)
-              templateLocation: 'Linked artifact'
-              csmFile: '${{ parameters.armTemplatesLocation }}/${{ parameters.dataFactoryLinkedServiceArmTemplate }}'
-              overrideParameters: '-factoryName "${{ variables.DATA_FACTORY_NAME }}" -keyVaultServiceName "$(keyVaultServiceName)" -keyVaultSecretName "$(secretNameAccessToken)" -databricksServiceName "$(databricksServiceName)" -databricksWorkspaceUrl "$(databricksWorkspaceUrl)" -databricksWorkspaceName "${{ variables.DATABRICKS_WORKSPACE_NAME }}" -databricksPoolId "$(databricksPoolId)" -databricksClusterNumWorkers "${{ parameters.databricksClusterNumWorkers }}" -databricksClusterSparkVersion "${{ parameters.databricksClusterSparkVersion }}" -databricksClusterLogPath "$(databricksClusterLogPath)" -dataServicePrincipalClientId "$(dataServicePrincipalClientId)" -databricksSecretScopeName "${{ variables.DATABRICKS_SECRET_SCOPE_NAME }}" -secretNameClientSecret "${{ variables.SECRET_NAME_CLIENT_SECRET }}"'
-              deploymentMode: 'Incremental'
-              deploymentName: $(databricksServiceName)
-              deploymentOutputs: 'armOutput'
-
-          # Deploy the Azure Data Factory Pipeline
-          - task: AzureResourceManagerTemplateDeployment@3
-            displayName: 'Deploy Azure Data Factory Pipeline'
-            inputs:
-              deploymentScope: 'Resource Group'
-              azureResourceManagerConnection: ${{ parameters.serviceConnection }}
-              action: 'Create Or Update Resource Group'
-              resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
-              location: $(resourceGroupLocation)
-              templateLocation: 'Linked artifact'
-              csmFile: '${{ parameters.armTemplatesLocation }}/${{ parameters.dataFactoryPipelineArmTemplate }}'
-              overrideParameters: '-factoryName "${{ variables.DATA_FACTORY_NAME }}" -pipelineName "${{ variables.DATA_FACTORY_PIPELINE_NAME }}" -databricksServiceName "$(databricksServiceName)"'
-              deploymentMode: 'Incremental'
-              deploymentName: ${{ variables.DATA_FACTORY_PIPELINE_NAME }}
-              deploymentOutputs: 'armOutput'
-
-- stage: dataPipelineRun
-  displayName: 'Run Data Pipeline'
-  dependsOn: dataPipelineDeployment
-  jobs:
-  - job: runDataPipeline
-    displayName: 'Run Azure Data Factory Pipeline'
-    pool: ${{ parameters.pool }}
-
-    steps:
-    # Invoke the Azure Data Factory Pipeline deployed in the previous step
-    - task: AzurePowerShell@5
-      displayName: 'Invoke Azure Data Factory Pipeline'
-      inputs:
-        azureSubscription: ${{ parameters.serviceConnection }}
-        ScriptType: 'InlineScript'
-        Inline: |
-          $parameters = @{
-            "databaseName" = "${{ parameters.pipelineDatabaseName }}"
-            "databaseLocation" = "abfss://${{ variables.PIPELINE_CONTAINER_NAME }}@${{ variables.STORAGE_ACCOUNT_NAME }}.dfs.core.windows.net/${{ parameters.pipelineDatabaseName }}.db"
-            "sourcePath" = "${{ parameters.pipelineSourceData }}"
-            "bronzeTableName" = "${{ parameters.pipelineBronzeTableName }}"
-            "silverTableName" = "${{ parameters.pipelineSilverTableName }}"
-          }
-
-          Invoke-AzDataFactoryV2Pipeline -ResourceGroupName "${{ variables.RESOURCE_GROUP_NAME }}" `
-                                         -DataFactoryName "${{ variables.DATA_FACTORY_NAME }}" `
-                                         -PipelineName "${{ variables.DATA_FACTORY_PIPELINE_NAME }}" `
-                                         -Parameter $parameters
-        azurePowerShellVersion: 'LatestVersion'
+              ScriptType: 'InlineScript'
+              Inline: |
+                $parameters = @{
+                  "databaseName" = "${{ parameters.pipelineDatabaseName }}"
+                  "databaseLocation" = "abfss://${{ variables.PIPELINE_CONTAINER_NAME }}@${{ variables.STORAGE_ACCOUNT_NAME }}.dfs.core.windows.net/${{ parameters.pipelineDatabaseName }}.db"
+                  "sourcePath" = "${{ parameters.pipelineSourceData }}"
+                  "bronzeTableName" = "${{ parameters.pipelineBronzeTableName }}"
+                  "silverTableName" = "${{ parameters.pipelineSilverTableName }}"
+                }
+                
+                Invoke-AzDataFactoryV2Pipeline -ResourceGroupName "${{ variables.RESOURCE_GROUP_NAME }}" `
+                                               -DataFactoryName "${{ variables.DATA_FACTORY_NAME }}" `
+                                               -PipelineName "${{ variables.DATA_FACTORY_PIPELINE_NAME }}" `
+                                               -Parameter $parameters
+              azurePowerShellVersion: 'LatestVersion'

@@ -3,59 +3,59 @@
 #
 
 parameters:
-- name: databricksWorkspaceUrl
-  displayName: 'Azure Databricks Workspace Url'
-  type: string
+  - name: databricksWorkspaceUrl
+    displayName: 'Azure Databricks Workspace Url'
+    type: string
 
-- name: accessToken
-  displayName: 'Azure AD Access Token'
-  type: string
+  - name: accessToken
+    displayName: 'Azure AD Access Token'
+    type: string
 
-- name: databricksClusterSparkVersion
-  displayName: 'Azure Databricks Cluster Spark Version'
-  type: string
-  default: '7.3.x-scala2.12'
+  - name: databricksClusterSparkVersion
+    displayName: 'Azure Databricks Cluster Spark Version'
+    type: string
+    default: '9.1.x-scala2.12'
 
-- name: databricksClusterNodeTypeOrPool
-  displayName: 'Azure Databricks Cluster Node Type or Instance Pool Id'
-  type: string
+  - name: databricksClusterNodeTypeOrPool
+    displayName: 'Azure Databricks Cluster Node Type or Instance Pool Id'
+    type: string
 
-- name: databricksClusterNumWorkers
-  displayName: 'Number of worker nodes of the Databricks Cluster'
-  type: number
-  default: 1
+  - name: databricksClusterNumWorkers
+    displayName: 'Number of worker nodes of the Databricks Cluster'
+    type: number
+    default: 1
 
-- name: notebookPath
-  displayName: 'Databricks Notebook Path'
-  type: string
+  - name: notebookPath
+    displayName: 'Databricks Notebook Path'
+    type: string
 
-- name: notebookParameters
-  displayName: 'Parameters of the Databricks Notebook'
-  type: string
-  default: ''
+  - name: notebookParameters
+    displayName: 'Parameters of the Databricks Notebook'
+    type: string
+    default: ''
 
-- name: scriptsLocation
-  displayName: 'Location of Scripts'
-  type: string
+  - name: scriptsLocation
+    displayName: 'Location of Scripts'
+    type: string
 
 
 steps:
-- task: PythonScript@0
-  displayName: 'Start Notebook Job with ${{ parameters.notebookPath }}'
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: '${{ parameters.scriptsLocation }}/run_submit_notebook.py'
-    arguments: '"${{ parameters.databricksWorkspaceUrl }}"
-                "${{ parameters.accessToken }}"
-                "${{ parameters.databricksClusterNodeTypeOrPool }}"
-                "${{ parameters.databricksClusterNumWorkers }}"
-                "${{ parameters.databricksClusterSparkVersion }}"
-                "${{ parameters.notebookPath }}"
-                "${{ parameters.notebookParameters }}"'
+  - task: PythonScript@0
+    displayName: 'Start Notebook Job with ${{ parameters.notebookPath }}'
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: '${{ parameters.scriptsLocation }}/run_submit_notebook.py'
+      arguments: '"${{ parameters.databricksWorkspaceUrl }}"
+                  "${{ parameters.accessToken }}"
+                  "${{ parameters.databricksClusterNodeTypeOrPool }}"
+                  "${{ parameters.databricksClusterNumWorkers }}"
+                  "${{ parameters.databricksClusterSparkVersion }}"
+                  "${{ parameters.notebookPath }}"
+                  "${{ parameters.notebookParameters }}"'
 
-- task: PythonScript@0
-  displayName: 'Wait for Job to complete'
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: '${{ parameters.scriptsLocation }}/wait_for_job_run.py'
-    arguments: '"${{ parameters.databricksWorkspaceUrl }}" "${{ parameters.accessToken }}" "$(notebookRunId)"'
+  - task: PythonScript@0
+    displayName: 'Wait for Job to complete'
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: '${{ parameters.scriptsLocation }}/wait_for_job_run.py'
+      arguments: '"${{ parameters.databricksWorkspaceUrl }}" "${{ parameters.accessToken }}" "$(notebookRunId)"'

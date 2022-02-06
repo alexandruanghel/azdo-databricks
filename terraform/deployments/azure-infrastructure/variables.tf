@@ -18,11 +18,6 @@ variable "KEY_VAULT_NAME" {
   description = "The name of the Azure Key Vault. This must already exist in the Azure AD Tenant."
 }
 
-variable "SECRET_NAME_CLIENT_SECRET" {
-  type        = string
-  description = "The name of the secret that holds the data pipeline Service Principal Client Secret."
-}
-
 variable "STORAGE_ACCOUNT_NAME" {
   type        = string
   description = "The name of the Storage Account."

@@ -15,13 +15,6 @@ variable "api_permissions" {
   default     = []
 }
 
-variable "secret" {
-  type        = string
-  description = "(Optional) The Password / Secret for this Application. One will be generated if not provided."
-  default     = null
-  sensitive   = true
-}
-
 variable "secret_expiration" {
   type        = string
   description = "(Optional) A relative duration for which the password is valid. Default is 8760h (1 year)."

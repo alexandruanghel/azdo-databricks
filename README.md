@@ -47,7 +47,7 @@ Builds the Azure core infrastructure (using a privileged user / Administrator):
 - the user creating these resources needs to be `Owner` of Subscription and `Global administrator` of the Active Directory tenant.
 - it can be seen as deploying an empty shell for a project or business unit including the Service Principal (the `Infra SP`) assigned to that project that would have control over the project resources.
 
-To run this step use one of the s4cripts depending on the tool preference:
+To run this step use one of the scripts depending on the tool preference:
 - Terraform: `./admin/setup-with-terraform.sh` ([code](admin/setup-with-terraform.sh))
 - Scripts with Azure CLI: `./admin/setup-with-azure-cli.sh` ([code](admin/setup-with-azure-cli.sh))
 

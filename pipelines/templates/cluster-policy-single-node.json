@@ -30,7 +30,7 @@
   },
   "spark_version": {
     "type": "regex",
-    "pattern": "7.3.x-([cg]pu-ml-)?scala2.12"
+    "pattern": "9.1.x-([cg]pu-ml-)?scala2.12"
   },
   "docker_image.url": {
     "type": "forbidden",

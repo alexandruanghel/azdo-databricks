@@ -6,16 +6,16 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.1"
 
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.6"
+      version = "~> 2"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.68"
+      version = "~> 2"
     }
     random = {
       source  = "hashicorp/random"
@@ -48,7 +48,7 @@ locals {
 # Create a test app registration
 resource "azuread_application" "test_app" {
   display_name    = "TF Test ${local.spn}"
-  identifier_uris = ["http://${local.spn}"]
+  identifier_uris = ["api://${local.spn}"]
 }
 
 # Create a test service principal

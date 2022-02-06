@@ -6,12 +6,12 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.1"
 
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.6"
+      version = "~> 2"
     }
     random = {
       source  = "hashicorp/random"
@@ -36,7 +36,6 @@ resource "random_string" "suffix" {
 locals {
   spn_defaults        = "tftestspn-defaults-${random_string.suffix.result}"
   spn_api_permissions = "tftestspn-api-${random_string.suffix.result}"
-  spn_with_secret     = "tftestspn-secret-${random_string.suffix.result}"
   spn_with_owner      = "tftestspn-owner-${random_string.suffix.result}"
 }
 
@@ -58,15 +57,7 @@ module "test_sp_defaults" {
 module "test_sp_api_permissions" {
   source          = "../../../modules/azure/service-principal"
   name            = local.spn_api_permissions
-  api_permissions = ["Directory.Read.All"]
-}
-
-# Create a Service Principal with a Secret
-module "test_sp_with_secret" {
-  source            = "../../../modules/azure/service-principal"
-  name              = local.spn_with_secret
-  secret            = "Secret${random_string.suffix.result}"
-  secret_expiration = "24h"
+  api_permissions = ["User.Read.All", "GroupMember.Read.All", "Application.Read.All"]
 }
 
 # Create a Service Principal with an Owner
@@ -86,10 +77,6 @@ output "service_principal_tests" {
     test_sp_api_permissions = {
       object_id      = module.test_sp_api_permissions.object_id
       application_id = module.test_sp_api_permissions.application_id
-    }
-    test_sp_with_secret = {
-      object_id      = module.test_sp_with_secret.object_id
-      application_id = module.test_sp_with_secret.application_id
     }
     test_sp_with_owner = {
       object_id      = module.test_sp_with_owner.object_id

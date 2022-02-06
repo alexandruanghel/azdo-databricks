@@ -6,16 +6,16 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.1"
 
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~> 1.6"
+      version = "~> 2"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.68"
+      version = "~> 2"
     }
     random = {
       source  = "hashicorp/random"
@@ -23,7 +23,7 @@ terraform {
     }
     databricks = {
       source  = "databrickslabs/databricks"
-      version = "~> 0.3"
+      version = "~> 0.4"
     }
   }
 }
@@ -98,7 +98,7 @@ resource "azuread_user" "test_users" {
 resource "azuread_application" "test_apps" {
   count           = length(local.sps)
   display_name    = "TF Test ${local.sps[count.index]}"
-  identifier_uris = ["http://${local.sps[count.index]}"]
+  identifier_uris = ["api://${local.sps[count.index]}"]
 }
 
 # Create the test service principals
@@ -112,12 +112,14 @@ resource "azuread_service_principal" "test_sps" {
 resource "azuread_group" "empty" {
   display_name            = local.group_empty
   prevent_duplicate_names = true
+  security_enabled        = true
 }
 
 # Create a group with one user
 resource "azuread_group" "one_user" {
   display_name            = local.group_with_one_user
   prevent_duplicate_names = true
+  security_enabled        = true
   members    = [
     azuread_user.test_users[0].object_id
   ]
@@ -128,6 +130,7 @@ resource "azuread_group" "one_user" {
 resource "azuread_group" "one_sp" {
   display_name            = local.group_with_one_sp
   prevent_duplicate_names = true
+  security_enabled        = true
   members    = [
     azuread_service_principal.test_sps[0].object_id
   ]
@@ -138,6 +141,7 @@ resource "azuread_group" "one_sp" {
 resource "azuread_group" "one_of_each" {
   display_name            = local.group_with_one_of_each
   prevent_duplicate_names = true
+  security_enabled        = true
   members    = [
     azuread_user.test_users[1].object_id,
     azuread_service_principal.test_sps[1].object_id
@@ -149,6 +153,7 @@ resource "azuread_group" "one_of_each" {
 resource "azuread_group" "mixed1" {
   display_name            = local.group_mixed1
   prevent_duplicate_names = true
+  security_enabled        = true
   members    = [
     azuread_user.test_users[2].object_id,
     azuread_service_principal.test_sps[2].object_id,
@@ -161,6 +166,7 @@ resource "azuread_group" "mixed1" {
 resource "azuread_group" "mixed2" {
   display_name            = local.group_mixed2
   prevent_duplicate_names = true
+  security_enabled        = true
   members    = [
     azuread_user.test_users[2].object_id,
     azuread_user.test_users[3].object_id,

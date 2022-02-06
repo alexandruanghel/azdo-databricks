@@ -6,12 +6,12 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.1"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.68"
+      version = "~> 2"
     }
     random = {
       source  = "hashicorp/random"
@@ -19,7 +19,7 @@ terraform {
     }
     databricks = {
       source  = "databrickslabs/databricks"
-      version = "~> 0.3"
+      version = "~> 0.4"
     }
   }
 }
@@ -148,7 +148,7 @@ module "test_policy_with_users" {
 module "test_policy_with_arguments" {
   source      = "../../../modules/databricks/cluster-policy"
   policy_name = local.policy_with_arguments
-  default_spark_version_regex     = "7.3.x-([cg]pu-ml-)?scala2.12"
+  default_spark_version_regex     = "9.1.x-([cg]pu-ml-)?scala2.12"
   default_autotermination_minutes = 10
   default_cluster_log_path        = "dbfs:/tmp/cluster-logs"
   depends_on  = [null_resource.test_dependencies]
@@ -158,11 +158,11 @@ module "test_policy_with_arguments" {
 module "test_policy_with_overrides" {
   source      = "../../../modules/databricks/cluster-policy"
   policy_name = local.policy_with_overrides
-  default_spark_version_regex = "7.3.x-([cg]pu-ml-)?scala2.12"
+  default_spark_version_regex = "9.1.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_object     = {
     "spark_version" : {
       "type" : "fixed",
-      "value" : "8.2.x-scala2.12",
+      "value" : "10.3.x-scala2.12",
       "hidden" : false
     },
     "autotermination_minutes" : {
@@ -182,7 +182,7 @@ module "test_policy_with_overrides" {
 module "test_policy_with_jsonfile" {
   source      = "../../../modules/databricks/cluster-policy"
   policy_name = local.policy_with_jsonfile
-  default_spark_version_regex = "7.3.x-([cg]pu-ml-)?scala2.12"
+  default_spark_version_regex = "9.1.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_file       = "policy.json"
   depends_on  = [null_resource.test_dependencies]
 }
@@ -195,12 +195,12 @@ module "test_policy_with_everything" {
                  {principal = local.user_2_name, type = "user"},
                  {principal = random_uuid.sp_client_id.result, type = "service_principal"},
                  {principal = local.group_name, type = "group"}]
-  default_spark_version_regex = "7.3.x-([cg]pu-ml-)?scala2.12"
+  default_spark_version_regex = "9.1.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_file       = "policy.json"
   policy_overrides_object     = {
     "spark_version" : {
       "type" : "fixed",
-      "value" : "8.1.x-scala2.12",
+      "value" : "10.3.x-scala2.12",
       "hidden" : false
     }
   }

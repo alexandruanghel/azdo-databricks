@@ -5,52 +5,52 @@
 #
 
 parameters:
-- name: serviceConnection
-  displayName: 'Azure Resource Manager service connection'
-  type: string
+  - name: serviceConnection
+    displayName: 'Azure Resource Manager service connection'
+    type: string
 
-- name: resourceGroupName
-  displayName: 'Azure Databricks Resource Group Name'
-  type: string
+  - name: resourceGroupName
+    displayName: 'Azure Databricks Resource Group Name'
+    type: string
 
-- name: databricksWorkspaceName
-  displayName: 'Azure Databricks Workspace Name'
-  type: string
+  - name: databricksWorkspaceName
+    displayName: 'Azure Databricks Workspace Name'
+    type: string
 
-- name: databricksUniqueId
-  displayName: 'Databricks Unique Id'
-  type: string
-  default: '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d'
+  - name: databricksUniqueId
+    displayName: 'Databricks Unique Id'
+    type: string
+    default: '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d'
 
-- name: servicePrincipalClientId
-  displayName: '(Optional) Service Principal Client Id to be used for login'
-  type: string
-  default: ''
+  - name: servicePrincipalClientId
+    displayName: '(Optional) Service Principal Client Id to be used for login'
+    type: string
+    default: ''
 
-- name: servicePrincipalClientSecret
-  displayName: '(Optional) Service Principal Client Secret to be used for login'
-  type: string
-  default: ''
+  - name: servicePrincipalClientSecret
+    displayName: '(Optional) Service Principal Client Secret to be used for login'
+    type: string
+    default: ''
 
-- name: scriptsLocation
-  displayName: 'Location of Scripts'
-  type: string
+  - name: scriptsLocation
+    displayName: 'Location of Scripts'
+    type: string
 
 
 steps:
-- task: AzureCLI@2
-  displayName: 'Get Databricks workspace URL'
-  inputs:
-    azureSubscription: '${{ parameters.serviceConnection }}'
-    scriptType: 'bash'
-    scriptPath: '${{ parameters.scriptsLocation }}/get_workspace_url.sh'
-    arguments: '"${{ parameters.resourceGroupName }}" "${{ parameters.databricksWorkspaceName }}"'
+  - task: AzureCLI@2
+    displayName: 'Get Databricks workspace URL'
+    inputs:
+      azureSubscription: '${{ parameters.serviceConnection }}'
+      scriptType: 'bash'
+      scriptPath: '${{ parameters.scriptsLocation }}/get_workspace_url.sh'
+      arguments: '"${{ parameters.resourceGroupName }}" "${{ parameters.databricksWorkspaceName }}"'
 
-- task: AzureCLI@2
-  displayName: 'Get AAD Access Token'
-  inputs:
-    azureSubscription: '${{ parameters.serviceConnection }}'
-    addSpnToEnvironment: true
-    scriptType: 'bash'
-    scriptPath: '${{ parameters.scriptsLocation }}/get_access_token.sh'
-    arguments: '"${{ parameters.databricksUniqueId }}" "${{ parameters.servicePrincipalClientId }}" "${{ parameters.servicePrincipalClientSecret }}"'
+  - task: AzureCLI@2
+    displayName: 'Get AAD Access Token'
+    inputs:
+      azureSubscription: '${{ parameters.serviceConnection }}'
+      addSpnToEnvironment: true
+      scriptType: 'bash'
+      scriptPath: '${{ parameters.scriptsLocation }}/get_access_token.sh'
+      arguments: '"${{ parameters.databricksUniqueId }}" "${{ parameters.servicePrincipalClientId }}" "${{ parameters.servicePrincipalClientSecret }}"'

@@ -1,11 +1,11 @@
 output "virtual_network_id" {
   description = "The ID of the Virtual Network."
-  value       = azurerm_virtual_network.core.id
+  value       = azurerm_virtual_network.databricks_vnet.id
 }
 
 output "virtual_network_name" {
   description = "The name of the Virtual Network."
-  value       = azurerm_virtual_network.core.name
+  value       = azurerm_virtual_network.databricks_vnet.name
 }
 
 output "private_subnet_id" {
@@ -30,7 +30,7 @@ output "public_subnet_name" {
 
 output "network_security_group_id" {
   description = "The ID of the Databricks Network Security Group attached to the subnets."
-  value       = azurerm_virtual_network.core.id
+  value       = azurerm_virtual_network.databricks_vnet.id
 }
 
 output "nat_gateway_id" {

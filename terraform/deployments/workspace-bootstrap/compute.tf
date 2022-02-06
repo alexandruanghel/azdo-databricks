@@ -83,7 +83,8 @@ resource "databricks_cluster" "shared_autoscaling" {
   }
 
   azure_attributes {
-    availability = "SPOT_AZURE"
+    availability       = "SPOT_WITH_FALLBACK_AZURE"
+    spot_bid_max_price = -1
   }
 
   spark_conf = {

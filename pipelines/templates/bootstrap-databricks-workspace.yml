@@ -3,467 +3,467 @@
 #
 
 parameters:
-- name: serviceConnection
-  displayName: 'Azure Resource Manager service connection'
-  type: string
+  - name: serviceConnection
+    displayName: 'Azure Resource Manager service connection'
+    type: string
 
-- name: resourceGroupName
-  displayName: 'Azure Databricks Resource Group Name'
-  type: string
+  - name: resourceGroupName
+    displayName: 'Azure Databricks Resource Group Name'
+    type: string
 
-- name: projectGroupName
-  displayName: 'Project User Group Name'
-  type: string
+  - name: projectGroupName
+    displayName: 'Project User Group Name'
+    type: string
 
-- name: dataServicePrincipalClientId
-  displayName: 'Data Pipeline Service Principal Client ID'
-  type: string
+  - name: dataServicePrincipalClientId
+    displayName: 'Data Pipeline Service Principal Client ID'
+    type: string
 
-- name: storageAccountName
-  displayName: 'ADLS Storage Account Name'
-  type: string
+  - name: storageAccountName
+    displayName: 'ADLS Storage Account Name'
+    type: string
 
-- name: pipelineContainerName
-  displayName: 'ADLS Filesystem Container for the Pipeline Data'
-  type: string
+  - name: pipelineContainerName
+    displayName: 'ADLS Filesystem Container for the Pipeline Data'
+    type: string
 
-- name: projectContainerName
-  displayName: 'ADLS Filesystem Container for the Project Data'
-  type: string
+  - name: projectContainerName
+    displayName: 'ADLS Filesystem Container for the Project Data'
+    type: string
 
-- name: dataFactoryName
-  displayName: 'Azure Data Factory Name'
-  type: string
+  - name: dataFactoryName
+    displayName: 'Azure Data Factory Name'
+    type: string
 
-- name: databricksWorkspaceName
-  displayName: 'Azure Databricks Workspace Name'
-  type: string
+  - name: databricksWorkspaceName
+    displayName: 'Azure Databricks Workspace Name'
+    type: string
 
-- name: databricksJobsPoolName
-  displayName: 'Name of the Azure Databricks Jobs Instance Pool'
-  type: string
+  - name: databricksJobsPoolName
+    displayName: 'Name of the Azure Databricks Jobs Instance Pool'
+    type: string
 
-- name: databricksJobsPoolNodeType
-  displayName: 'Azure Databricks Node Type in the Jobs Pool'
-  type: string
+  - name: databricksJobsPoolNodeType
+    displayName: 'Azure Databricks Node Type in the Jobs Pool'
+    type: string
 
-- name: databricksJobsPoolMinIdleInstances
-  displayName: 'The minimum number of idle instances maintained by the Jobs Pool'
-  type: number
-  default: 0
+  - name: databricksJobsPoolMinIdleInstances
+    displayName: 'The minimum number of idle instances maintained by the Jobs Pool'
+    type: number
+    default: 0
 
-- name: databricksJobsPoolIdleInstanceAutotermination
-  displayName: 'The number of minutes that idle instances are maintained by the Jobs Pool before being terminated'
-  type: number
-  default: 60
+  - name: databricksJobsPoolIdleInstanceAutotermination
+    displayName: 'The number of minutes that idle instances are maintained by the Jobs Pool before being terminated'
+    type: number
+    default: 60
 
-- name: databricksSharedPoolName
-  displayName: 'Name of the Azure Databricks Shared Instance Pool'
-  type: string
+  - name: databricksSharedPoolName
+    displayName: 'Name of the Azure Databricks Shared Instance Pool'
+    type: string
 
-- name: databricksSharedPoolNodeType
-  displayName: 'Azure Databricks Node Type in the Shared Pool'
-  type: string
+  - name: databricksSharedPoolNodeType
+    displayName: 'Azure Databricks Node Type in the Shared Pool'
+    type: string
 
-- name: databricksSharedPoolMinIdleInstances
-  displayName: 'The minimum number of idle instances maintained by the Shared Pool'
-  type: number
-  default: 0
+  - name: databricksSharedPoolMinIdleInstances
+    displayName: 'The minimum number of idle instances maintained by the Shared Pool'
+    type: number
+    default: 0
 
-- name: databricksSharedPoolIdleInstanceAutotermination
-  displayName: 'The number of minutes that idle instances are maintained by the Shared Pool before being terminated'
-  type: number
-  default: 120
+  - name: databricksSharedPoolIdleInstanceAutotermination
+    displayName: 'The number of minutes that idle instances are maintained by the Shared Pool before being terminated'
+    type: number
+    default: 120
 
-- name: databricksSharedClusterName
-  displayName: 'Name of the Azure Databricks Shared Cluster'
-  type: string
+  - name: databricksSharedClusterName
+    displayName: 'Name of the Azure Databricks Shared Cluster'
+    type: string
 
-- name: databricksSharedClusterNumWorkers
-  displayName: 'Number of worker nodes in the Databricks Shared Cluster'
-  type: number
-  default: 1
+  - name: databricksSharedClusterNumWorkers
+    displayName: 'Number of worker nodes in the Databricks Shared Cluster'
+    type: number
+    default: 1
 
-- name: databricksSharedClusterMaxNumWorkers
-  displayName: 'Maximum number of worker nodes in the Databricks Shared Cluster'
-  type: number
-  default: 10
+  - name: databricksSharedClusterMaxNumWorkers
+    displayName: 'Maximum number of worker nodes in the Databricks Shared Cluster'
+    type: number
+    default: 10
 
-- name: databricksSparkVersion
-  displayName: 'Azure Databricks Spark Version'
-  type: string
-  default: '7.3.x-scala2.12'
+  - name: databricksSparkVersion
+    displayName: 'Azure Databricks Spark Version'
+    type: string
+    default: '9.1.x-scala2.12'
 
-- name: databricksSingleNodeClusterPolicyLocation
-  displayName: 'Location of the Cluster Policy json file'
-  type: string
+  - name: databricksSingleNodeClusterPolicyLocation
+    displayName: 'Location of the Cluster Policy json file'
+    type: string
 
-- name: keyVaultName
-  displayName: 'Azure Key Vault Name'
-  type: string
+  - name: keyVaultName
+    displayName: 'Azure Key Vault Name'
+    type: string
 
-- name: databricksSecretScopeName
-  displayName: 'Databricks Secret Scope Name'
-  type: string
+  - name: databricksSecretScopeName
+    displayName: 'Databricks Secret Scope Name'
+    type: string
 
-- name: secretNameClientSecret
-  displayName: 'Secret Name of the data pipeline Service Principal Client Secret'
-  type: string
-  default: 'spClientSecret'
+  - name: secretNameClientSecret
+    displayName: 'Secret Name of the data pipeline Service Principal Client Secret'
+    type: string
+    default: 'spClientSecret'
 
-- name: notebooksSharedSourceLocation
-  displayName: 'Location of generic notebooks to be deployed in a shared Databricks workspace folder'
-  type: string
+  - name: notebooksSharedSourceLocation
+    displayName: 'Location of generic notebooks to be deployed in a shared Databricks workspace folder'
+    type: string
 
-- name: notebooksSharedWorkspaceFolder
-  displayName: 'Folder path in the Databricks workspace where the shared notebooks will be deployed'
-  type: string
+  - name: notebooksSharedWorkspaceFolder
+    displayName: 'Folder path in the Databricks workspace where the shared notebooks will be deployed'
+    type: string
 
-- name: mountAdlsNotebookPath
-  displayName: 'Workspace path to the notebook that can mount ADLS Gen 2 Filesystems'
-  type: string
-  default: '/Shared/mount-adls-gen-2'
+  - name: mountAdlsNotebookPath
+    displayName: 'Workspace path to the notebook that can mount ADLS Gen 2 Filesystems'
+    type: string
+    default: '/Shared/mount-adls-gen-2'
 
-- name: projectMountPoint
-  displayName: 'DBFS mount location of the Project Filesystems'
-  type: string
+  - name: projectMountPoint
+    displayName: 'DBFS mount location of the Project Filesystems'
+    type: string
 
-- name: notebooksPipelineWorkspaceFolder
-  displayName: 'Databricks workspace folder for the data pipeline notebooks'
-  type: string
+  - name: notebooksPipelineWorkspaceFolder
+    displayName: 'Databricks workspace folder for the data pipeline notebooks'
+    type: string
 
-- name: notebooksProjectWorkspaceFolder
-  displayName: 'Databricks workspace folder for the Project notebooks'
-  type: string
+  - name: notebooksProjectWorkspaceFolder
+    displayName: 'Databricks workspace folder for the Project notebooks'
+    type: string
 
-- name: scriptsLocation
-  displayName: 'Location of Scripts'
-  type: string
+  - name: scriptsLocation
+    displayName: 'Location of Scripts'
+    type: string
 
 steps:
 
-# Setup Python
-- template: 'configure-python.yml'  # Template reference
+  # Setup Python
+  - template: 'configure-python.yml'  # Template reference
 
-# Get the Databricks workspace URL and AAD Access Token of the Azure DevOps Service Principal
-- template: 'get-workspace-login.yml'  # Template reference
-  parameters:
-    serviceConnection: ${{ parameters.serviceConnection }}
-    resourceGroupName: ${{ parameters.resourceGroupName }}
-    databricksWorkspaceName: ${{ parameters.databricksWorkspaceName }}
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Get the Databricks workspace URL and AAD Access Token of the Azure DevOps Service Principal
+  - template: 'get-workspace-login.yml'  # Template reference
+    parameters:
+      serviceConnection: ${{ parameters.serviceConnection }}
+      resourceGroupName: ${{ parameters.resourceGroupName }}
+      databricksWorkspaceName: ${{ parameters.databricksWorkspaceName }}
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Get the Principal ID and Object ID of the Data Factory Managed Identity
-- task: AzurePowerShell@5
-  displayName: 'Get the Managed Identity of the Data Factory'
-  inputs:
-    azureSubscription: ${{ parameters.serviceConnection }}
-    ScriptPath: '${{ parameters.scriptsLocation }}/get_data_factory_identity.ps1'
-    ScriptArguments: '${{ parameters.resourceGroupName }} ${{ parameters.dataFactoryName }}'
-    azurePowerShellVersion: 'LatestVersion'
+  # Get the Principal ID and Object ID of the Data Factory Managed Identity
+  - task: AzurePowerShell@5
+    displayName: 'Get the Managed Identity of the Data Factory'
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      ScriptPath: '${{ parameters.scriptsLocation }}/get_data_factory_identity.ps1'
+      ScriptArguments: '${{ parameters.resourceGroupName }} ${{ parameters.dataFactoryName }}'
+      azurePowerShellVersion: 'LatestVersion'
 
-# Add the Azure Data Factory Service Principal to the Databricks workspace
-# The Service Principal must have 'allow_cluster_create' in order to create new job clusters as policies are not supported by ADF
-- task: Bash@3
-  displayName: 'Add ADF Service Principal to the Databricks workspace'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/add_principal_to_workspace.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "service_principal" "$(adfPrincipalId)" "${{ parameters.dataFactoryName }}" "allow-cluster-create"'
+  # Add the Azure Data Factory Service Principal to the Databricks workspace
+  # The Service Principal must have 'allow_cluster_create' in order to create new job clusters as policies are not supported by ADF
+  - task: Bash@3
+    displayName: 'Add ADF Service Principal to the Databricks workspace'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/add_principal_to_workspace.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "service_principal" "$(adfPrincipalId)" "${{ parameters.dataFactoryName }}" "allow-cluster-create"'
 
-# Add the data pipeline Service Principal to the Databricks workspace
-- task: Bash@3
-  displayName: 'Add data pipeline Service Principal to the Databricks workspace'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/add_principal_to_workspace.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "service_principal" "${{ parameters.dataServicePrincipalClientId }}" "${{ parameters.dataServicePrincipalClientId }}" "allow-cluster-create"'
+  # Add the data pipeline Service Principal to the Databricks workspace
+  - task: Bash@3
+    displayName: 'Add data pipeline Service Principal to the Databricks workspace'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/add_principal_to_workspace.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "service_principal" "${{ parameters.dataServicePrincipalClientId }}" "${{ parameters.dataServicePrincipalClientId }}" "allow-cluster-create"'
 
-# Sync the AD Project group with the Databricks workspace
-- task: AzureCLI@2
-  displayName: 'Sync group "${{ parameters.projectGroupName }}" to the Databricks workspace'
-  inputs:
-    azureSubscription: '${{ parameters.serviceConnection }}'
-    scriptType: 'bash'
-    scriptPath: '${{ parameters.scriptsLocation }}/sync_group.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.projectGroupName }}"'
+  # Sync the AD Project group with the Databricks workspace
+  - task: AzureCLI@2
+    displayName: 'Sync group "${{ parameters.projectGroupName }}" to the Databricks workspace'
+    inputs:
+      azureSubscription: '${{ parameters.serviceConnection }}'
+      scriptType: 'bash'
+      scriptPath: '${{ parameters.scriptsLocation }}/sync_group.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.projectGroupName }}"'
 
-# Deploy Databricks generic notebooks in a Shared location
-- template: 'deploy-notebooks.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    notebooksSourceLocation: ${{ parameters.notebooksSharedSourceLocation }}
-    notebooksWorkspaceFolder: ${{ parameters.notebooksSharedWorkspaceFolder }}
+  # Deploy Databricks generic notebooks in a Shared location
+  - template: 'deploy-notebooks.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      notebooksSourceLocation: ${{ parameters.notebooksSharedSourceLocation }}
+      notebooksWorkspaceFolder: ${{ parameters.notebooksSharedWorkspaceFolder }}
 
-# Create an empty local folder
-- task: Bash@3
-  displayName: 'Create an empty local folder'
-  inputs:
-    targetType: 'inline'
-    script: 'mkdir -p /tmp/empty'
+  # Create an empty local folder
+  - task: Bash@3
+    displayName: 'Create an empty local folder'
+    inputs:
+      targetType: 'inline'
+      script: 'mkdir -p /tmp/empty'
 
-# Create an empty workspace folder for the Pipeline notebooks
-- template: 'deploy-notebooks.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    notebooksSourceLocation: "/tmp/empty"
-    notebooksWorkspaceFolder: ${{ parameters.notebooksPipelineWorkspaceFolder }}
+  # Create an empty workspace folder for the Pipeline notebooks
+  - template: 'deploy-notebooks.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      notebooksSourceLocation: "/tmp/empty"
+      notebooksWorkspaceFolder: ${{ parameters.notebooksPipelineWorkspaceFolder }}
 
-# Get the workspace Object ID of the Pipeline notebooks folder
-- task: Bash@3
-  displayName: 'Get workspace Object ID of ${{ parameters.notebooksPipelineWorkspaceFolder }}'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/get_workspace_object_id.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.notebooksPipelineWorkspaceFolder }}"'
+  # Get the workspace Object ID of the Pipeline notebooks folder
+  - task: Bash@3
+    displayName: 'Get workspace Object ID of ${{ parameters.notebooksPipelineWorkspaceFolder }}'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/get_workspace_object_id.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.notebooksPipelineWorkspaceFolder }}"'
 
-# Give CAN_MANAGE on the Pipeline notebooks folder to the data pipeline Service Principal
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'directories'
-    databricksResourceId: $(workspaceObjectId)
-    databricksPrincipalType: 'service_principal'
-    databricksPrincipalId: ${{ parameters.dataServicePrincipalClientId }}
-    databricksPermissionLevel: 'CAN_MANAGE'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_MANAGE on the Pipeline notebooks folder to the data pipeline Service Principal
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'directories'
+      databricksResourceId: $(workspaceObjectId)
+      databricksPrincipalType: 'service_principal'
+      databricksPrincipalId: ${{ parameters.dataServicePrincipalClientId }}
+      databricksPermissionLevel: 'CAN_MANAGE'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Give CAN_RUN on the Pipeline notebooks folder to the Data Factory Managed Identity
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'directories'
-    databricksResourceId: $(workspaceObjectId)
-    databricksPrincipalType: 'service_principal'
-    databricksPrincipalId: $(adfPrincipalId)
-    databricksPermissionLevel: 'CAN_RUN'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_RUN on the Pipeline notebooks folder to the Data Factory Managed Identity
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'directories'
+      databricksResourceId: $(workspaceObjectId)
+      databricksPrincipalType: 'service_principal'
+      databricksPrincipalId: $(adfPrincipalId)
+      databricksPermissionLevel: 'CAN_RUN'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Create an empty workspace folder for the Project notebooks
-- template: 'deploy-notebooks.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    notebooksSourceLocation: "/tmp/empty"
-    notebooksWorkspaceFolder: ${{ parameters.notebooksProjectWorkspaceFolder }}
+  # Create an empty workspace folder for the Project notebooks
+  - template: 'deploy-notebooks.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      notebooksSourceLocation: "/tmp/empty"
+      notebooksWorkspaceFolder: ${{ parameters.notebooksProjectWorkspaceFolder }}
 
-# Get the Workspace Object ID of the Project notebooks folder
-- task: Bash@3
-  displayName: 'Get Workspace Object ID of ${{ parameters.notebooksProjectWorkspaceFolder }}'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/get_workspace_object_id.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.notebooksProjectWorkspaceFolder }}"'
+  # Get the Workspace Object ID of the Project notebooks folder
+  - task: Bash@3
+    displayName: 'Get Workspace Object ID of ${{ parameters.notebooksProjectWorkspaceFolder }}'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/get_workspace_object_id.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.notebooksProjectWorkspaceFolder }}"'
 
-# Give CAN_MANAGE on the Project notebooks folder to the Project group
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'directories'
-    databricksResourceId: $(workspaceObjectId)
-    databricksPrincipalType: 'group'
-    databricksPrincipalId: ${{ parameters.projectGroupName }}
-    databricksPermissionLevel: 'CAN_MANAGE'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_MANAGE on the Project notebooks folder to the Project group
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'directories'
+      databricksResourceId: $(workspaceObjectId)
+      databricksPrincipalType: 'group'
+      databricksPrincipalId: ${{ parameters.projectGroupName }}
+      databricksPermissionLevel: 'CAN_MANAGE'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Create the Databricks Secret Scope
-- task: Bash@3
-  displayName: 'Create Databricks Secret Scope ${{ parameters.databricksSecretScopeName }}'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/create_secret_scope.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.databricksSecretScopeName }}"'
+  # Create the Databricks Secret Scope
+  - task: Bash@3
+    displayName: 'Create Databricks Secret Scope ${{ parameters.databricksSecretScopeName }}'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/create_secret_scope.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.databricksSecretScopeName }}"'
 
-# Give READ on the Secret Scope to the Azure Data Factory Managed Identity
-- task: Bash@3
-  displayName: 'Set READ on ${{ parameters.databricksSecretScopeName }} to the Data Factory Managed Identity'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/create_secret_scope_acl.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.databricksSecretScopeName }}" "$(adfPrincipalId)" "READ"'
+  # Give READ on the Secret Scope to the Azure Data Factory Managed Identity
+  - task: Bash@3
+    displayName: 'Set READ on ${{ parameters.databricksSecretScopeName }} to the Data Factory Managed Identity'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/create_secret_scope_acl.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.databricksSecretScopeName }}" "$(adfPrincipalId)" "READ"'
 
-# Give WRITE on the Secret Scope to the data pipeline Service Principal
-- task: Bash@3
-  displayName: 'Set WRITE on ${{ parameters.databricksSecretScopeName }} to the data pipeline Service Principal'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/create_secret_scope_acl.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.databricksSecretScopeName }}" "${{ parameters.dataServicePrincipalClientId }}" "WRITE"'
+  # Give WRITE on the Secret Scope to the data pipeline Service Principal
+  - task: Bash@3
+    displayName: 'Set WRITE on ${{ parameters.databricksSecretScopeName }} to the data pipeline Service Principal'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/create_secret_scope_acl.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "${{ parameters.databricksSecretScopeName }}" "${{ parameters.dataServicePrincipalClientId }}" "WRITE"'
 
-# Deploy the Jobs Instance Pool
-- template: 'deploy-instance-pool.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksPoolName: ${{ parameters.databricksJobsPoolName }}
-    databricksPoolNodeType: ${{ parameters.databricksJobsPoolNodeType }}
-    databricksPoolNodeAvailability: 'ON_DEMAND_AZURE'
-    databricksPoolMinIdleInstances: ${{ parameters.databricksJobsPoolMinIdleInstances }}
-    databricksPoolIdleInstanceAutotermination: ${{ parameters.databricksJobsPoolIdleInstanceAutotermination }}
-    databricksPoolSparkVersion: ${{ parameters.databricksSparkVersion }}
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Deploy the Jobs Instance Pool
+  - template: 'deploy-instance-pool.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksPoolName: ${{ parameters.databricksJobsPoolName }}
+      databricksPoolNodeType: ${{ parameters.databricksJobsPoolNodeType }}
+      databricksPoolNodeAvailability: 'ON_DEMAND_AZURE'
+      databricksPoolMinIdleInstances: ${{ parameters.databricksJobsPoolMinIdleInstances }}
+      databricksPoolIdleInstanceAutotermination: ${{ parameters.databricksJobsPoolIdleInstanceAutotermination }}
+      databricksPoolSparkVersion: ${{ parameters.databricksSparkVersion }}
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Give CAN_ATTACH_TO on the Jobs Instance Pool to the Data Factory Managed Identity
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'instance-pools'
-    databricksResourceId: $(databricksPoolId)
-    databricksPrincipalType: 'service_principal'
-    databricksPrincipalId: $(adfPrincipalId)
-    databricksPermissionLevel: 'CAN_ATTACH_TO'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_ATTACH_TO on the Jobs Instance Pool to the Data Factory Managed Identity
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'instance-pools'
+      databricksResourceId: $(databricksPoolId)
+      databricksPrincipalType: 'service_principal'
+      databricksPrincipalId: $(adfPrincipalId)
+      databricksPermissionLevel: 'CAN_ATTACH_TO'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Give CAN_ATTACH_TO on the Jobs Instance Pool to the data pipeline Service Principal
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'instance-pools'
-    databricksResourceId: $(databricksPoolId)
-    databricksPrincipalType: 'service_principal'
-    databricksPrincipalId: ${{ parameters.dataServicePrincipalClientId }}
-    databricksPermissionLevel: 'CAN_ATTACH_TO'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_ATTACH_TO on the Jobs Instance Pool to the data pipeline Service Principal
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'instance-pools'
+      databricksResourceId: $(databricksPoolId)
+      databricksPrincipalType: 'service_principal'
+      databricksPrincipalId: ${{ parameters.dataServicePrincipalClientId }}
+      databricksPermissionLevel: 'CAN_ATTACH_TO'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Deploy the Shared Instance Pool
-- template: 'deploy-instance-pool.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksPoolName: ${{ parameters.databricksSharedPoolName }}
-    databricksPoolNodeType: ${{ parameters.databricksSharedPoolNodeType }}
-    databricksPoolNodeAvailability: 'SPOT_AZURE'
-    databricksPoolMinIdleInstances: ${{ parameters.databricksSharedPoolMinIdleInstances }}
-    databricksPoolIdleInstanceAutotermination: ${{ parameters.databricksSharedPoolIdleInstanceAutotermination }}
-    databricksPoolSparkVersion: ${{ parameters.databricksSparkVersion }}
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Deploy the Shared Instance Pool
+  - template: 'deploy-instance-pool.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksPoolName: ${{ parameters.databricksSharedPoolName }}
+      databricksPoolNodeType: ${{ parameters.databricksSharedPoolNodeType }}
+      databricksPoolNodeAvailability: 'SPOT_AZURE'
+      databricksPoolMinIdleInstances: ${{ parameters.databricksSharedPoolMinIdleInstances }}
+      databricksPoolIdleInstanceAutotermination: ${{ parameters.databricksSharedPoolIdleInstanceAutotermination }}
+      databricksPoolSparkVersion: ${{ parameters.databricksSparkVersion }}
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Give CAN_ATTACH_TO on the Shared Instance Pool to the Project group
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'instance-pools'
-    databricksResourceId: $(databricksPoolId)
-    databricksPrincipalType: 'group'
-    databricksPrincipalId: ${{ parameters.projectGroupName }}
-    databricksPermissionLevel: 'CAN_ATTACH_TO'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_ATTACH_TO on the Shared Instance Pool to the Project group
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'instance-pools'
+      databricksResourceId: $(databricksPoolId)
+      databricksPrincipalType: 'group'
+      databricksPrincipalId: ${{ parameters.projectGroupName }}
+      databricksPermissionLevel: 'CAN_ATTACH_TO'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Deploy the Shared Autoscaling Cluster
-- task: PythonScript@0
-  displayName: 'Create Databricks Cluster ${{ parameters.databricksSharedClusterName }}'
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: '${{ parameters.scriptsLocation }}/create_cluster.py'
-    arguments: '"$(databricksWorkspaceUrl)"
-                "$(accessToken)"
-                "${{ parameters.databricksSharedClusterName }}"
-                "Credential Passthrough"
-                "120"
-                "${{ parameters.databricksSparkVersion }}"
-                "$(databricksPoolId)"
-                "${{ parameters.databricksSharedClusterNumWorkers }}"
-                "${{ parameters.databricksSharedClusterMaxNumWorkers }}"'
+  # Deploy the Shared Autoscaling Cluster
+  - task: PythonScript@0
+    displayName: 'Create Databricks Cluster ${{ parameters.databricksSharedClusterName }}'
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: '${{ parameters.scriptsLocation }}/create_cluster.py'
+      arguments: '"$(databricksWorkspaceUrl)"
+                  "$(accessToken)"
+                  "${{ parameters.databricksSharedClusterName }}"
+                  "Credential Passthrough"
+                  "120"
+                  "${{ parameters.databricksSparkVersion }}"
+                  "$(databricksPoolId)"
+                  "${{ parameters.databricksSharedClusterNumWorkers }}"
+                  "${{ parameters.databricksSharedClusterMaxNumWorkers }}"'
 
-# Give CAN_ATTACH_TO on the Shared Autoscaling Cluster to all users
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'clusters'
-    databricksResourceId: $(databricksClusterId)
-    databricksPrincipalType: 'group'
-    databricksPrincipalId: 'users'
-    databricksPermissionLevel: 'CAN_ATTACH_TO'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_ATTACH_TO on the Shared Autoscaling Cluster to all users
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'clusters'
+      databricksResourceId: $(databricksClusterId)
+      databricksPrincipalType: 'group'
+      databricksPrincipalId: 'users'
+      databricksPermissionLevel: 'CAN_ATTACH_TO'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Give CAN_RESTART on the Shared Autoscaling Cluster to the Project group
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'clusters'
-    databricksResourceId: $(databricksClusterId)
-    databricksPrincipalType: 'group'
-    databricksPrincipalId: ${{ parameters.projectGroupName }}
-    databricksPermissionLevel: 'CAN_RESTART'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_RESTART on the Shared Autoscaling Cluster to the Project group
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'clusters'
+      databricksResourceId: $(databricksClusterId)
+      databricksPrincipalType: 'group'
+      databricksPrincipalId: ${{ parameters.projectGroupName }}
+      databricksPermissionLevel: 'CAN_RESTART'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Deploy the Single Node Cluster Policy
-- task: Bash@3
-  displayName: 'Create the Single Node Cluster Policy'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/create_cluster_policy.sh'
-    arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "Single Node Cluster" "${{ parameters.databricksSingleNodeClusterPolicyLocation }}"'
+  # Deploy the Single Node Cluster Policy
+  - task: Bash@3
+    displayName: 'Create the Single Node Cluster Policy'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/create_cluster_policy.sh'
+      arguments: '"$(databricksWorkspaceUrl)" "$(accessToken)" "Single Node Cluster" "${{ parameters.databricksSingleNodeClusterPolicyLocation }}"'
 
-# Give CAN_USE on the Single Node Cluster Policy to the Project group
-- template: 'set-databricks-permission.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksResourceType: 'cluster-policies'
-    databricksResourceId: $(databricksPolicyId)
-    databricksPrincipalType: 'group'
-    databricksPrincipalId: ${{ parameters.projectGroupName }}
-    databricksPermissionLevel: 'CAN_USE'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Give CAN_USE on the Single Node Cluster Policy to the Project group
+  - template: 'set-databricks-permission.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksResourceType: 'cluster-policies'
+      databricksResourceId: $(databricksPolicyId)
+      databricksPrincipalType: 'group'
+      databricksPrincipalId: ${{ parameters.projectGroupName }}
+      databricksPermissionLevel: 'CAN_USE'
+      scriptsLocation: ${{ parameters.scriptsLocation }}
 
-# Get the data pipeline Service Principal Client Secret from the Key Vault
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: ${{ parameters.serviceConnection }}
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      spClientSecret=$(az keyvault secret show --name "${{ parameters.secretNameClientSecret }}" --vault-name "${{ parameters.keyVaultName }}" --query value)
-      [ -n "${spClientSecret}" ] && echo "##vso[task.setvariable variable=spClientSecret;issecret=true]${spClientSecret}" || exit 1
+  # Get the data pipeline Service Principal Client Secret from the Key Vault
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        spClientSecret=$(az keyvault secret show --name "${{ parameters.secretNameClientSecret }}" --vault-name "${{ parameters.keyVaultName }}" --query value)
+        [ -n "${spClientSecret}" ] && echo "##vso[task.setvariable variable=spClientSecret;issecret=true]${spClientSecret}" || exit 1
 
-# Add the secret from Key Vault to the Databricks Secret Scope
-# This needs to be done until Key Vault backed Secret Scopes are supported with Service Principals
-- task: AzureCLI@2
-  displayName: 'Add the Client Secret to Databricks Secret Scope'
-  inputs:
-    azureSubscription: ${{ parameters.serviceConnection }}
-    scriptType: 'bash'
-    scriptPath: '${{ parameters.scriptsLocation }}/add_secret_to_secret_scope.sh'
-    arguments: '"$(databricksWorkspaceUrl)"
-                "$(accessToken)"
-                "${{ parameters.databricksSecretScopeName }}"
-                "${{ parameters.secretNameClientSecret }}"
-                "$(spClientSecret)"'
+  # Add the secret from Key Vault to the Databricks Secret Scope
+  # This needs to be done until Key Vault backed Secret Scopes are supported with Service Principals
+  - task: AzureCLI@2
+    displayName: 'Add the Client Secret to Databricks Secret Scope'
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      scriptType: 'bash'
+      scriptPath: '${{ parameters.scriptsLocation }}/add_secret_to_secret_scope.sh'
+      arguments: '"$(databricksWorkspaceUrl)"
+                  "$(accessToken)"
+                  "${{ parameters.databricksSecretScopeName }}"
+                  "${{ parameters.secretNameClientSecret }}"
+                  "$(spClientSecret)"'
 
-# Get the Azure AD Tenant ID
-- task: AzureCLI@2
-  displayName: 'Get the Tenant ID'
-  inputs:
-    azureSubscription: ${{ parameters.serviceConnection }}
-    addSpnToEnvironment: true
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      [ -n "${tenantId}" ] && echo "##vso[task.setvariable variable=tenantId;issecret=false]${tenantId}" || exit 1
+  # Get the Azure AD Tenant ID
+  - task: AzureCLI@2
+    displayName: 'Get the Tenant ID'
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      addSpnToEnvironment: true
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        [ -n "${tenantId}" ] && echo "##vso[task.setvariable variable=tenantId;issecret=false]${tenantId}" || exit 1
 
-# Mount the ADLS Gen2 Project Filesystem using the latest Client Secret of the data pipeline Service Principal
-- template: 'run-notebook-job.yml'  # Template reference
-  parameters:
-    databricksWorkspaceUrl: $(databricksWorkspaceUrl)
-    accessToken: $(accessToken)
-    databricksClusterNodeTypeOrPool: $(databricksPoolId)
-    notebookPath: ${{ parameters.mountAdlsNotebookPath }}
-    notebookParameters: '{\"secretScopeName\":\"${{ parameters.databricksSecretScopeName }}\",
-                          \"spClientId\":\"${{ parameters.dataServicePrincipalClientId }}\",
-                          \"secretNameClientSecret\":\"${{ parameters.secretNameClientSecret }}\",
-                          \"tenantId\":\"$(tenantId)\",
-                          \"storageAccountName\":\"${{ parameters.storageAccountName }}\",
-                          \"storageContainerName\":\"${{ parameters.projectContainerName }}\",
-                          \"mountPoint\":\"${{ parameters.projectMountPoint }}\"}'
-    scriptsLocation: ${{ parameters.scriptsLocation }}
+  # Mount the ADLS Gen2 Project Filesystem using the latest Client Secret of the data pipeline Service Principal
+  - template: 'run-notebook-job.yml'  # Template reference
+    parameters:
+      databricksWorkspaceUrl: $(databricksWorkspaceUrl)
+      accessToken: $(accessToken)
+      databricksClusterNodeTypeOrPool: $(databricksPoolId)
+      notebookPath: ${{ parameters.mountAdlsNotebookPath }}
+      notebookParameters: '{\"secretScopeName\":\"${{ parameters.databricksSecretScopeName }}\",
+                            \"spClientId\":\"${{ parameters.dataServicePrincipalClientId }}\",
+                            \"secretNameClientSecret\":\"${{ parameters.secretNameClientSecret }}\",
+                            \"tenantId\":\"$(tenantId)\",
+                            \"storageAccountName\":\"${{ parameters.storageAccountName }}\",
+                            \"storageContainerName\":\"${{ parameters.projectContainerName }}\",
+                            \"mountPoint\":\"${{ parameters.projectMountPoint }}\"}'
+      scriptsLocation: ${{ parameters.scriptsLocation }}

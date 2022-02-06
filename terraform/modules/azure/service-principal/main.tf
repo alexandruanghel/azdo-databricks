@@ -1,32 +1,31 @@
 /**
-* Creates an Azure Service Principal with optional App Owners, API Permissions and secret.
+* Creates an Azure Service Principal with optional App Owners and API Permissions (including admin-consent).
 */
 data "azurerm_client_config" "current" {}
 
-# Use an external data source to get the API Permission ID (no data source exists for this yet in the azuread provider)
-data "external" "ad_permission_id" {
-  count    = length(var.api_permissions)
-  program  = ["/bin/bash", "${path.module}/scripts/get_api_permission_id.sh"]
-  query    = {
-    graph_type     = "ad"
-    api_permission = var.api_permissions[count.index]
-  }
+# Get the well-known application IDs for APIs published by Microsoft
+data "azuread_application_published_app_ids" "well_known" {}
+
+# Get all information about the Microsoft Graph API
+data "azuread_service_principal" "msgraph" {
+  application_id = data.azuread_application_published_app_ids.well_known.result.MicrosoftGraph
 }
 
 # Create the Azure App Registration
 resource "azuread_application" "sp" {
   display_name    = var.name
-  identifier_uris = ["http://${var.name}"]
+  identifier_uris = ["api://${var.name}"]
   owners          = var.owners
 
+  # Use the app_role_ids mapping to get the app role IDs of the required API Permissions
   dynamic required_resource_access {
     for_each = length(var.api_permissions) > 0 ? [1] : []
     content {
-      resource_app_id = "00000002-0000-0000-c000-000000000000"
+      resource_app_id = data.azuread_service_principal.msgraph.application_id
       dynamic resource_access {
-        for_each = data.external.ad_permission_id
+        for_each = var.api_permissions
         content {
-          id   = resource_access.value.result.api_permission_id
+          id   = data.azuread_service_principal.msgraph.app_role_ids[resource_access.value]
           type = "Role"
         }
       }
@@ -50,38 +49,19 @@ resource "azuread_service_principal" "sp" {
   depends_on                   = [azuread_application.sp]
 }
 
-# Grant admin-consent using az cli (no resource exists for this yet in the azuread provider, see #230)
-resource "null_resource" "admin_consent" {
-  count    = length(var.api_permissions) > 0 ? 1 : 0
-  triggers = {
-    service_principal_api_permissions = lower(join(",", sort(var.api_permissions)))
-    service_principal_id              = azuread_application.sp.application_id
-  }
+# Grant admin-consent for the requested API Permissions
+resource "azuread_app_role_assignment" "admin_consent" {
+  for_each    = toset(var.api_permissions)
 
-  provisioner "local-exec" {
-    command = "az ad app permission admin-consent --id '${azuread_application.sp.application_id}'"
-  }
-
-  depends_on = [azuread_service_principal.sp]
-}
-
-# Generate a random password to be used for the App Registration Client Secret (if one was not provided)
-resource "random_password" "sp" {
-  count            = var.secret == null ? 1 : 0
-  length           = 34
-  special          = true
-  override_special = "_~@."
-
-  keepers = {
-    service_principal = azuread_service_principal.sp.id
-  }
+  app_role_id         = data.azuread_service_principal.msgraph.app_role_ids[each.value]
+  principal_object_id = azuread_service_principal.sp.object_id
+  resource_object_id  = data.azuread_service_principal.msgraph.object_id
 }
 
 # Create the Service Principal client secret
 resource "azuread_application_password" "sp" {
   application_object_id = azuread_application.sp.id
   display_name          = "Managed by Terraform"
-  value                 = var.secret == null ? random_password.sp[0].result : var.secret
   end_date_relative     = var.secret_expiration
   depends_on            = [azuread_service_principal.sp]
 }

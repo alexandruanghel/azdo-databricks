@@ -152,7 +152,8 @@ echo
 
 # Create the Azure Key Vault
 echo -e "Creating the Azure Key Vault \"${KEY_VAULT_NAME}\"\n----------------------"
-_response=$(az keyvault create --resource-group "${DATABRICKS_RESOURCE_GROUP_NAME}" --name "${KEY_VAULT_NAME}")
+_response=$(az keyvault show --resource-group "${DATABRICKS_RESOURCE_GROUP_NAME}" --name "${KEY_VAULT_NAME}" 2>/dev/null \
+              || az keyvault create --resource-group "${DATABRICKS_RESOURCE_GROUP_NAME}" --name "${KEY_VAULT_NAME}")
 [ -z "${_response}" ] && exit 1
 echo -e "Azure Key Vault \"${KEY_VAULT_NAME}\" created"
 echo

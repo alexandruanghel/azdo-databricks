@@ -3,61 +3,61 @@
 #
 
 parameters:
-- name: databricksWorkspaceUrl
-  displayName: 'Azure Databricks Workspace Url'
-  type: string
+  - name: databricksWorkspaceUrl
+    displayName: 'Azure Databricks Workspace Url'
+    type: string
 
-- name: accessToken
-  displayName: 'Azure AD Access Token'
-  type: string
+  - name: accessToken
+    displayName: 'Azure AD Access Token'
+    type: string
 
-- name: databricksPoolName
-  displayName: 'Name of the Azure Databricks Instance Pool'
-  type: string
+  - name: databricksPoolName
+    displayName: 'Name of the Azure Databricks Instance Pool'
+    type: string
 
-- name: databricksPoolNodeType
-  displayName: 'Azure Databricks Node Type'
-  type: string
+  - name: databricksPoolNodeType
+    displayName: 'Azure Databricks Node Type'
+    type: string
 
-- name: databricksPoolNodeAvailability
-  displayName: 'Spot or On Demand instances'
-  type: string
-  default: 'ON_DEMAND_AZURE'
-  values:
-    - SPOT_AZURE
-    - ON_DEMAND_AZURE
+  - name: databricksPoolNodeAvailability
+    displayName: 'Spot or On Demand instances'
+    type: string
+    default: 'ON_DEMAND_AZURE'
+    values:
+      - SPOT_AZURE
+      - ON_DEMAND_AZURE
 
-- name: databricksPoolMinIdleInstances
-  displayName: 'The minimum number of idle instances maintained by the pool'
-  type: number
-  default: 0
+  - name: databricksPoolMinIdleInstances
+    displayName: 'The minimum number of idle instances maintained by the pool'
+    type: number
+    default: 0
 
-- name: databricksPoolIdleInstanceAutotermination
-  displayName: 'The number of minutes that idle instances are maintained by the pool before being terminated'
-  type: number
-  default: 30
+  - name: databricksPoolIdleInstanceAutotermination
+    displayName: 'The number of minutes that idle instances are maintained by the pool before being terminated'
+    type: number
+    default: 30
 
-- name: databricksPoolSparkVersion
-  displayName: 'Azure Databricks Spark Version'
-  type: string
-  default: '7.3.x-scala2.12'
+  - name: databricksPoolSparkVersion
+    displayName: 'Azure Databricks Spark Version'
+    type: string
+    default: '9.1.x-scala2.12'
 
-- name: scriptsLocation
-  displayName: 'Location of Scripts'
-  type: string
+  - name: scriptsLocation
+    displayName: 'Location of Scripts'
+    type: string
 
 
 steps:
-- task: PythonScript@0
-  displayName: 'Create Databricks Instance Pool ${{ parameters.databricksPoolName }}'
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: '${{ parameters.scriptsLocation }}/create_instance_pool.py'
-    arguments: '"${{ parameters.databricksWorkspaceUrl }}"
-                "${{ parameters.accessToken }}"
-                "${{ parameters.databricksPoolName }}"
-                "${{ parameters.databricksPoolNodeType }}"
-                "${{ parameters.databricksPoolMinIdleInstances }}"
-                "${{ parameters.databricksPoolIdleInstanceAutotermination }}"
-                "${{ parameters.databricksPoolSparkVersion }}"
-                "${{ parameters.databricksPoolNodeAvailability }}"'
+  - task: PythonScript@0
+    displayName: 'Create Databricks Instance Pool ${{ parameters.databricksPoolName }}'
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: '${{ parameters.scriptsLocation }}/create_instance_pool.py'
+      arguments: '"${{ parameters.databricksWorkspaceUrl }}"
+                  "${{ parameters.accessToken }}"
+                  "${{ parameters.databricksPoolName }}"
+                  "${{ parameters.databricksPoolNodeType }}"
+                  "${{ parameters.databricksPoolMinIdleInstances }}"
+                  "${{ parameters.databricksPoolIdleInstanceAutotermination }}"
+                  "${{ parameters.databricksPoolSparkVersion }}"
+                  "${{ parameters.databricksPoolNodeAvailability }}"'

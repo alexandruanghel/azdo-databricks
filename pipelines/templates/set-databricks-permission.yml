@@ -3,53 +3,53 @@
 #
 
 parameters:
-- name: databricksWorkspaceUrl
-  displayName: 'Azure Databricks Workspace Url'
-  type: string
+  - name: databricksWorkspaceUrl
+    displayName: 'Azure Databricks Workspace Url'
+    type: string
 
-- name: accessToken
-  displayName: 'Azure AD Access Token'
-  type: string
+  - name: accessToken
+    displayName: 'Azure AD Access Token'
+    type: string
 
-- name: databricksResourceType
-  displayName: 'Type of the Azure Databricks resource'
-  type: string
+  - name: databricksResourceType
+    displayName: 'Type of the Azure Databricks resource'
+    type: string
 
-- name: databricksResourceId
-  displayName: 'Id of the Azure Databricks resource'
-  type: string
+  - name: databricksResourceId
+    displayName: 'Id of the Azure Databricks resource'
+    type: string
 
-- name: databricksPrincipalType
-  displayName: 'One of user, group or service_principal'
-  type: string
-  values:
-    - user
-    - group
-    - service_principal
+  - name: databricksPrincipalType
+    displayName: 'One of user, group or service_principal'
+    type: string
+    values:
+      - user
+      - group
+      - service_principal
 
-- name: databricksPrincipalId
-  displayName: 'The name of the User, Group or Service Principal'
-  type: string
+  - name: databricksPrincipalId
+    displayName: 'The name of the User, Group or Service Principal'
+    type: string
 
-- name: databricksPermissionLevel
-  displayName: 'Permission Level of the Principal over the Resource'
-  type: string
+  - name: databricksPermissionLevel
+    displayName: 'Permission Level of the Principal over the Resource'
+    type: string
 
-- name: scriptsLocation
-  displayName: 'Location of Scripts'
-  type: string
+  - name: scriptsLocation
+    displayName: 'Location of Scripts'
+    type: string
 
 
 steps:
-- task: Bash@3
-  displayName: 'Set ${{ parameters.databricksPermissionLevel }} on a ${{ parameters.databricksResourceType }} resource type to ${{ parameters.databricksPrincipalId }}'
-  inputs:
-    targetType: 'filePath'
-    filePath: '${{ parameters.scriptsLocation }}/add_workspace_permission.sh'
-    arguments: '"${{ parameters.databricksWorkspaceUrl }}"
-                "${{ parameters.accessToken }}"
-                "${{ parameters.databricksResourceType }}"
-                "${{ parameters.databricksResourceId }}"
-                "${{ parameters.databricksPrincipalType }}"
-                "${{ parameters.databricksPrincipalId }}"
-                "${{ parameters.databricksPermissionLevel }}"'
+  - task: Bash@3
+    displayName: 'Set ${{ parameters.databricksPermissionLevel }} on a ${{ parameters.databricksResourceType }} resource type to ${{ parameters.databricksPrincipalId }}'
+    inputs:
+      targetType: 'filePath'
+      filePath: '${{ parameters.scriptsLocation }}/add_workspace_permission.sh'
+      arguments: '"${{ parameters.databricksWorkspaceUrl }}"
+                  "${{ parameters.accessToken }}"
+                  "${{ parameters.databricksResourceType }}"
+                  "${{ parameters.databricksResourceId }}"
+                  "${{ parameters.databricksPrincipalType }}"
+                  "${{ parameters.databricksPrincipalId }}"
+                  "${{ parameters.databricksPermissionLevel }}"'

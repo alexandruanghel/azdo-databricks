@@ -6,12 +6,12 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.1"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.68"
+      version = "~> 2"
     }
     random = {
       source  = "hashicorp/random"
@@ -94,7 +94,7 @@ module "test_databricks_workspace_vnet_injection" {
   workspace_name              = local.workspace_vnet_injection
   managed_resource_group_name = local.managed_resource_group_name
   pricing_tier                = "trial"
-  virtual_network_id          = module.test_databricks_vnet.virtual_network_id
+  virtual_network_name        = module.test_databricks_vnet.virtual_network_name
   private_subnet_name         = module.test_databricks_vnet.private_subnet_name
   public_subnet_name          = module.test_databricks_vnet.public_subnet_name
   tags                        = local.custom_tags
@@ -117,16 +117,16 @@ module "test_databricks_vnet_nat" {
 
 # Build a Databricks workspace with VNet injection and secure cluster connectivity (No Public IP / NPIP)
 module "test_databricks_workspace_npip" {
-  source              = "../../../modules/azure/databricks-workspace"
-  azure_location      = var.azure_location
-  resource_group_name = local.resource_group_name
-  workspace_name      = local.workspace_vnet_injection_npip
-  virtual_network_id  = module.test_databricks_vnet_nat.virtual_network_id
-  private_subnet_name = module.test_databricks_vnet_nat.private_subnet_name
-  public_subnet_name  = module.test_databricks_vnet_nat.public_subnet_name
-  disable_public_ip   = true
-  tags                = local.custom_tags
-  depends_on          = [module.test_databricks_vnet_nat]
+  source               = "../../../modules/azure/databricks-workspace"
+  azure_location       = var.azure_location
+  resource_group_name  = local.resource_group_name
+  workspace_name       = local.workspace_vnet_injection_npip
+  virtual_network_name = module.test_databricks_vnet_nat.virtual_network_name
+  private_subnet_name  = module.test_databricks_vnet_nat.private_subnet_name
+  public_subnet_name   = module.test_databricks_vnet_nat.public_subnet_name
+  disable_public_ip    = true
+  tags                 = local.custom_tags
+  depends_on           = [module.test_databricks_vnet_nat]
 }
 
 # Terraform output

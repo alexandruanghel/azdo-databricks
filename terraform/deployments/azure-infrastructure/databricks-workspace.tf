@@ -24,7 +24,7 @@ module "databricks_workspace_vnet_injection" {
   resource_group_name         = data.azurerm_resource_group.main.name
   workspace_name              = var.DATABRICKS_WORKSPACE_NAME
   pricing_tier                = var.DATABRICKS_PRICING_TIER
-  virtual_network_id          = module.databricks_vnet.virtual_network_id
+  virtual_network_name        = module.databricks_vnet.virtual_network_name
   private_subnet_name         = module.databricks_vnet.private_subnet_name
   public_subnet_name          = module.databricks_vnet.public_subnet_name
   disable_public_ip           = tobool(var.DATABRICKS_DISABLE_PUBLIC_IP)
