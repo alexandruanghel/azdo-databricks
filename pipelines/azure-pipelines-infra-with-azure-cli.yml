@@ -20,12 +20,6 @@ parameters:
     default:
       vmImage: 'ubuntu-latest'
 
-  - name: environment
-    displayName: 'Environment'
-    type: object
-    default:
-      name: 'demo'
-
   - name: armTemplatesLocation
     displayName: 'Base folder path containing the ARM templates'
     type: string
@@ -40,107 +34,95 @@ stages:
   - stage: azureInfrastructure
     displayName: 'Deploy infrastructure'
     jobs:
-      - deployment: azureResources
+      - job: azureResources
         displayName: 'Deploy Azure Resources'
         pool: ${{ parameters.pool }}
-        environment: ${{ parameters.environment }}
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
+        steps:
+          - checkout: self
 
-                # Deploy the core Azure infrastructure
-                - template: 'templates/deploy-azure-infrastructure.yml'  # Template reference
-                  parameters:
-                    serviceConnection: ${{ parameters.serviceConnection }}
-                    resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
-                    projectGroupName: ${{ variables.PROJECT_GROUP_NAME }}
-                    dataServicePrincipalClientId: ${{ variables.DATA_SERVICE_PRINCIPAL_CLIENT_ID }}
-                    storageAccountName: ${{ variables.STORAGE_ACCOUNT_NAME }}
-                    pipelineContainerName: ${{ variables.PIPELINE_CONTAINER_NAME }}
-                    projectContainerName: ${{ variables.PROJECT_CONTAINER_NAME }}
-                    keyVaultName: ${{ variables.KEY_VAULT_NAME }}
-                    dataFactoryName: ${{ variables.DATA_FACTORY_NAME }}
-                    armTemplatesLocation: ${{ parameters.armTemplatesLocation }}
-                    scriptsLocation: ${{ parameters.scriptsLocation }}
+          # Deploy the core Azure infrastructure
+          - template: 'templates/deploy-azure-infrastructure.yml'  # Template reference
+            parameters:
+              serviceConnection: ${{ parameters.serviceConnection }}
+              resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
+              projectGroupName: ${{ variables.PROJECT_GROUP_NAME }}
+              dataServicePrincipalClientId: ${{ variables.DATA_SERVICE_PRINCIPAL_CLIENT_ID }}
+              storageAccountName: ${{ variables.STORAGE_ACCOUNT_NAME }}
+              pipelineContainerName: ${{ variables.PIPELINE_CONTAINER_NAME }}
+              projectContainerName: ${{ variables.PROJECT_CONTAINER_NAME }}
+              keyVaultName: ${{ variables.KEY_VAULT_NAME }}
+              dataFactoryName: ${{ variables.DATA_FACTORY_NAME }}
+              armTemplatesLocation: ${{ parameters.armTemplatesLocation }}
+              scriptsLocation: ${{ parameters.scriptsLocation }}
 
-      - deployment: databricksWorkspace
+      - job: databricksWorkspace
         displayName: 'Deploy Databricks Workspace'
         pool: ${{ parameters.pool }}
         dependsOn: azureResources
-        environment: ${{ parameters.environment }}
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
+        steps:
+          - checkout: self
 
-                # Deploy the Azure Databricks workspace
-                - template: 'templates/deploy-databricks-workspace.yml'  # Template reference
-                  parameters:
-                    serviceConnection: ${{ parameters.serviceConnection }}
-                    resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
-                    databricksWorkspaceName: ${{ variables.DATABRICKS_WORKSPACE_NAME }}
-                    databricksPricingTier: ${{ variables.DATABRICKS_PRICING_TIER }}
-                    databricksNsgName: ${{ variables.DATABRICKS_NSG_NAME }}
-                    databricksVnetName: ${{ variables.DATABRICKS_VNET_NAME }}
-                    databricksVnetCidr: ${{ variables.DATABRICKS_VNET_CIDR }}
-                    databricksPrivateSubnetName: ${{ variables.DATABRICKS_PRIVATE_SUBNET_NAME }}
-                    databricksPrivateSubnetCidr: ${{ variables.DATABRICKS_PRIVATE_SUBNET_CIDR }}
-                    databricksPublicSubnetName: ${{ variables.DATABRICKS_PUBLIC_SUBNET_NAME }}
-                    databricksPublicSubnetCidr: ${{ variables.DATABRICKS_PUBLIC_SUBNET_CIDR }}
-                    databricksDisablePublicIp: ${{ variables.DATABRICKS_DISABLE_PUBLIC_IP }}
-                    armTemplatesLocation: ${{ parameters.armTemplatesLocation }}
-                    scriptsLocation: ${{ parameters.scriptsLocation }}
+          # Deploy the Azure Databricks workspace
+          - template: 'templates/deploy-databricks-workspace.yml'  # Template reference
+            parameters:
+              serviceConnection: ${{ parameters.serviceConnection }}
+              resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
+              databricksWorkspaceName: ${{ variables.DATABRICKS_WORKSPACE_NAME }}
+              databricksPricingTier: ${{ variables.DATABRICKS_PRICING_TIER }}
+              databricksNsgName: ${{ variables.DATABRICKS_NSG_NAME }}
+              databricksVnetName: ${{ variables.DATABRICKS_VNET_NAME }}
+              databricksVnetCidr: ${{ variables.DATABRICKS_VNET_CIDR }}
+              databricksPrivateSubnetName: ${{ variables.DATABRICKS_PRIVATE_SUBNET_NAME }}
+              databricksPrivateSubnetCidr: ${{ variables.DATABRICKS_PRIVATE_SUBNET_CIDR }}
+              databricksPublicSubnetName: ${{ variables.DATABRICKS_PUBLIC_SUBNET_NAME }}
+              databricksPublicSubnetCidr: ${{ variables.DATABRICKS_PUBLIC_SUBNET_CIDR }}
+              databricksDisablePublicIp: ${{ variables.DATABRICKS_DISABLE_PUBLIC_IP }}
+              armTemplatesLocation: ${{ parameters.armTemplatesLocation }}
+              scriptsLocation: ${{ parameters.scriptsLocation }}
 
   - stage: workspaceBootstrap
     displayName: 'Bootstrap Workspace'
     dependsOn: azureInfrastructure
     jobs:
-      - deployment: workspaceBootstrap
+      - job: workspaceBootstrap
         displayName: 'Bootstrap Databricks Workspace'
         pool: ${{ parameters.pool }}
-        environment: ${{ parameters.environment }}
         variables:
           mountAdlsNotebookPath: '${{ variables.NOTEBOOKS_SHARED_WORKSPACE_FOLDER }}/mount-adls-gen-2'
           projectMountPoint: '/mnt/${{ variables.STORAGE_ACCOUNT_NAME }}-${{ variables.PROJECT_CONTAINER_NAME }}'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
+        steps:
+          - checkout: self
 
-                # Bootstrap the Azure Databricks workspace
-                - template: 'templates/bootstrap-databricks-workspace.yml'  # Template reference
-                  parameters:
-                    serviceConnection: ${{ parameters.serviceConnection }}
-                    resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
-                    projectGroupName: ${{ variables.PROJECT_GROUP_NAME }}
-                    dataServicePrincipalClientId: ${{ variables.DATA_SERVICE_PRINCIPAL_CLIENT_ID }}
-                    storageAccountName: ${{ variables.STORAGE_ACCOUNT_NAME }}
-                    pipelineContainerName: ${{ variables.PIPELINE_CONTAINER_NAME }}
-                    projectContainerName: ${{ variables.PROJECT_CONTAINER_NAME }}
-                    dataFactoryName: ${{ variables.DATA_FACTORY_NAME }}
-                    databricksWorkspaceName: ${{ variables.DATABRICKS_WORKSPACE_NAME }}
-                    databricksJobsPoolName: ${{ variables.DATABRICKS_JOBS_POOL_NAME }}
-                    databricksJobsPoolNodeType: ${{ variables.DATABRICKS_JOBS_POOL_NODE_TYPE }}
-                    databricksJobsPoolMinIdleInstances: 0
-                    databricksJobsPoolIdleInstanceAutotermination: 60
-                    databricksSharedPoolName: ${{ variables.DATABRICKS_SHARED_POOL_NAME }}
-                    databricksSharedPoolNodeType: ${{ variables.DATABRICKS_SHARED_POOL_NODE_TYPE }}
-                    databricksSharedPoolMinIdleInstances: 0
-                    databricksSharedPoolIdleInstanceAutotermination: 120
-                    databricksSharedClusterName: ${{ variables.DATABRICKS_SHARED_CLUSTER_NAME }}
-                    databricksSparkVersion: ${{ variables.DATABRICKS_SPARK_VERSION }}
-                    databricksSingleNodeClusterPolicyLocation: ${{ variables.DATABRICKS_CLUSTER_POLICY_LOCATION }}
-                    keyVaultName: ${{ variables.KEY_VAULT_NAME }}
-                    databricksSecretScopeName: ${{ variables.DATABRICKS_SECRET_SCOPE_NAME }}
-                    secretNameClientSecret: ${{ variables.SECRET_NAME_CLIENT_SECRET }}
-                    notebooksSharedSourceLocation: ${{ variables.NOTEBOOKS_SHARED_SOURCE_LOCATION }}
-                    notebooksSharedWorkspaceFolder: ${{ variables.NOTEBOOKS_SHARED_WORKSPACE_FOLDER }}
-                    mountAdlsNotebookPath: $(mountAdlsNotebookPath)
-                    projectMountPoint: $(projectMountPoint)
-                    notebooksProjectWorkspaceFolder: ${{ variables.NOTEBOOKS_PROJECT_WORKSPACE_FOLDER }}
-                    notebooksPipelineWorkspaceFolder: ${{ variables.NOTEBOOKS_PIPELINE_WORKSPACE_FOLDER }}
-                    scriptsLocation: ${{ parameters.scriptsLocation }}
+          # Bootstrap the Azure Databricks workspace
+          - template: 'templates/bootstrap-databricks-workspace.yml'  # Template reference
+            parameters:
+              serviceConnection: ${{ parameters.serviceConnection }}
+              resourceGroupName: ${{ variables.RESOURCE_GROUP_NAME }}
+              projectGroupName: ${{ variables.PROJECT_GROUP_NAME }}
+              dataServicePrincipalClientId: ${{ variables.DATA_SERVICE_PRINCIPAL_CLIENT_ID }}
+              storageAccountName: ${{ variables.STORAGE_ACCOUNT_NAME }}
+              pipelineContainerName: ${{ variables.PIPELINE_CONTAINER_NAME }}
+              projectContainerName: ${{ variables.PROJECT_CONTAINER_NAME }}
+              dataFactoryName: ${{ variables.DATA_FACTORY_NAME }}
+              databricksWorkspaceName: ${{ variables.DATABRICKS_WORKSPACE_NAME }}
+              databricksJobsPoolName: ${{ variables.DATABRICKS_JOBS_POOL_NAME }}
+              databricksJobsPoolNodeType: ${{ variables.DATABRICKS_JOBS_POOL_NODE_TYPE }}
+              databricksJobsPoolMinIdleInstances: 0
+              databricksJobsPoolIdleInstanceAutotermination: 60
+              databricksSharedPoolName: ${{ variables.DATABRICKS_SHARED_POOL_NAME }}
+              databricksSharedPoolNodeType: ${{ variables.DATABRICKS_SHARED_POOL_NODE_TYPE }}
+              databricksSharedPoolMinIdleInstances: 0
+              databricksSharedPoolIdleInstanceAutotermination: 120
+              databricksSharedClusterName: ${{ variables.DATABRICKS_SHARED_CLUSTER_NAME }}
+              databricksSparkVersion: ${{ variables.DATABRICKS_SPARK_VERSION }}
+              databricksSingleNodeClusterPolicyLocation: ${{ variables.DATABRICKS_CLUSTER_POLICY_LOCATION }}
+              keyVaultName: ${{ variables.KEY_VAULT_NAME }}
+              databricksSecretScopeName: ${{ variables.DATABRICKS_SECRET_SCOPE_NAME }}
+              secretNameClientSecret: ${{ variables.SECRET_NAME_CLIENT_SECRET }}
+              notebooksSharedSourceLocation: ${{ variables.NOTEBOOKS_SHARED_SOURCE_LOCATION }}
+              notebooksSharedWorkspaceFolder: ${{ variables.NOTEBOOKS_SHARED_WORKSPACE_FOLDER }}
+              mountAdlsNotebookPath: $(mountAdlsNotebookPath)
+              projectMountPoint: $(projectMountPoint)
+              notebooksProjectWorkspaceFolder: ${{ variables.NOTEBOOKS_PROJECT_WORKSPACE_FOLDER }}
+              notebooksPipelineWorkspaceFolder: ${{ variables.NOTEBOOKS_PIPELINE_WORKSPACE_FOLDER }}
+              scriptsLocation: ${{ parameters.scriptsLocation }}

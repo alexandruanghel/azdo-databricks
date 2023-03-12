@@ -27,7 +27,7 @@ data "azurerm_subnet" "databricks_private_subnet" {
 
 resource "random_string" "rg_suffix" {
   length  = 10
-  number  = true
+  numeric = true
   lower   = true
   upper   = false
   special = false

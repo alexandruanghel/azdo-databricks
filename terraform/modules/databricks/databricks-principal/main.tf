@@ -16,6 +16,7 @@ resource "databricks_user" "user" {
   allow_instance_pool_create = var.allow_instance_pool_create
   databricks_sql_access      = var.databricks_sql_access
   active                     = true
+  force                      = true
 }
 
 resource "databricks_service_principal" "sp" {
@@ -26,6 +27,7 @@ resource "databricks_service_principal" "sp" {
   allow_instance_pool_create = var.allow_instance_pool_create
   databricks_sql_access      = var.databricks_sql_access
   active                     = true
+  force                      = true
 }
 
 resource "databricks_group" "group" {
@@ -34,6 +36,7 @@ resource "databricks_group" "group" {
   allow_cluster_create       = var.allow_cluster_create
   allow_instance_pool_create = var.allow_instance_pool_create
   databricks_sql_access      = var.databricks_sql_access
+  force                      = true
 }
 
 resource "databricks_group_member" "groups" {

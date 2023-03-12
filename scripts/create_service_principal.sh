@@ -26,7 +26,7 @@ _usage() {
 
 # Create the Service Principal
 echo -e "Creating a Service Principal named \"${_sp_registration_name}\""
-_response=$(az ad sp create-for-rbac --name "${_sp_registration_name}" --skip-assignment)
+_response=$(az ad sp create-for-rbac --name "${_sp_registration_name}")
 [ -z "${_response}" ] && exit 1
 
 # Extract the Service Principal Client ID from the response

@@ -33,7 +33,7 @@ export ARM_CLIENT_ID=$(echo "${tf_admin_output}" | ${_python} -c 'import sys,jso
 #
 ## Generate a new client secret for the infra Service Principal to simulate the Azure DevOps environment
 #echo -e "Generating a new client secret for the infra Service Principal"
-#ARM_CLIENT_SECRET=$(az ad sp credential reset --name "${ARM_CLIENT_ID}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["password"])')
+#ARM_CLIENT_SECRET=$(az ad sp credential reset --id "${ARM_CLIENT_ID}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["password"])')
 #[ -z "${ARM_CLIENT_SECRET}" ] && exit 1
 #export ARM_CLIENT_SECRET
 #

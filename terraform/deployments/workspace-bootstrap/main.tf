@@ -8,11 +8,9 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.1"
+  required_version = "~> 1.4"
 
-  backend "azurerm" {
-    use_microsoft_graph = true
-  }
+  backend "azurerm" {}
 
   required_providers {
     azuread = {
@@ -21,15 +19,15 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2"
+      version = "~> 3"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1"
+      version = "~> 3.4"
     }
     databricks = {
-      source  = "databrickslabs/databricks"
-      version = "~> 0.4"
+      source  = "databricks/databricks"
+      version = "~> 1.12"
     }
   }
 }
@@ -81,5 +79,5 @@ data "azuread_service_principal" "data_factory" {
 
 # Configure the Databricks Terraform provider
 provider "databricks" {
-  azure_workspace_resource_id = data.azurerm_databricks_workspace.main.id
+  host = data.azurerm_databricks_workspace.main.workspace_url
 }

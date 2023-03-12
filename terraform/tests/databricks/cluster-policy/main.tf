@@ -6,20 +6,20 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.1"
+  required_version = "~> 1.4"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2"
+      version = "~> 3"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1"
+      version = "~> 3.4"
     }
     databricks = {
-      source  = "databrickslabs/databricks"
-      version = "~> 0.4"
+      source  = "databricks/databricks"
+      version = "~> 1.12"
     }
   }
 }
@@ -32,7 +32,7 @@ variable "databricks_workspace_name" { default = null }
 # Create a random string for test uniqueness
 resource "random_string" "suffix" {
   length  = 10
-  number  = true
+  numeric = true
   lower   = true
   upper   = false
   special = false
@@ -94,7 +94,7 @@ data "azurerm_databricks_workspace" "main" {
 
 # Configure the Databricks Terraform provider
 provider "databricks" {
-  azure_workspace_resource_id = data.azurerm_databricks_workspace.main.id
+  host = data.azurerm_databricks_workspace.main.workspace_url
 }
 
 # Build a test Group
@@ -148,7 +148,7 @@ module "test_policy_with_users" {
 module "test_policy_with_arguments" {
   source      = "../../../modules/databricks/cluster-policy"
   policy_name = local.policy_with_arguments
-  default_spark_version_regex     = "9.1.x-([cg]pu-ml-)?scala2.12"
+  default_spark_version_regex     = "12.2.x-([cg]pu-ml-)?scala2.12"
   default_autotermination_minutes = 10
   default_cluster_log_path        = "dbfs:/tmp/cluster-logs"
   depends_on  = [null_resource.test_dependencies]
@@ -158,7 +158,7 @@ module "test_policy_with_arguments" {
 module "test_policy_with_overrides" {
   source      = "../../../modules/databricks/cluster-policy"
   policy_name = local.policy_with_overrides
-  default_spark_version_regex = "9.1.x-([cg]pu-ml-)?scala2.12"
+  default_spark_version_regex = "12.2.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_object     = {
     "spark_version" : {
       "type" : "fixed",
@@ -182,7 +182,7 @@ module "test_policy_with_overrides" {
 module "test_policy_with_jsonfile" {
   source      = "../../../modules/databricks/cluster-policy"
   policy_name = local.policy_with_jsonfile
-  default_spark_version_regex = "9.1.x-([cg]pu-ml-)?scala2.12"
+  default_spark_version_regex = "12.2.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_file       = "policy.json"
   depends_on  = [null_resource.test_dependencies]
 }
@@ -195,7 +195,7 @@ module "test_policy_with_everything" {
                  {principal = local.user_2_name, type = "user"},
                  {principal = random_uuid.sp_client_id.result, type = "service_principal"},
                  {principal = local.group_name, type = "group"}]
-  default_spark_version_regex = "9.1.x-([cg]pu-ml-)?scala2.12"
+  default_spark_version_regex = "12.2.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_file       = "policy.json"
   policy_overrides_object     = {
     "spark_version" : {

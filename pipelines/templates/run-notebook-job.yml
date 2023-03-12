@@ -14,7 +14,7 @@ parameters:
   - name: databricksClusterSparkVersion
     displayName: 'Azure Databricks Cluster Spark Version'
     type: string
-    default: '9.1.x-scala2.12'
+    default: '12.2.x-scala2.12'
 
   - name: databricksClusterNodeTypeOrPool
     displayName: 'Azure Databricks Cluster Node Type or Instance Pool Id'

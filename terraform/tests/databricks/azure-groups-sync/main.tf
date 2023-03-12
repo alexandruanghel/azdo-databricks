@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.1"
+  required_version = "~> 1.4"
 
   required_providers {
     azuread = {
@@ -15,15 +15,15 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2"
+      version = "~> 3"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1"
+      version = "~> 3.4"
     }
     databricks = {
-      source  = "databrickslabs/databricks"
-      version = "~> 0.4"
+      source  = "databricks/databricks"
+      version = "~> 1.12"
     }
   }
 }
@@ -36,7 +36,7 @@ variable "databricks_workspace_name" { default = null }
 # Create a random string for test uniqueness
 resource "random_string" "suffix" {
   length  = 10
-  number  = true
+  numeric = true
   lower   = true
   upper   = false
   special = false
@@ -210,7 +210,7 @@ data "azurerm_databricks_workspace" "main" {
 
 # Configure the Databricks Terraform provider
 provider "databricks" {
-  azure_workspace_resource_id = data.azurerm_databricks_workspace.main.id
+  host = data.azurerm_databricks_workspace.main.workspace_url
 }
 
 # Sync an empty group

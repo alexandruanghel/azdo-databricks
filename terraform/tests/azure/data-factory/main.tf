@@ -6,16 +6,16 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.1"
+  required_version = "~> 1.4"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2"
+      version = "~> 3"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1"
+      version = "~> 3.4"
     }
   }
 }
@@ -27,7 +27,7 @@ variable "resource_group_name" { default = null }
 # Create a random string for test uniqueness
 resource "random_string" "suffix" {
   length  = 10
-  number  = true
+  numeric = true
   lower   = true
   upper   = false
   special = false

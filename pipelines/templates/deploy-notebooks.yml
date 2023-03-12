@@ -21,14 +21,33 @@ parameters:
 
 
 steps:
-  - task: configuredatabricks@0
-    displayName: 'Configure Databricks CLI'
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
     inputs:
-      url: ${{ parameters.databricksWorkspaceUrl }}
-      token: ${{ parameters.accessToken }}
+      versionSpec: '3.x'
+      addToPath: true
+      architecture: 'x64'
 
-  - task: deploynotebooks@0
+  - task: Bash@3
+    displayName: 'Install the databricks-cli'
+    inputs:
+      targetType: 'inline'
+      script: |
+        _pip="$(command -v pip || command -v pip3)"
+        ${_pip} install databricks-cli
+
+  - task: Bash@3
     displayName: 'Deploy notebooks to workspace'
     inputs:
-      notebooksFolderPath: ${{ parameters.notebooksSourceLocation }}
-      workspaceFolder: ${{ parameters.notebooksWorkspaceFolder }}
+      targetType: 'inline'
+      script: |
+        export LC_ALL=C.UTF-8
+        export LANG=C.UTF-8
+        _command="databricks workspace import_dir -o -e ${NOTEBOOKS_SRC} ${NOTEBOOKS_DEST}"
+        echo "Running: \'${_command}\'"
+        ${_command}
+    env:
+      DATABRICKS_HOST: ${{ parameters.databricksWorkspaceUrl }}
+      DATABRICKS_TOKEN: ${{ parameters.accessToken }}
+      NOTEBOOKS_SRC: ${{ parameters.notebooksSourceLocation }}
+      NOTEBOOKS_DEST: ${{ parameters.notebooksWorkspaceFolder }}

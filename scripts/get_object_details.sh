@@ -34,12 +34,19 @@ while [ ${timer} -lt 100 ]; do
 done || { echo "ERROR: Timed out waiting"; exit 1; }
 
 # Extract the object ID from response
-object_id=$(echo "${_response}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["objectId"])')
+object_id=$(echo "${_response}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["id"])')
 [ -z "${object_id}" ] && { echo "${_response}"; exit 1; }
 echo -e "Got the Object ID: \"${object_id}\""
 
 # Extract the object type from response
-object_type=$(echo "${_response}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["objectType"])')
+odata_context=$(echo "${_response}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["@odata.context"])')
+if [[ "${odata_context}" =~ "servicePrincipals" ]]; then
+  object_type="ServicePrincipal"
+elif [[ "${odata_context}" =~ "users" ]]; then
+  object_type="User"
+elif [[ "${odata_context}" =~ "groups" ]]; then
+  object_type="Group"
+fi
 [ -z "${object_type}" ] && { echo "${_response}"; exit 1; }
 echo -e "Got the Object Type: \"${object_type}\""
 

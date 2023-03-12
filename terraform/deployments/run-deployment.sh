@@ -16,6 +16,9 @@ _this_script_dir=$(${_realpath} "$(dirname "${BASH_SOURCE[0]}")")
 _scripts_dir=${_this_script_dir}/../../scripts
 _python="$(command -v python || command -v python3)"
 
+# Exit if no parameters
+[ -z "$@" ] && exit 1
+
 # Prepare variables
 ## extract variables from terraform admin output
 echo -e "Extracting variables from terraform admin output"
@@ -47,7 +50,7 @@ STORAGE_ACCOUNT_NAME="$(grep STORAGE_ACCOUNT_NAME test.tfvars | cut -d'=' -f2 | 
 
 # Generate a new client secret for the infra Service Principal to simulate the Azure DevOps environment
 echo -e "Generating a new client secret for the infra Service Principal"
-ARM_CLIENT_SECRET=$(az ad sp credential reset --name "${ARM_CLIENT_ID}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["password"])')
+ARM_CLIENT_SECRET=$(az ad sp credential reset --id "${ARM_CLIENT_ID}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["password"])')
 [ -z "${ARM_CLIENT_SECRET}" ] && exit 1
 export ARM_CLIENT_SECRET
 

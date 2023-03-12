@@ -165,7 +165,7 @@ echo
 
 ## Assign the "Directory.Read.All" API Permissions in Azure Active Directory Graph
 echo -e "Assigning \"Directory.Read.All\" API Permission in Azure Active Directory Graph to \"${INFRA_SP_NAME}\"\n----------------------"
-source "${_scripts_dir}/add_api_permission.sh" "ad" "Directory.Read.All" "${infra_sp_client_id}"
+source "${_scripts_dir}/add_api_permission.sh" "Directory.Read.All" "${infra_sp_client_id}"
 echo
 
 # Assign the Owner role on the Databricks resource group
@@ -267,9 +267,6 @@ source "${_scripts_dir}/azdo_pipeline_variable.sh" create "${AZURE_DEVOPS_DATA_P
 echo
 source "${_scripts_dir}/azdo_pipeline_variable.sh" create "${AZURE_DEVOPS_DATA_PIPELINE_NAME}" provisionedSecretName "${SECRET_NAME}"
 echo
-
-# Install the Microsoft DevLabs Databricks extension for Azure DevOps
-source "${_scripts_dir}/azdo_extension.sh" install "azdo-databricks" "riserrad"
 
 
 ### Azure infrastructure for Terraform

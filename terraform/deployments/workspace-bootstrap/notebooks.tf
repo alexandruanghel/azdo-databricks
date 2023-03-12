@@ -25,7 +25,7 @@ resource "databricks_permissions" "pipeline_folder" {
     permission_level       = "CAN_RUN"
   }
 
-  depends_on     = [databricks_directory.pipeline_folder]
+  depends_on     = [databricks_directory.pipeline_folder, module.data_factory_databricks_principal, module.data_pipeline_databricks_principal]
 }
 
 # Create an empty workspace folder for the Project notebooks
@@ -41,7 +41,7 @@ resource "databricks_permissions" "project_folder" {
     permission_level = "CAN_MANAGE"
   }
 
-  depends_on     = [databricks_directory.project_folder]
+  depends_on     = [databricks_directory.project_folder, module.project_group_sync]
 }
 
 # Terraform output

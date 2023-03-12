@@ -11,12 +11,12 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.1"
+  required_version = "~> 1.4"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2"
+      version = "~> 3"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -24,11 +24,11 @@ terraform {
     }
     azuredevops = {
       source  = "microsoft/azuredevops"
-      version = "~> 0.1"
+      version = "~> 0.3"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1"
+      version = "~> 3.4"
     }
   }
 }
@@ -223,13 +223,6 @@ module "azure_devops_data_pipeline" {
 resource "null_resource" "azure_devops_terraform_extension" {
   provisioner "local-exec" {
     command = "/bin/bash ${path.module}/../../scripts/azdo_extension.sh install 'custom-terraform-tasks' 'ms-devlabs'"
-  }
-}
-
-# Install the Microsoft DevLabs Databricks extension for Azure DevOps
-resource "null_resource" "azure_devops_databricks_extension" {
-  provisioner "local-exec" {
-    command = "/bin/bash ${path.module}/../../scripts/azdo_extension.sh install 'azdo-databricks' 'riserrad'"
   }
 }
 

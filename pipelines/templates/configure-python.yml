@@ -14,4 +14,6 @@ steps:
     displayName: 'Pip install dependencies'
     inputs:
       targetType: 'inline'
-      script: 'pip install requests'
+      script: |
+        _pip="$(command -v pip || command -v pip3)"
+        ${_pip} install requests

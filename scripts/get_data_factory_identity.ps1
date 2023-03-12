@@ -20,7 +20,7 @@ If([string]::IsNullOrEmpty($AzureDataFactoryObjectId)){
 
 # Get the Application ID from the Object ID
 $AzureDataFactoryPrincipal = Get-AzADServicePrincipal -ObjectId $AzureDataFactoryObjectId
-$AzureDataFactoryPrincipalId = $AzureDataFactoryPrincipal.ApplicationId
+$AzureDataFactoryPrincipalId = $AzureDataFactoryPrincipal.AppId
 
 If([string]::IsNullOrEmpty($AzureDataFactoryPrincipalId)){
   throw "AzureDataFactoryPrincipalId is NULL or EMPTY, Object ID: " + $AzureDataFactoryObjectId

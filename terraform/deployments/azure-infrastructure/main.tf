@@ -12,11 +12,9 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.1"
+  required_version = "~> 1.4"
 
-  backend "azurerm" {
-    use_microsoft_graph = true
-  }
+  backend "azurerm" {}
 
   required_providers {
     azuread = {
@@ -25,11 +23,11 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2"
+      version = "~> 3"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1"
+      version = "~> 3.4"
     }
   }
 }

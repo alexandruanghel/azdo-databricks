@@ -20,7 +20,7 @@ locals {
 
 # Get the users details from the Azure AD Tenant
 # Uses ignore_missing to ignore any service principals
-data "azuread_users" "users" {
+data "azuread_users" "members" {
   object_ids     = local.all_principals
   ignore_missing = true
 }
@@ -28,20 +28,23 @@ data "azuread_users" "users" {
 # Create a list with all service principals using the difference between the list of all members and the list of users
 # This will not support nested groups
 locals {
-  service_principals_list = toset(setsubtract(local.all_principals, data.azuread_users.users.object_ids))
+  service_principals_list = toset(setsubtract(local.all_principals, data.azuread_users.members.object_ids))
 }
 
 # Get the service principals details from the Azure AD Tenant
-data "azuread_service_principal" "members" {
-  for_each  = local.service_principals_list
-  object_id = each.key
+data "azuread_service_principals" "members" {
+  object_ids  = local.service_principals_list
 }
 
 # Transform the users list into a map with the object_id as the key
 locals {
   users = {
-    for user in data.azuread_users.users.users:
+    for user in data.azuread_users.members.users:
       user.object_id => user
+  }
+  service_principals = {
+    for sp in data.azuread_service_principals.members.service_principals:
+      sp.object_id => sp
   }
 }
 
@@ -56,11 +59,11 @@ module "databricks_users" {
 
 # Add the service principals to the Databricks workspace
 module "databricks_service_principals" {
-  for_each             = data.azuread_service_principal.members
+  for_each             = local.service_principals
   source               = "../databricks-principal"
   principal_type       = "service_principal"
-  principal_identifier = lower(data.azuread_service_principal.members[each.key]["application_id"])
-  display_name         = data.azuread_service_principal.members[each.key]["display_name"]
+  principal_identifier = lower(local.service_principals[each.key]["application_id"])
+  display_name         = local.service_principals[each.key]["display_name"]
 }
 
 # Add the groups to the Databricks workspace
@@ -91,4 +94,3 @@ resource "databricks_group_member" "all" {
   group_id  = local.group_members[count.index]["group"]
   member_id = local.group_members[count.index]["member"]
 }
-

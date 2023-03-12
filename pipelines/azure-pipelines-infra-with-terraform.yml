@@ -20,16 +20,10 @@ parameters:
     default:
       vmImage: 'ubuntu-latest'
 
-  - name: environment
-    displayName: 'Environment'
-    type: object
-    default:
-      name: 'demo'
-
   - name: terraformVersion
     displayName: 'Terraform version to install and use'
     type: string
-    default: '1.1.5'
+    default: '1.4.0'
 
   - name: terraformLocation
     displayName: 'Base folder path containing the Terraform modules'
@@ -65,57 +59,49 @@ stages:
   - stage: azureInfrastructure
     displayName: 'Deploy infrastructure'
     jobs:
-      - deployment: azureResources
+      - job: azureResources
         displayName: 'Deploy Azure Resources'
         pool: ${{ parameters.pool }}
-        environment: ${{ parameters.environment }}
         # Make all Azure Pipelines variables available to Terraform (by adding TF_VAR_ to their name)
         variables:
           ${{ each variable in variables }}:
             TF_VAR_${{ variable.key }}: ${{ variable.value }}
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
+        steps:
+          - checkout: self
 
-                # Deploy the core Azure infrastructure and Databricks workspace
-                - template: 'templates/terraform-azure.yml'  # Template reference
-                  parameters:
-                    serviceConnection: ${{ parameters.serviceConnection }}
-                    terraformVersion: ${{ parameters.terraformVersion }}
-                    terraformWorkingDirectory: '${{ parameters.terraformLocation }}/deployments/azure-infrastructure'
-                    terraformBackendStorageAccountName: ${{ parameters.terraformBackendStorageAccountName }}
-                    terraformBackendResourceGroupName: ${{ parameters.terraformBackendResourceGroupName }}
-                    terraformBackendContainerName: ${{ parameters.terraformBackendContainerName }}
-                    terraformBackendKey: ${{ parameters.terraformBackendStateAzureInfrastructure }}
+          # Deploy the core Azure infrastructure and Databricks workspace
+          - template: 'templates/terraform-azure.yml'  # Template reference
+            parameters:
+              serviceConnection: ${{ parameters.serviceConnection }}
+              terraformVersion: ${{ parameters.terraformVersion }}
+              terraformWorkingDirectory: '${{ parameters.terraformLocation }}/deployments/azure-infrastructure'
+              terraformBackendStorageAccountName: ${{ parameters.terraformBackendStorageAccountName }}
+              terraformBackendResourceGroupName: ${{ parameters.terraformBackendResourceGroupName }}
+              terraformBackendContainerName: ${{ parameters.terraformBackendContainerName }}
+              terraformBackendKey: ${{ parameters.terraformBackendStateAzureInfrastructure }}
 
   - stage: workspaceBootstrap
     displayName: 'Bootstrap Workspace'
     dependsOn: azureInfrastructure
     jobs:
-      - deployment: workspaceBootstrap
+      - job: workspaceBootstrap
         displayName: 'Bootstrap Databricks Workspace'
         pool: ${{ parameters.pool }}
-        environment: ${{ parameters.environment }}
         # Make all Azure Pipelines variables available to Terraform (by adding TF_VAR_ to their name)
         variables:
           ${{ each variable in variables }}:
             TF_VAR_${{ variable.key }}: ${{ variable.value }}
           TF_VAR_PROJECT_MOUNT_POINT: '/mnt/${{ variables.STORAGE_ACCOUNT_NAME }}-${{ variables.PROJECT_CONTAINER_NAME }}'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
+        steps:
+          - checkout: self
 
-                # Bootstrap the Azure Databricks workspace
-                - template: 'templates/terraform-azure.yml'  # Template reference
-                  parameters:
-                    serviceConnection: ${{ parameters.serviceConnection }}
-                    terraformVersion: ${{ parameters.terraformVersion }}
-                    terraformWorkingDirectory: '${{ parameters.terraformLocation }}/deployments/workspace-bootstrap'
-                    terraformBackendStorageAccountName: ${{ parameters.terraformBackendStorageAccountName }}
-                    terraformBackendResourceGroupName: ${{ parameters.terraformBackendResourceGroupName }}
-                    terraformBackendContainerName: ${{ parameters.terraformBackendContainerName }}
-                    terraformBackendKey: ${{ parameters.terraformBackendStateDatabricksWorkspace }}
+          # Bootstrap the Azure Databricks workspace
+          - template: 'templates/terraform-azure.yml'  # Template reference
+            parameters:
+              serviceConnection: ${{ parameters.serviceConnection }}
+              terraformVersion: ${{ parameters.terraformVersion }}
+              terraformWorkingDirectory: '${{ parameters.terraformLocation }}/deployments/workspace-bootstrap'
+              terraformBackendStorageAccountName: ${{ parameters.terraformBackendStorageAccountName }}
+              terraformBackendResourceGroupName: ${{ parameters.terraformBackendResourceGroupName }}
+              terraformBackendContainerName: ${{ parameters.terraformBackendContainerName }}
+              terraformBackendKey: ${{ parameters.terraformBackendStateDatabricksWorkspace }}

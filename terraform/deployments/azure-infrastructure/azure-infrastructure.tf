@@ -35,7 +35,7 @@ resource "azurerm_key_vault_access_policy" "infra_sp" {
   key_vault_id       = data.azurerm_key_vault.main.id
   tenant_id          = data.azurerm_client_config.current.tenant_id
   object_id          = data.azurerm_client_config.current.object_id
-  secret_permissions = ["get", "list", "set"]
+  secret_permissions = ["Get", "List", "Set"]
 }
 
 # Add the data pipeline Service Principal to the Key Vault Access policies with 'list get set' permissions on secrets
@@ -43,7 +43,7 @@ resource "azurerm_key_vault_access_policy" "data_sp" {
   key_vault_id       = data.azurerm_key_vault.main.id
   tenant_id          = data.azurerm_client_config.current.tenant_id
   object_id          = data.azuread_service_principal.data_service_principal.object_id
-  secret_permissions = ["get", "list", "set"]
+  secret_permissions = ["Get", "List", "Set"]
 }
 
 # Deploy the Azure Data Factory with a Key Vault linked service
@@ -61,7 +61,7 @@ resource "azurerm_key_vault_access_policy" "data_factory_sp" {
   key_vault_id       = data.azurerm_key_vault.main.id
   tenant_id          = data.azurerm_client_config.current.tenant_id
   object_id          = module.data_factory_with_key_vault.principal_id
-  secret_permissions = ["get", "list"]
+  secret_permissions = ["Get", "List"]
 }
 
 # Assign the "Reader" Role on the Resource Group to the data pipeline Service Principal

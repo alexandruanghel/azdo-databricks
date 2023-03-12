@@ -10,7 +10,7 @@ parameters:
   - name: terraformVersion
     displayName: 'Terraform version to install and use'
     type: string
-    default: '1.1.5'
+    default: '1.4.0'
 
   - name: terraformWorkingDirectory
     displayName: 'Folder path containing the Terraform files'
@@ -34,12 +34,12 @@ parameters:
 
 
 steps:
-  - task: TerraformInstaller@0
+  - task: TerraformInstaller@1
     displayName: 'Install Terraform Version ${{ parameters.terraformVersion }}'
     inputs:
       terraformVersion: ${{ parameters.terraformVersion }}
 
-  - task: TerraformTaskV2@2
+  - task: TerraformTaskV4@4
     displayName: 'Run terraform init'
     inputs:
       provider: 'azurerm'
@@ -52,14 +52,14 @@ steps:
       backendAzureRmContainerName: ${{ parameters.terraformBackendContainerName }}
       backendAzureRmKey: ${{ parameters.terraformBackendKey }}
 
-  - task: TerraformTaskV2@2
+  - task: TerraformTaskV4@4
     displayName: 'Run terraform validate'
     inputs:
       provider: 'azurerm'
       command: 'validate'
       workingDirectory: ${{ parameters.terraformWorkingDirectory }}
 
-  - task: TerraformTaskV2@2
+  - task: TerraformTaskV4@4
     displayName: 'Run terraform plan'
     inputs:
       provider: 'azurerm'
@@ -68,7 +68,7 @@ steps:
       workingDirectory: ${{ parameters.terraformWorkingDirectory }}
       environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}
 
-  - task: TerraformTaskV2@2
+  - task: TerraformTaskV4@4
     displayName: 'Run terraform apply'
     inputs:
       provider: 'azurerm'
