@@ -25,8 +25,8 @@ resource "azurerm_data_factory" "this" {
 }
 
 resource "azurerm_data_factory_linked_service_key_vault" "key_vaults" {
-  count               = length(var.key_vault_ids)
-  name                = element(split("/", var.key_vault_ids[count.index]), length(split("/", var.key_vault_ids[count.index]))-1)
-  data_factory_id     = azurerm_data_factory.this.id
-  key_vault_id        = var.key_vault_ids[count.index]
+  count           = length(var.key_vault_ids)
+  name            = element(split("/", var.key_vault_ids[count.index]), length(split("/", var.key_vault_ids[count.index]))-1)
+  data_factory_id = azurerm_data_factory.this.id
+  key_vault_id    = var.key_vault_ids[count.index]
 }

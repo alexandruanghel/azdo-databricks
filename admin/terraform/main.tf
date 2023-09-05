@@ -11,7 +11,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azurerm = {
@@ -28,7 +28,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
   }
 }
@@ -75,7 +75,8 @@ resource "null_resource" "azure_resource_providers" {
     "Microsoft.Databricks",
     "Microsoft.DataFactory",
     "Microsoft.DBforMySQL",
-    "Microsoft.Sql"])
+    "Microsoft.Sql"
+  ])
   provisioner "local-exec" {
     command = "az provider register --namespace ${each.key} --wait"
   }
@@ -164,18 +165,20 @@ resource "azurerm_role_assignment" "tf_storage_account_data_contributor" {
 # includes an Azure RM type service endpoint to be used by the infra pipeline
 # includes an Azure RM type service endpoint to be used by the data pipeline
 module "azure_devops_project" {
-  source                        = "../../terraform/modules/azure/azure-devops-project"
+  source           = "../../terraform/modules/azure/azure-devops-project"
   project_name     = var.AZURE_DEVOPS_PROJECT_NAME
   github_endpoints = [var.AZURE_DEVOPS_GITHUB_ENDPOINT_NAME]
-  arm_endpoints    = [{
-    name          = var.AZURE_DEVOPS_INFRA_ARM_ENDPOINT_NAME
-    client_id     = module.infra_service_principal.application_id
-    client_secret = module.infra_service_principal.secret
-  },{
-    name          = var.AZURE_DEVOPS_DATA_ARM_ENDPOINT_NAME
-    client_id     = module.data_service_principal.application_id
-    client_secret = module.data_service_principal.secret
-  }]
+  arm_endpoints    = [
+    {
+      name          = var.AZURE_DEVOPS_INFRA_ARM_ENDPOINT_NAME
+      client_id     = module.infra_service_principal.application_id
+      client_secret = module.infra_service_principal.secret
+    }, {
+      name          = var.AZURE_DEVOPS_DATA_ARM_ENDPOINT_NAME
+      client_id     = module.data_service_principal.application_id
+      client_secret = module.data_service_principal.secret
+    }
+  ]
 }
 
 # Create the Azure Pipeline for infrastructure deployment
@@ -198,12 +201,12 @@ module "azure_devops_infra_pipeline" {
     tfStorageAccountName                = var.TF_STORAGE_ACCOUNT_NAME
     tfContainerName                     = var.TF_CONTAINER_NAME
   }
-  depends_on         = [module.azure_devops_project]
+  depends_on = [module.azure_devops_project]
 }
 
 # Create the Azure Pipeline for the Azure Data Factory data pipeline
 module "azure_devops_data_pipeline" {
-  source                          = "../../terraform/modules/azure/azure-devops-pipeline"
+  source             = "../../terraform/modules/azure/azure-devops-pipeline"
   pipeline_name      = var.AZURE_DEVOPS_DATA_PIPELINE_NAME
   pipeline_path      = var.AZURE_DEVOPS_DATA_PIPELINE_PATH
   project_id         = module.azure_devops_project.id
@@ -216,7 +219,7 @@ module "azure_devops_data_pipeline" {
     provisionedKeyVaultName      = module.azure_key_vault.name
     provisionedSecretName        = var.SECRET_NAME
   }
-  depends_on         = [module.azure_devops_project]
+  depends_on = [module.azure_devops_project]
 }
 
 # Install the Terraform extension for Azure DevOps

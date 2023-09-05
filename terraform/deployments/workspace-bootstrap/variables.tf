@@ -39,9 +39,9 @@ variable "PROJECT_CONTAINER_NAME" {
 }
 
 variable "PROJECT_MOUNT_POINT" {
-  type = string
+  type        = string
   description = "(Optional) DBFS mount location of the Project container. If not set, it will use /mnt/<STORAGE_ACCOUNT>-<CONTAINER_NAME>."
-  default = null
+  default     = null
 }
 
 variable "DATA_FACTORY_NAME" {
@@ -76,7 +76,7 @@ variable "DATABRICKS_JOBS_POOL_AUTOTERMINATION" {
 }
 
 variable "DATABRICKS_SHARED_POOL_NAME" {
-  type = string
+  type        = string
   description = "The name of the Databricks Shared Instance Pool."
 }
 
@@ -115,8 +115,8 @@ variable "DATABRICKS_SHARED_CLUSTER_MAX_WORKERS" {
 
 variable "DATABRICKS_SPARK_VERSION" {
   type        = string
-  description = "(Optional) The Databricks Spark Version used by the Instance Pools and the Shared Cluster. Default is `12.2.x-scala2.12`."
-  default     = "12.2.x-scala2.12"
+  description = "(Optional) The Databricks Spark Version used by the Instance Pools and the Shared Cluster. Default is `13.3.x-scala2.12`."
+  default     = "13.3.x-scala2.12"
 }
 
 variable "DATABRICKS_CLUSTER_POLICY_LOCATION" {

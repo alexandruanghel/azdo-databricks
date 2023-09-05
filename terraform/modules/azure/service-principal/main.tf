@@ -51,7 +51,7 @@ resource "azuread_service_principal" "sp" {
 
 # Grant admin-consent for the requested API Permissions
 resource "azuread_app_role_assignment" "admin_consent" {
-  for_each    = toset(var.api_permissions)
+  for_each = toset(var.api_permissions)
 
   app_role_id         = data.azuread_service_principal.msgraph.app_role_ids[each.value]
   principal_object_id = azuread_service_principal.sp.object_id

@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azuread = {
@@ -19,11 +19,11 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
     databricks = {
       source  = "databricks/databricks"
-      version = "~> 1.12"
+      version = "~> 1.24"
     }
   }
 }
@@ -46,22 +46,22 @@ resource "random_string" "suffix" {
 locals {
   resource_group_name       = var.resource_group_name == null ? "tftest-rg-${random_string.suffix.result}" : var.resource_group_name
   databricks_workspace_name = var.databricks_workspace_name == null ? "tftest-ws-${random_string.suffix.result}" : var.databricks_workspace_name
-  group_empty            = "TF Test Empty ${random_string.suffix.result}"
-  group_with_one_user    = "TF Test User ${random_string.suffix.result}"
-  group_with_one_sp      = "TF Test SP ${random_string.suffix.result}"
-  group_with_one_of_each = "TF Test One Each ${random_string.suffix.result}"
-  group_mixed1           = "TF Test Mixed1 ${random_string.suffix.result}"
-  group_mixed2           = "TF Test Mixed2 ${random_string.suffix.result}"
-  user1 = "tftestuser1${random_string.suffix.result}"
-  user2 = "tftestuser2${random_string.suffix.result}"
-  user3 = "tftestuser3${random_string.suffix.result}"
-  user4 = "tftestuser4${random_string.suffix.result}"
-  users = [local.user1, local.user2, local.user3, local.user4]
-  spn1  = "tftestspn1${random_string.suffix.result}"
-  spn2  = "tftestspn2${random_string.suffix.result}"
-  spn3  = "tftestspn3${random_string.suffix.result}"
-  spn4  = "tftestspn4${random_string.suffix.result}"
-  sps   = [local.spn1, local.spn2, local.spn3, local.spn4]
+  group_empty               = "TF Test Empty ${random_string.suffix.result}"
+  group_with_one_user       = "TF Test User ${random_string.suffix.result}"
+  group_with_one_sp         = "TF Test SP ${random_string.suffix.result}"
+  group_with_one_of_each    = "TF Test One Each ${random_string.suffix.result}"
+  group_mixed1              = "TF Test Mixed1 ${random_string.suffix.result}"
+  group_mixed2              = "TF Test Mixed2 ${random_string.suffix.result}"
+  user1                     = "tftestuser1${random_string.suffix.result}"
+  user2                     = "tftestuser2${random_string.suffix.result}"
+  user3                     = "tftestuser3${random_string.suffix.result}"
+  user4                     = "tftestuser4${random_string.suffix.result}"
+  users                     = [local.user1, local.user2, local.user3, local.user4]
+  spn1                      = "tftestspn1${random_string.suffix.result}"
+  spn2                      = "tftestspn2${random_string.suffix.result}"
+  spn3                      = "tftestspn3${random_string.suffix.result}"
+  spn4                      = "tftestspn4${random_string.suffix.result}"
+  sps                       = [local.spn1, local.spn2, local.spn3, local.spn4]
 }
 
 # Create an empty Resource Group to be used by the rest of the resources
@@ -120,7 +120,7 @@ resource "azuread_group" "one_user" {
   display_name            = local.group_with_one_user
   prevent_duplicate_names = true
   security_enabled        = true
-  members    = [
+  members                 = [
     azuread_user.test_users[0].object_id
   ]
   depends_on = [azuread_user.test_users]
@@ -131,7 +131,7 @@ resource "azuread_group" "one_sp" {
   display_name            = local.group_with_one_sp
   prevent_duplicate_names = true
   security_enabled        = true
-  members    = [
+  members                 = [
     azuread_service_principal.test_sps[0].object_id
   ]
   depends_on = [azuread_service_principal.test_sps]
@@ -142,7 +142,7 @@ resource "azuread_group" "one_of_each" {
   display_name            = local.group_with_one_of_each
   prevent_duplicate_names = true
   security_enabled        = true
-  members    = [
+  members                 = [
     azuread_user.test_users[1].object_id,
     azuread_service_principal.test_sps[1].object_id
   ]
@@ -154,7 +154,7 @@ resource "azuread_group" "mixed1" {
   display_name            = local.group_mixed1
   prevent_duplicate_names = true
   security_enabled        = true
-  members    = [
+  members                 = [
     azuread_user.test_users[2].object_id,
     azuread_service_principal.test_sps[2].object_id,
     azuread_service_principal.test_sps[3].object_id
@@ -167,7 +167,7 @@ resource "azuread_group" "mixed2" {
   display_name            = local.group_mixed2
   prevent_duplicate_names = true
   security_enabled        = true
-  members    = [
+  members                 = [
     azuread_user.test_users[2].object_id,
     azuread_user.test_users[3].object_id,
     azuread_service_principal.test_sps[2].object_id
@@ -181,12 +181,14 @@ resource "null_resource" "test_dependencies" {
     ws     = module.test_databricks_workspace_defaults.id
     users  = join(",", azuread_user.test_users.*.id)
     sps    = join(",", azuread_service_principal.test_sps.*.id)
-    groups = join(",", [azuread_group.empty.id,
-                        azuread_group.one_user.id,
-                        azuread_group.one_sp.id,
-                        azuread_group.one_of_each.id,
-                        azuread_group.mixed1.id,
-                        azuread_group.mixed2.id])
+    groups = join(",", [
+      azuread_group.empty.id,
+      azuread_group.one_user.id,
+      azuread_group.one_sp.id,
+      azuread_group.one_of_each.id,
+      azuread_group.mixed1.id,
+      azuread_group.mixed2.id
+    ])
   }
   depends_on = [
     module.test_databricks_workspace_defaults,
@@ -255,48 +257,48 @@ module "test_group_mixed" {
 output "azure_groups_sync_tests" {
   value = {
     test_group_empty = {
-      group_name = azuread_group.empty.display_name
-      object_id  = azuread_group.empty.object_id
-      members    = azuread_group.empty.members
+      group_name                    = azuread_group.empty.display_name
+      object_id                     = azuread_group.empty.object_id
+      members                       = azuread_group.empty.members
       databricks_users              = module.test_group_empty.databricks_users
       databricks_service_principals = module.test_group_empty.databricks_service_principals
       databricks_groups             = module.test_group_empty.databricks_groups
       databricks_groups_members     = module.test_group_empty.databricks_groups_membership
     }
     test_group_one_user = {
-      group_name = azuread_group.one_user.display_name
-      object_id  = azuread_group.one_user.object_id
-      members    = azuread_group.one_user.members
+      group_name                    = azuread_group.one_user.display_name
+      object_id                     = azuread_group.one_user.object_id
+      members                       = azuread_group.one_user.members
       databricks_users              = module.test_group_one_user.databricks_users
       databricks_service_principals = module.test_group_one_user.databricks_service_principals
       databricks_groups             = module.test_group_one_user.databricks_groups
       databricks_groups_members     = module.test_group_one_user.databricks_groups_membership
     }
     test_group_one_sp = {
-      group_name = azuread_group.one_sp.display_name
-      object_id  = azuread_group.one_sp.object_id
-      members    = azuread_group.one_sp.members
+      group_name                    = azuread_group.one_sp.display_name
+      object_id                     = azuread_group.one_sp.object_id
+      members                       = azuread_group.one_sp.members
       databricks_users              = module.test_group_one_sp.databricks_users
       databricks_service_principals = module.test_group_one_sp.databricks_service_principals
       databricks_groups             = module.test_group_one_sp.databricks_groups
       databricks_groups_members     = module.test_group_one_sp.databricks_groups_membership
     }
     test_group_one_of_each = {
-      group_name = azuread_group.one_of_each.display_name
-      object_id  = azuread_group.one_of_each.object_id
-      members    = azuread_group.one_of_each.members
+      group_name                    = azuread_group.one_of_each.display_name
+      object_id                     = azuread_group.one_of_each.object_id
+      members                       = azuread_group.one_of_each.members
       databricks_users              = module.test_group_one_of_each.databricks_users
       databricks_service_principals = module.test_group_one_of_each.databricks_service_principals
       databricks_groups             = module.test_group_one_of_each.databricks_groups
       databricks_groups_members     = module.test_group_one_of_each.databricks_groups_membership
     }
     test_group_mixed = {
-      group_name1 = azuread_group.mixed1.display_name
-      object_id1  = azuread_group.mixed1.object_id
-      members1    = azuread_group.mixed1.members
-      group_name2 = azuread_group.mixed2.display_name
-      object_id2  = azuread_group.mixed2.object_id
-      members2    = azuread_group.mixed2.members
+      group_name1                   = azuread_group.mixed1.display_name
+      object_id1                    = azuread_group.mixed1.object_id
+      members1                      = azuread_group.mixed1.members
+      group_name2                   = azuread_group.mixed2.display_name
+      object_id2                    = azuread_group.mixed2.object_id
+      members2                      = azuread_group.mixed2.members
       databricks_users              = module.test_group_mixed.databricks_users
       databricks_service_principals = module.test_group_mixed.databricks_service_principals
       databricks_groups             = module.test_group_mixed.databricks_groups

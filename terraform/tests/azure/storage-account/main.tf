@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azurerm = {
@@ -15,7 +15,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
   }
 }
@@ -70,7 +70,7 @@ module "test_databricks_vnet_custom" {
 
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
-  triggers   = {
+  triggers = {
     rg   = module.test_resource_group.id
     vnet = module.test_databricks_vnet_custom.virtual_network_id
   }
@@ -126,20 +126,20 @@ module "test_storage_account_service_endpoints" {
 output "storage_account_tests" {
   value = {
     test_storage_account_defaults = {
-      id       = module.test_storage_account_defaults.id
-      name     = module.test_storage_account_defaults.name
+      id   = module.test_storage_account_defaults.id
+      name = module.test_storage_account_defaults.name
     }
     test_storage_account_blob = {
-      id       = module.test_storage_account_blob.id
-      name     = module.test_storage_account_blob.name
+      id   = module.test_storage_account_blob.id
+      name = module.test_storage_account_blob.name
     }
     test_storage_account_adls = {
-      id       = module.test_storage_account_adls.id
-      name     = module.test_storage_account_adls.name
+      id   = module.test_storage_account_adls.id
+      name = module.test_storage_account_adls.name
     }
     test_storage_account_service_endpoints = {
-      id       = module.test_storage_account_service_endpoints.id
-      name     = module.test_storage_account_service_endpoints.name
+      id   = module.test_storage_account_service_endpoints.id
+      name = module.test_storage_account_service_endpoints.name
     }
   }
 }

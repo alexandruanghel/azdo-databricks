@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azuread = {
@@ -23,7 +23,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
   }
 }
@@ -87,11 +87,13 @@ module "test_project_with_github_endpoint" {
 module "test_project_with_arm_endpoint" {
   source        = "../../../modules/azure/azure-devops-project"
   project_name  = local.project_with_arm
-  arm_endpoints = [{
-    name          = local.arm_endpoint1
-    client_id     = azuread_service_principal.test_sp.application_id
-    client_secret = azuread_application_password.test_sp.value
-  }]
+  arm_endpoints = [
+    {
+      name          = local.arm_endpoint1
+      client_id     = azuread_service_principal.test_sp.application_id
+      client_secret = azuread_application_password.test_sp.value
+    }
+  ]
 }
 
 # Build an Azure DevOps project with a GitHub service connection and two AzureRM service connections
@@ -100,21 +102,23 @@ module "test_project_mixed" {
   project_name     = local.project_mixed
   github_endpoints = [local.github_endpoint]
   github_pat       = random_string.suffix.result
-  arm_endpoints    = [{
-    name          = local.arm_endpoint1
-    client_id     = azuread_service_principal.test_sp.application_id
-    client_secret = azuread_application_password.test_sp.value
-  },{
-    name          = local.arm_endpoint2
-    client_id     = azuread_service_principal.test_sp.application_id
-    client_secret = azuread_application_password.test_sp.value
-  }]
+  arm_endpoints    = [
+    {
+      name          = local.arm_endpoint1
+      client_id     = azuread_service_principal.test_sp.application_id
+      client_secret = azuread_application_password.test_sp.value
+    }, {
+      name          = local.arm_endpoint2
+      client_id     = azuread_service_principal.test_sp.application_id
+      client_secret = azuread_application_password.test_sp.value
+    }
+  ]
 }
 
 # Terraform output
 output "azure_devops_project_tests" {
   sensitive = true
-  value = {
+  value     = {
     test_project_defaults = {
       id        = module.test_project_defaults.id
       name      = module.test_project_defaults.name

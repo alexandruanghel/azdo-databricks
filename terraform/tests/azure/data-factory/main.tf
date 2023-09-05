@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azurerm = {
@@ -15,7 +15,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
   }
 }
@@ -63,7 +63,7 @@ module "key_vault" {
 
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
-  triggers   = {
+  triggers = {
     rg = join(",", [module.test_resource_group.id, module.key_vault.id])
   }
   depends_on = [module.test_resource_group, module.key_vault.id]

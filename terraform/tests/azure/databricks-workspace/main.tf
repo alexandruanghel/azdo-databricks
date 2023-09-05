@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azurerm = {
@@ -15,7 +15,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
   }
 }
@@ -59,7 +59,7 @@ module "test_resource_group" {
 
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
-  triggers   = {
+  triggers = {
     rg = module.test_resource_group.id
   }
   depends_on = [module.test_resource_group]
@@ -133,26 +133,26 @@ module "test_databricks_workspace_npip" {
 output "databricks_workspace_tests" {
   value = {
     test_databricks_workspace_defaults = {
-      workspace_azure_id = module.test_databricks_workspace_defaults.id
-      workspace_name     = module.test_databricks_workspace_defaults.workspace_name
-      workspace_id       = module.test_databricks_workspace_defaults.workspace_id
-      workspace_url      = module.test_databricks_workspace_defaults.workspace_url
+      workspace_azure_id                    = module.test_databricks_workspace_defaults.id
+      workspace_name                        = module.test_databricks_workspace_defaults.workspace_name
+      workspace_id                          = module.test_databricks_workspace_defaults.workspace_id
+      workspace_url                         = module.test_databricks_workspace_defaults.workspace_url
       workspace_managed_resource_group_id   = module.test_databricks_workspace_defaults.managed_resource_group_id
       workspace_managed_resource_group_name = module.test_databricks_workspace_defaults.managed_resource_group_name
     }
     test_databricks_workspace_vnet_injection = {
-      workspace_azure_id = module.test_databricks_workspace_vnet_injection.id
-      workspace_name     = module.test_databricks_workspace_vnet_injection.workspace_name
-      workspace_id       = module.test_databricks_workspace_vnet_injection.workspace_id
-      workspace_url      = module.test_databricks_workspace_vnet_injection.workspace_url
+      workspace_azure_id                    = module.test_databricks_workspace_vnet_injection.id
+      workspace_name                        = module.test_databricks_workspace_vnet_injection.workspace_name
+      workspace_id                          = module.test_databricks_workspace_vnet_injection.workspace_id
+      workspace_url                         = module.test_databricks_workspace_vnet_injection.workspace_url
       workspace_managed_resource_group_id   = module.test_databricks_workspace_vnet_injection.managed_resource_group_id
       workspace_managed_resource_group_name = module.test_databricks_workspace_vnet_injection.managed_resource_group_name
     }
     test_databricks_workspace_npip = {
-      workspace_azure_id = module.test_databricks_workspace_npip.id
-      workspace_name     = module.test_databricks_workspace_npip.workspace_name
-      workspace_id       = module.test_databricks_workspace_npip.workspace_id
-      workspace_url      = module.test_databricks_workspace_npip.workspace_url
+      workspace_azure_id                    = module.test_databricks_workspace_npip.id
+      workspace_name                        = module.test_databricks_workspace_npip.workspace_name
+      workspace_id                          = module.test_databricks_workspace_npip.workspace_id
+      workspace_url                         = module.test_databricks_workspace_npip.workspace_url
       workspace_managed_resource_group_id   = module.test_databricks_workspace_npip.managed_resource_group_id
       workspace_managed_resource_group_name = module.test_databricks_workspace_npip.managed_resource_group_name
     }

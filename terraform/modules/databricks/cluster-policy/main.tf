@@ -9,35 +9,35 @@
 # Define default rules that will be applied to every policy unless overridden
 locals {
   default_policy = {
-    "spark_version": {
-      "type": "regex",
-      "pattern": var.default_spark_version_regex,
-      "hidden": false
+    "spark_version" : {
+      "type" : "regex",
+      "pattern" : var.default_spark_version_regex,
+      "hidden" : false
     },
-    "autotermination_minutes": {
-      "type": "fixed",
-      "value": var.default_autotermination_minutes,
-      "hidden": false
+    "autotermination_minutes" : {
+      "type" : "fixed",
+      "value" : var.default_autotermination_minutes,
+      "hidden" : false
     },
-    "cluster_log_conf.path": {
+    "cluster_log_conf.path" : {
       "type" : "unlimited",
       "defaultValue" : var.default_cluster_log_path,
-      "isOptional": false,
-      "hidden": false
+      "isOptional" : false,
+      "hidden" : false
     },
-    "cluster_log_conf.type": {
+    "cluster_log_conf.type" : {
       "type" : "fixed",
       "value" : "DBFS",
-      "hidden": false
+      "hidden" : false
     },
     "custom_tags.PolicyName" : {
       "type" : "fixed",
       "value" : var.policy_name,
-      "hidden": false
+      "hidden" : false
     },
-    "docker_image.url": {
-      "type": "forbidden",
-      "hidden": true
+    "docker_image.url" : {
+      "type" : "forbidden",
+      "hidden" : true
     }
   }
 }
@@ -53,8 +53,8 @@ resource "databricks_cluster_policy" "this" {
 
   # Merge the local default rules with the other policy overrides passed from the variables
   definition = jsonencode(merge(local.default_policy,
-                                try(jsondecode(base64decode(data.local_file.policy_definition[0].content_base64)), {}),
-                                var.policy_overrides_object))
+    try(jsondecode(base64decode(data.local_file.policy_definition[0].content_base64)), {}),
+    var.policy_overrides_object))
 }
 
 # Create the policy

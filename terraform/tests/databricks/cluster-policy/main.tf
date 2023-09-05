@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azurerm = {
@@ -15,11 +15,11 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
     databricks = {
       source  = "databricks/databricks"
-      version = "~> 1.12"
+      version = "~> 1.24"
     }
   }
 }
@@ -45,15 +45,15 @@ resource "random_uuid" "sp_client_id" {}
 locals {
   resource_group_name       = var.resource_group_name == null ? "tftest-rg-${random_string.suffix.result}" : var.resource_group_name
   databricks_workspace_name = var.databricks_workspace_name == null ? "tftest-ws-${random_string.suffix.result}" : var.databricks_workspace_name
-  policy_defaults        = "TF Test Default ${random_string.suffix.result}"
-  policy_with_users      = "TF Test Users ${random_string.suffix.result}"
-  policy_with_arguments  = "TF Test Arguments ${random_string.suffix.result}"
-  policy_with_overrides  = "TF Test Overrides ${random_string.suffix.result}"
-  policy_with_jsonfile   = "TF Test Json ${random_string.suffix.result}"
-  policy_with_everything = "TF Test Everything ${random_string.suffix.result}"
-  user_1_name            = "user1.${random_string.suffix.result}@example.com"
-  user_2_name            = "user2.${random_string.suffix.result}@example.com"
-  group_name             = "TF Test ${random_string.suffix.result}"
+  policy_defaults           = "TF Test Default ${random_string.suffix.result}"
+  policy_with_users         = "TF Test Users ${random_string.suffix.result}"
+  policy_with_arguments     = "TF Test Arguments ${random_string.suffix.result}"
+  policy_with_overrides     = "TF Test Overrides ${random_string.suffix.result}"
+  policy_with_jsonfile      = "TF Test Json ${random_string.suffix.result}"
+  policy_with_everything    = "TF Test Everything ${random_string.suffix.result}"
+  user_1_name               = "user1.${random_string.suffix.result}@example.com"
+  user_2_name               = "user2.${random_string.suffix.result}@example.com"
+  group_name                = "TF Test ${random_string.suffix.result}"
 }
 
 # Create an empty Resource Group to be used by the rest of the resources
@@ -75,7 +75,7 @@ module "test_databricks_workspace_defaults" {
 
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
-  triggers   = {
+  triggers = {
     uuid = random_uuid.sp_client_id.id
     ws   = module.test_databricks_workspace_defaults.id
   }
@@ -98,34 +98,34 @@ provider "databricks" {
 }
 
 # Build a test Group
-module "test_group" {
-  source               = "../../../modules/databricks/databricks-principal"
-  principal_type       = "group"
-  principal_identifier = local.group_name
-  depends_on           = [null_resource.test_dependencies]
+resource "databricks_group" "groups" {
+  display_name = local.group_name
+  force        = true
+  depends_on   = [null_resource.test_dependencies]
 }
+
 
 # Build two test Users
-module "test_user_1" {
-  source               = "../../../modules/databricks/databricks-principal"
-  principal_type       = "user"
-  principal_identifier = local.user_1_name
-  depends_on           = [null_resource.test_dependencies]
+resource "databricks_user" "test_user_1" {
+  user_name  = local.user_1_name
+  depends_on = [null_resource.test_dependencies]
+  active     = true
+  force      = true
 }
 
-module "test_user_2" {
-  source               = "../../../modules/databricks/databricks-principal"
-  principal_type       = "user"
-  principal_identifier = local.user_2_name
-  depends_on           = [null_resource.test_dependencies]
+resource "databricks_user" "test_user_2" {
+  user_name  = local.user_2_name
+  active     = true
+  force      = true
+  depends_on = [null_resource.test_dependencies]
 }
 
 # Build a test Service Principal
-module "test_sp" {
-  source               = "../../../modules/databricks/databricks-principal"
-  principal_type       = "service_principal"
-  principal_identifier = random_uuid.sp_client_id.result
-  depends_on           = [null_resource.test_dependencies]
+resource "databricks_service_principal" "test_sp" {
+  application_id = random_uuid.sp_client_id.result
+  active         = true
+  force          = true
+  depends_on     = [null_resource.test_dependencies]
 }
 
 # Create a policy with default parameters
@@ -139,37 +139,39 @@ module "test_policy_defaults" {
 module "test_policy_with_users" {
   source      = "../../../modules/databricks/cluster-policy"
   policy_name = local.policy_with_users
-  CAN_USE     = [{principal = local.user_1_name, type = "user"},
-                 {principal = local.user_2_name, type = "user"}]
-  depends_on  = [null_resource.test_dependencies, module.test_user_1, module.test_user_2]
+  CAN_USE     = [
+    { principal = local.user_1_name, type = "user" },
+    { principal = local.user_2_name, type = "user" }
+  ]
+  depends_on = [null_resource.test_dependencies, databricks_user.test_user_1, databricks_user.test_user_2]
 }
 
 # Create a policy with default policy arguments changed
 module "test_policy_with_arguments" {
-  source      = "../../../modules/databricks/cluster-policy"
-  policy_name = local.policy_with_arguments
-  default_spark_version_regex     = "12.2.x-([cg]pu-ml-)?scala2.12"
+  source                          = "../../../modules/databricks/cluster-policy"
+  policy_name                     = local.policy_with_arguments
+  default_spark_version_regex     = "13.3.x-([cg]pu-ml-)?scala2.12"
   default_autotermination_minutes = 10
   default_cluster_log_path        = "dbfs:/tmp/cluster-logs"
-  depends_on  = [null_resource.test_dependencies]
+  depends_on                      = [null_resource.test_dependencies]
 }
 
 # Create a policy with overrides as arguments
 module "test_policy_with_overrides" {
-  source      = "../../../modules/databricks/cluster-policy"
-  policy_name = local.policy_with_overrides
-  default_spark_version_regex = "12.2.x-([cg]pu-ml-)?scala2.12"
+  source                      = "../../../modules/databricks/cluster-policy"
+  policy_name                 = local.policy_with_overrides
+  default_spark_version_regex = "13.3.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_object     = {
     "spark_version" : {
       "type" : "fixed",
-      "value" : "10.3.x-scala2.12",
+      "value" : "13.3.x-scala2.12",
       "hidden" : false
     },
     "autotermination_minutes" : {
       "type" : "fixed",
       "value" : 60,
       "hidden" : true
-      },
+    },
     "dbus_per_hour" : {
       "type" : "range",
       "maxValue" : 2
@@ -180,36 +182,38 @@ module "test_policy_with_overrides" {
 
 # Create a policy with overrides as json file
 module "test_policy_with_jsonfile" {
-  source      = "../../../modules/databricks/cluster-policy"
-  policy_name = local.policy_with_jsonfile
-  default_spark_version_regex = "12.2.x-([cg]pu-ml-)?scala2.12"
+  source                      = "../../../modules/databricks/cluster-policy"
+  policy_name                 = local.policy_with_jsonfile
+  default_spark_version_regex = "13.3.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_file       = "policy.json"
-  depends_on  = [null_resource.test_dependencies]
+  depends_on                  = [null_resource.test_dependencies]
 }
 
 # Create a folder with users, groups, service principals
 module "test_policy_with_everything" {
   source      = "../../../modules/databricks/cluster-policy"
   policy_name = local.policy_with_everything
-  CAN_USE     = [{principal = local.user_1_name, type = "user"},
-                 {principal = local.user_2_name, type = "user"},
-                 {principal = random_uuid.sp_client_id.result, type = "service_principal"},
-                 {principal = local.group_name, type = "group"}]
-  default_spark_version_regex = "12.2.x-([cg]pu-ml-)?scala2.12"
+  CAN_USE     = [
+    { principal = local.user_1_name, type = "user" },
+    { principal = local.user_2_name, type = "user" },
+    { principal = random_uuid.sp_client_id.result, type = "service_principal" },
+    { principal = local.group_name, type = "group" }
+  ]
+  default_spark_version_regex = "13.3.x-([cg]pu-ml-)?scala2.12"
   policy_overrides_file       = "policy.json"
   policy_overrides_object     = {
     "spark_version" : {
       "type" : "fixed",
-      "value" : "10.3.x-scala2.12",
+      "value" : "13.3.x-scala2.12",
       "hidden" : false
     }
   }
   depends_on = [
     null_resource.test_dependencies,
-    module.test_user_1,
-    module.test_user_2,
-    module.test_sp,
-    module.test_group
+    databricks_user.test_user_1,
+    databricks_user.test_user_2,
+    databricks_service_principal.test_sp,
+    databricks_group.groups
   ]
 }
 

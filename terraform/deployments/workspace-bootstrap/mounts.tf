@@ -8,8 +8,8 @@ locals {
 
 # Mount the ADLS Gen2 Project Filesystem using the latest Client Secret of the data pipeline Service Principal
 resource "databricks_mount" "project" {
-  cluster_id  = databricks_cluster.shared_autoscaling.id
-  name        = local.PROJECT_MOUNT_POINT
+  cluster_id = databricks_cluster.shared_autoscaling.id
+  name       = local.PROJECT_MOUNT_POINT
 
   abfs {
     container_name         = var.PROJECT_CONTAINER_NAME

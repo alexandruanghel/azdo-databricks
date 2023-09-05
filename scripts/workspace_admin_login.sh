@@ -45,7 +45,7 @@ echo
 
 # Get the AAD Access Token over the Databricks resource
 echo -e "Getting the AAD Access Token"
-access_token=$(az account get-access-token --resource="${_databricks_unique_id}" | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["accessToken"])')
+access_token=$(az account get-access-token --resource="${_databricks_unique_id}" --query accessToken --output tsv)
 [ -z "${access_token}" ] && exit 1
 echo -e "Got the AAD access token"
 echo

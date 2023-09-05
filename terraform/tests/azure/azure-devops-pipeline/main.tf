@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azurerm = {
@@ -19,7 +19,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
   }
 }
@@ -46,7 +46,7 @@ module "project_with_github_endpoint" {
   source           = "../../../modules/azure/azure-devops-project"
   project_name     = local.project_name
   github_endpoints = [local.github_endpoint]
-#  github_pat       = random_string.suffix.result
+  #  github_pat       = random_string.suffix.result
 }
 
 # Build an Azure DevOps pipeline with default parameters

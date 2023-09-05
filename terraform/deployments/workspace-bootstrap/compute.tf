@@ -31,7 +31,7 @@ resource "databricks_permissions" "jobs_pool" {
     permission_level       = "CAN_ATTACH_TO"
   }
 
-  depends_on = [module.data_factory_databricks_principal, module.data_pipeline_databricks_principal]
+  depends_on = [databricks_service_principal.data_factory, databricks_secret_acl.data_pipeline_principal]
 }
 
 # Deploy the Shared Instance Pool
@@ -88,10 +88,10 @@ resource "databricks_cluster" "shared_autoscaling" {
   }
 
   spark_conf = {
-    "spark.databricks.cluster.profile": "serverless",
-    "spark.databricks.repl.allowedLanguages": "python,sql",
-    "spark.databricks.passthrough.enabled": "true",
-    "spark.databricks.pyspark.enableProcessIsolation": "true"
+    "spark.databricks.cluster.profile" : "serverless",
+    "spark.databricks.repl.allowedLanguages" : "python,sql",
+    "spark.databricks.passthrough.enabled" : "true",
+    "spark.databricks.pyspark.enableProcessIsolation" : "true"
   }
 
   custom_tags = {

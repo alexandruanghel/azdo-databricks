@@ -10,7 +10,7 @@ resource "databricks_secret_acl" "data_factory_principal" {
   principal  = data.azuread_service_principal.data_factory.application_id
   permission = "READ"
   scope      = databricks_secret_scope.main.name
-  depends_on = [module.data_factory_databricks_principal]
+  depends_on = [databricks_service_principal.data_factory]
 }
 
 # Give WRITE on the Secret Scope to the data pipeline Service Principal
@@ -18,7 +18,7 @@ resource "databricks_secret_acl" "data_pipeline_principal" {
   principal  = data.azuread_service_principal.data_pipeline.application_id
   permission = "WRITE"
   scope      = databricks_secret_scope.main.name
-  depends_on = [module.data_pipeline_databricks_principal]
+  depends_on = [databricks_service_principal.data_pipeline]
 }
 
 # Get the data pipeline Service Principal Client Secret from the Key Vault

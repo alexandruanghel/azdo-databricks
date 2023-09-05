@@ -40,7 +40,7 @@ parameters:
   - name: databricksPoolSparkVersion
     displayName: 'Azure Databricks Spark Version'
     type: string
-    default: '12.2.x-scala2.12'
+    default: '13.3.x-scala2.12'
 
   - name: scriptsLocation
     displayName: 'Location of Scripts'

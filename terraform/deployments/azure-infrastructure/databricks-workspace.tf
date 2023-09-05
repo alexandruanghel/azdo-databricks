@@ -19,17 +19,17 @@ module "databricks_vnet" {
 
 # Deploy the Databricks workspace with the custom VNet
 module "databricks_workspace_vnet_injection" {
-  source                      = "../../modules/azure/databricks-workspace"
-  azure_location              = data.azurerm_resource_group.main.location
-  resource_group_name         = data.azurerm_resource_group.main.name
-  workspace_name              = var.DATABRICKS_WORKSPACE_NAME
-  pricing_tier                = var.DATABRICKS_PRICING_TIER
-  virtual_network_name        = module.databricks_vnet.virtual_network_name
-  private_subnet_name         = module.databricks_vnet.private_subnet_name
-  public_subnet_name          = module.databricks_vnet.public_subnet_name
-  disable_public_ip           = tobool(var.DATABRICKS_DISABLE_PUBLIC_IP)
-  tags                        = var.deployment_tags
-  depends_on                  = [module.databricks_vnet]
+  source               = "../../modules/azure/databricks-workspace"
+  azure_location       = data.azurerm_resource_group.main.location
+  resource_group_name  = data.azurerm_resource_group.main.name
+  workspace_name       = var.DATABRICKS_WORKSPACE_NAME
+  pricing_tier         = var.DATABRICKS_PRICING_TIER
+  virtual_network_name = module.databricks_vnet.virtual_network_name
+  private_subnet_name  = module.databricks_vnet.private_subnet_name
+  public_subnet_name   = module.databricks_vnet.public_subnet_name
+  disable_public_ip    = tobool(var.DATABRICKS_DISABLE_PUBLIC_IP)
+  tags                 = var.deployment_tags
+  depends_on           = [module.databricks_vnet]
 }
 
 

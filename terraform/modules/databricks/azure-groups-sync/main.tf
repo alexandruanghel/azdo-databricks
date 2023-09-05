@@ -8,8 +8,8 @@
 
 # Get the groups details from the Azure AD Tenant
 data "azuread_group" "all" {
-  for_each = toset(var.groups)
-  display_name = each.key
+  for_each         = toset(var.groups)
+  display_name     = each.key
   security_enabled = true
 }
 
@@ -33,56 +33,66 @@ locals {
 
 # Get the service principals details from the Azure AD Tenant
 data "azuread_service_principals" "members" {
-  object_ids  = local.service_principals_list
+  object_ids = local.service_principals_list
 }
 
 # Transform the users list into a map with the object_id as the key
 locals {
   users = {
-    for user in data.azuread_users.members.users:
-      user.object_id => user
+    for user in data.azuread_users.members.users :
+    user.object_id => user
   }
   service_principals = {
-    for sp in data.azuread_service_principals.members.service_principals:
-      sp.object_id => sp
+    for sp in data.azuread_service_principals.members.service_principals :
+    sp.object_id => sp
   }
 }
 
 # Add the users to the Databricks workspace
-module "databricks_users" {
-  for_each             = local.users
-  source               = "../databricks-principal"
-  principal_type       = "user"
-  principal_identifier = lower(local.users[each.key]["user_principal_name"])
-  display_name         = local.users[each.key]["display_name"]
+resource "databricks_user" "users" {
+  for_each                 = local.users
+  user_name                = lower(local.users[each.key]["user_principal_name"])
+  display_name             = local.users[each.key]["display_name"]
+  external_id              = each.key
+  workspace_access         = true
+  databricks_sql_access    = true
+  active                   = true
+  force                    = true
+  disable_as_user_deletion = true
 }
 
 # Add the service principals to the Databricks workspace
-module "databricks_service_principals" {
-  for_each             = local.service_principals
-  source               = "../databricks-principal"
-  principal_type       = "service_principal"
-  principal_identifier = lower(local.service_principals[each.key]["application_id"])
-  display_name         = local.service_principals[each.key]["display_name"]
+resource "databricks_service_principal" "sps" {
+  for_each                 = local.service_principals
+  application_id           = lower(local.service_principals[each.key]["application_id"])
+  display_name             = local.service_principals[each.key]["display_name"]
+  external_id              = each.key
+  workspace_access         = true
+  databricks_sql_access    = true
+  active                   = true
+  force                    = true
+  disable_as_user_deletion = true
 }
 
 # Add the groups to the Databricks workspace
-module "databricks_groups" {
+resource "databricks_group" "groups" {
   for_each                   = toset(var.groups)
-  source                     = "../databricks-principal"
-  principal_type             = "group"
-  principal_identifier       = data.azuread_group.all[each.key].display_name
+  display_name               = data.azuread_group.all[each.key].display_name
   allow_cluster_create       = contains(var.allow_cluster_create, each.key) ? true : false
   allow_instance_pool_create = contains(var.allow_instance_pool_create, each.key) ? true : false
+  workspace_access           = true
+  databricks_sql_access      = true
+  force                      = true
 }
+
 
 # Create a flat list with all of the valid pairs of databricks_group_id - databricks_principal_id
 locals {
   group_members = flatten([
     for group, details in data.azuread_group.all : [
       for member in details["members"] : {
-        group = module.databricks_groups[group].id,
-        member = merge(module.databricks_users, module.databricks_service_principals)[member].id
+        group  = databricks_group.groups[group].id,
+        member = merge(databricks_user.users, databricks_service_principal.sps)[member].id
       }
     ]
   ])

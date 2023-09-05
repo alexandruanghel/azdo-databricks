@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.4"
+  required_version = "~> 1.5.6"
 
   required_providers {
     azurerm = {
@@ -15,7 +15,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.4"
+      version = "~> 3"
     }
   }
 }
@@ -36,12 +36,12 @@ resource "random_string" "suffix" {
 
 # Set the rest of the test variables using the random string
 locals {
-  resource_group_name         = var.resource_group_name == null ? "tftest-rg-${random_string.suffix.result}" : var.resource_group_name
-  managed_resource_group_name = "tftest-rg-managed-${random_string.suffix.result}"
-  virtual_network_custom_name = "tftest-vnet-${random_string.suffix.result}"
+  resource_group_name                    = var.resource_group_name == null ? "tftest-rg-${random_string.suffix.result}" : var.resource_group_name
+  managed_resource_group_name            = "tftest-rg-managed-${random_string.suffix.result}"
+  virtual_network_custom_name            = "tftest-vnet-${random_string.suffix.result}"
   virtual_network_with_nat_defaults_name = "tftest-vnet-nat-default-${random_string.suffix.result}"
   virtual_network_with_nat_custom_name   = "tftest-vnet-nat-custom-${random_string.suffix.result}"
-  custom_tags                 = { Purpose = "Terraform-test-${random_string.suffix.result}" }
+  custom_tags                            = { Purpose = "Terraform-test-${random_string.suffix.result}" }
 }
 
 # Create an empty Resource Group to be used by the rest of the resources
@@ -57,7 +57,7 @@ module "test_resource_group" {
 
 # Marker for test dependencies
 resource "null_resource" "test_dependencies" {
-  triggers   = {
+  triggers = {
     rg = module.test_resource_group.id
   }
   depends_on = [module.test_resource_group]
@@ -65,9 +65,9 @@ resource "null_resource" "test_dependencies" {
 
 # Build a VNet with default parameters
 module "test_databricks_vnet_defaults" {
-  source               = "../../../modules/azure/databricks-vnet"
-  resource_group_name  = local.resource_group_name
-  depends_on           = [null_resource.test_dependencies]
+  source              = "../../../modules/azure/databricks-vnet"
+  resource_group_name = local.resource_group_name
+  depends_on          = [null_resource.test_dependencies]
 }
 
 # Build a VNet with custom parameters

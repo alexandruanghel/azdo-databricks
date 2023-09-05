@@ -5,7 +5,7 @@
 module "databricks_policy_single_node" {
   source                = "../../modules/databricks/cluster-policy"
   policy_name           = "Single Node Cluster"
-  CAN_USE               = [{principal = var.PROJECT_GROUP_NAME, type = "group"}]
+  CAN_USE               = [{ principal = var.PROJECT_GROUP_NAME, type = "group" }]
   policy_overrides_file = var.DATABRICKS_CLUSTER_POLICY_LOCATION
   depends_on            = [module.project_group_sync]
 }

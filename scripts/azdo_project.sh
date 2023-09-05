@@ -38,7 +38,7 @@ _check_args() {
 _check_auth() {
   # Check the existing Azure Authentication
   if [ -z "${AZURE_DEVOPS_EXT_PAT}" ]; then
-    az_signed_in_user=$(az ad signed-in-user show 2> /dev/null | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["userPrincipalName"])' 2> /dev/null)
+    az_signed_in_user=$(az ad signed-in-user show --query userPrincipalName --output tsv)
     if [ -z "${az_signed_in_user}" ]; then
       echo "ERROR: User Principal not logged in, run 'az login' first (az login with a Service Principal is not supported)"
       echo "       Or set the AZURE_DEVOPS_EXT_PAT (or AZDO_PERSONAL_ACCESS_TOKEN) environment variable for direct PAT login"
@@ -51,8 +51,7 @@ _create_project() {
   # Create an Azure DevOps project
   local azdo_project_name="${1}"
   echo -e "Creating the Azure DevOps project \"${azdo_project_name}\" in organization \"${AZURE_DEVOPS_ORG_URL}\""
-  azdo_project_id=$(az devops project show --project "${azdo_project_name}" --org "${AZURE_DEVOPS_ORG_URL}" \
-                      | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["id"])' 2> /dev/null )
+  azdo_project_id=$(az devops project show --project "${azdo_project_name}" --org "${AZURE_DEVOPS_ORG_URL}" --query id --output tsv)
   if [ -n "${azdo_project_id}" ]; then
     echo -e "Azure DevOps project \"${azdo_project_name}\" already exists with id \"${azdo_project_id}\""
   else
@@ -72,8 +71,7 @@ _delete_project() {
   local azdo_project_name="${1}"
   echo -e "Deleting the Azure DevOps project \"${azdo_project_name}\" from organization \"${AZURE_DEVOPS_ORG_URL}\""
 
-  azdo_project_id=$(az devops project show --project "${azdo_project_name}" --org "${AZURE_DEVOPS_ORG_URL}" \
-                     | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["id"])' 2> /dev/null )
+  azdo_project_id=$(az devops project show --project "${azdo_project_name}" --org "${AZURE_DEVOPS_ORG_URL}" --query id --output tsv)
   if ! az devops project delete --yes --id "${azdo_project_id}" --org "${AZURE_DEVOPS_ORG_URL}"; then
     echo -e "ERROR: Azure DevOps project \"${azdo_project_name}\" was not deleted successfully"
     exit 1

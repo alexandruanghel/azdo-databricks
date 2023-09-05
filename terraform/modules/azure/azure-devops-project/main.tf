@@ -36,10 +36,9 @@ resource "azuredevops_serviceendpoint_azurerm" "endpoints" {
   azurerm_subscription_name = data.azurerm_subscription.current.display_name
 }
 
-resource "azuredevops_resource_authorization" "enable_for_all" {
+resource "azuredevops_pipeline_authorization" "enable_for_all" {
   count       = length(var.arm_endpoints)
   project_id  = azuredevops_project.this.id
   resource_id = azuredevops_serviceendpoint_azurerm.endpoints[count.index].id
   type        = "endpoint"
-  authorized  = true
 }

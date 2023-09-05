@@ -28,7 +28,7 @@ parameters:
   - name: databricksClusterSparkVersion
     displayName: 'Azure Databricks Cluster Spark Version'
     type: string
-    default: '12.2.x-scala2.12'
+    default: '13.3.x-scala2.12'
 
   - name: pipelineDatabaseName
     displayName: 'Name of the Database used by the Pipeline'

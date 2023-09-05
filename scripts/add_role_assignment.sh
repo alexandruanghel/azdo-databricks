@@ -12,8 +12,7 @@ _resource_id=${3}
 # Local variables
 _realpath() { [[ ${1} == /* ]] && echo "${1}" || echo "${PWD}"/"${1#./}"; }
 _realpath="$(command -v realpath || echo _realpath )"
-_python="$(command -v python || command -v python3)"
-_script_dir=$(${_realpath} "$(dirname "${BASH_SOURCE[0]}")")
+ _script_dir=$(${_realpath} "$(dirname "${BASH_SOURCE[0]}")")
 
 _usage() {
   echo -e "Usage: ${0} <role_name> <principal_id> <resource_id>"

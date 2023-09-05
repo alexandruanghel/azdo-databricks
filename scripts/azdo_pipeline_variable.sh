@@ -52,7 +52,7 @@ _check_args() {
 _check_auth() {
   # Check the existing Azure Authentication
   if [ -z "${AZURE_DEVOPS_EXT_PAT}" ]; then
-    az_signed_in_user=$(az ad signed-in-user show 2> /dev/null | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["userPrincipalName"])' 2> /dev/null)
+    az_signed_in_user=$(az ad signed-in-user show --query userPrincipalName --output tsv)
     if [ -z "${az_signed_in_user}" ]; then
       echo "ERROR: User Principal not logged in, run 'az login' first (az login with a Service Principal is not supported)"
       echo "       Or set the AZURE_DEVOPS_EXT_PAT (or AZDO_PERSONAL_ACCESS_TOKEN) environment variable for direct PAT login"
@@ -106,7 +106,7 @@ _delete_variable() {
   azdo_pipeline_id=$(az pipelines show --name "${azdo_pipeline_name}" \
                                        --project "${AZURE_DEVOPS_PROJECT_NAME}" \
                                        --org "${AZURE_DEVOPS_ORG_URL}" \
-                      | ${_python} -c 'import sys,json; print(json.load(sys.stdin)["id"])' 2> /dev/null)
+                                       --query id --output tsv)
   if ! az pipelines variable delete --yes \
                            --name "${azdo_variable_name}" \
                            --pipeline-id "${azdo_pipeline_id}" \

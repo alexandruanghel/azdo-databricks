@@ -1,16 +1,16 @@
 output "databricks_users" {
   description = "The details of the Databricks users."
-  value       = [for user, value in module.databricks_users : value["details"]]
+  value       = databricks_user.users
 }
 
 output "databricks_service_principals" {
   description = "The details of the Databricks service principals."
-  value       = [for user, value in module.databricks_service_principals : value["details"]]
+  value       = databricks_service_principal.sps
 }
 
 output "databricks_groups" {
   description = "The details of the Databricks groups."
-  value       = [for user, value in module.databricks_groups : value["details"]]
+  value       = databricks_group.groups
 }
 
 output "databricks_groups_membership" {
