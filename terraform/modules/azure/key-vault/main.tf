@@ -35,11 +35,11 @@ resource "azurerm_key_vault_access_policy" "creator" {
     "Get", "List", "Delete", "Create", "Import", "Update", "ManageContacts", "GetIssuers", "ListIssuers", "SetIssuers",
     "DeleteIssuers", "ManageIssuers", "Recover", "Purge"
   ]
-  key_permissions         = [
+  key_permissions = [
     "Get", "Create", "Delete", "List", "Update", "Import", "Backup", "Restore", "Recover", "Purge"
   ]
-  secret_permissions      = ["Get", "List", "Set", "Delete", "Backup", "Restore", "Recover", "Purge"]
-  storage_permissions     = [
+  secret_permissions  = ["Get", "List", "Set", "Delete", "Backup", "Restore", "Recover", "Purge"]
+  storage_permissions = [
     "Get", "List", "Delete", "Set", "Update", "RegenerateKey", "SetSAS", "ListSAS", "GetSAS", "DeleteSAS", "Purge"
   ]
 }

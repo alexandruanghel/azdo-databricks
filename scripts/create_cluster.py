@@ -4,8 +4,9 @@ Python script that creates a Databricks Cluster using the Clusters API (https://
 It uses simple positional arguments.
 It returns the Cluster ID as a variable called databricksClusterId in the Azure Pipelines format.
 """
-import requests
 import sys
+
+import requests
 
 
 def main():

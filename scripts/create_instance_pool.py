@@ -4,8 +4,9 @@ Python script that creates a Databricks Instance Pool using the Instance Pools A
 It uses simple positional arguments.
 It returns the Instance Pool ID as a variable called databricksPoolId in the Azure Pipelines format.
 """
-import requests
 import sys
+
+import requests
 
 
 def main():

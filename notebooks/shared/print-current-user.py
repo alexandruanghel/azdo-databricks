@@ -19,8 +19,9 @@ TOKEN = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiTok
 
 # COMMAND ----------
 
-import requests
 import pprint
+
+import requests
 
 response = requests.get(
     API_URL + '/api/2.0/preview/scim/v2/Me',

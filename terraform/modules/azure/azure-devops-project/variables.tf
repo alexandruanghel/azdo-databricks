@@ -4,7 +4,7 @@ variable "project_name" {
 }
 
 variable "github_endpoints" {
-  type = list(string)
+  type        = list(string)
   description = "(Optional) A list of GitHub endpoints to be created."
   default     = []
 }

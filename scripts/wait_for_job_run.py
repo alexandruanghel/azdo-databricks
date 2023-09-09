@@ -6,8 +6,9 @@ It waits for a maximum of 15 minutes by default.
 It prints the notebook_output if one exists.
 """
 import sys
-import requests
 import time
+
+import requests
 
 
 def main():

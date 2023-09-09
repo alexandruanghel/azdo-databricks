@@ -5,8 +5,9 @@ It uses simple positional arguments.
 It returns the run_id as a variable called notebookRunId in the Azure Pipelines format.
 """
 import json
-import requests
 import sys
+
+import requests
 
 
 def main():

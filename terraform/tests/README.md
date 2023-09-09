@@ -8,12 +8,14 @@ This doesn't do automatic assertions yet, it simply makes sure the Terraform mod
 
 ## Usage
 
-To run a test: `./run-test.sh [subfolder]` 
+To run a test: `./run-test.sh [subfolder]`
+
 ```
 ./run-test.sh azure/databricks-workspace
 ```
 
 To destroy a test: `./destroy-test.sh [subfolder]`
+
 ```
 ./destroy-test.sh azure/databricks-workspace
 ```

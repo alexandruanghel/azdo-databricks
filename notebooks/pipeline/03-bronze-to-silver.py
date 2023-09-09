@@ -48,9 +48,8 @@ bronzeDF.printSchema()
 
 from pyspark.sql import functions as F
 
-transformedDF = (bronzeDF
-  .withColumnRenamed("temp", "temperature")
-  .withColumn("date", F.to_date(F.col("date"), "yyyy-MM-dd"))
+transformedDF = bronzeDF.withColumnRenamed("temp", "temperature").withColumn(
+    "date", F.to_date(F.col("date"), "yyyy-MM-dd")
 )
 
 # COMMAND ----------
@@ -60,13 +59,7 @@ transformedDF = (bronzeDF
 
 # COMMAND ----------
 
-(transformedDF
-  .limit(0)
-  .write
-  .format("delta")
-  .mode("ignore")
-  .saveAsTable(silverTable)
-)
+(transformedDF.limit(0).write.format("delta").mode("ignore").saveAsTable(silverTable))
 
 # COMMAND ----------
 
@@ -80,11 +73,11 @@ from delta.tables import *
 
 deltaSilverTable = DeltaTable.forName(spark, silverTable)
 
-(deltaSilverTable.alias("silver").merge(
-    transformedDF.alias("updates"),
-    "silver.date = updates.date")
-  .whenNotMatchedInsertAll()
-  .execute()
+(
+    deltaSilverTable.alias("silver")
+    .merge(transformedDF.alias("updates"), "silver.date = updates.date")
+    .whenNotMatchedInsertAll()
+    .execute()
 )
 
 # COMMAND ----------

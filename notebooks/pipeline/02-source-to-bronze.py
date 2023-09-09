@@ -37,11 +37,13 @@ dbutils.fs.ls(sourcePath)
 
 # COMMAND ----------
 
-csvDF = (spark.read               # The DataFrameReader
-  .option("header", "true")       # Use first line of all files as header
-  .option("sep", ",")             # Use comma delimiter (default)
-  .option("inferSchema", "true")  # Automatically infer schema
-  .csv(sourcePath)                # Creates a DataFrame from CSV after reading in the file(s)
+csvDF = (
+    spark.read.option(  # The DataFrameReader
+        "header", "true"
+    )  # Use first line of all files as header
+    .option("sep", ",")  # Use comma delimiter (default)
+    .option("inferSchema", "true")  # Automatically infer schema
+    .csv(sourcePath)  # Creates a DataFrame from CSV after reading in the file(s)
 )
 
 # COMMAND ----------
@@ -59,12 +61,7 @@ display(csvDF.limit(5))
 
 # COMMAND ----------
 
-(csvDF
-  .write
-  .format("delta")
-  .mode("append")
-  .saveAsTable(bronzeTable)
-)
+(csvDF.write.format("delta").mode("append").saveAsTable(bronzeTable))
 
 # COMMAND ----------
 

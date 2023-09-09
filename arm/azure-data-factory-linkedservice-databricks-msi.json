@@ -57,7 +57,7 @@
         "description": "Data Pipeline Service Principal Client Id"
       }
     },
-    "databricksSecretScopeName":{
+    "databricksSecretScopeName": {
       "type": "string",
       "metadata": {
         "description": "Name of the Databricks Secret Scope"

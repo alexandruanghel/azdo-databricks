@@ -43,7 +43,9 @@
               "secureInput": false
             },
             "userProperties": [],
-            "typeProperties": { "notebookPath": "/Shared/generic/print-current-user" },
+            "typeProperties": {
+              "notebookPath": "/Shared/generic/print-current-user"
+            },
             "linkedServiceName": {
               "referenceName": "[parameters('databricksServiceName')]",
               "type": "LinkedServiceReference"
@@ -55,7 +57,9 @@
             "dependsOn": [
               {
                 "activity": "Get user",
-                "dependencyConditions": [ "Succeeded" ]
+                "dependencyConditions": [
+                  "Succeeded"
+                ]
               }
             ],
             "policy": {
@@ -90,7 +94,9 @@
             "dependsOn": [
               {
                 "activity": "Create Database",
-                "dependencyConditions": [ "Succeeded" ]
+                "dependencyConditions": [
+                  "Succeeded"
+                ]
               }
             ],
             "policy": {
@@ -125,7 +131,9 @@
             "dependsOn": [
               {
                 "activity": "Source to Bronze",
-                "dependencyConditions": [ "Succeeded" ]
+                "dependencyConditions": [
+                  "Succeeded"
+                ]
               }
             ],
             "policy": {
