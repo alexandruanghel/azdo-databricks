@@ -224,30 +224,36 @@ module "test_group_empty" {
 
 # Sync a group with one user
 module "test_group_one_user" {
-  source     = "../../../modules/databricks/azure-groups-sync"
-  groups     = [azuread_group.one_user.display_name]
-  depends_on = [null_resource.test_dependencies]
+  source                = "../../../modules/databricks/azure-groups-sync"
+  groups                = [azuread_group.one_user.display_name]
+  databricks_sql_access = [azuread_group.one_user.display_name]
+  depends_on            = [null_resource.test_dependencies]
 }
 
 # Sync a group with one service principal
 module "test_group_one_sp" {
-  source     = "../../../modules/databricks/azure-groups-sync"
-  groups     = [azuread_group.one_sp.display_name]
-  depends_on = [null_resource.test_dependencies]
+  source               = "../../../modules/databricks/azure-groups-sync"
+  groups               = [azuread_group.one_sp.display_name]
+  workspace_access     = [azuread_group.one_sp.display_name]
+  allow_cluster_create = [azuread_group.one_sp.display_name]
+  depends_on           = [null_resource.test_dependencies]
 }
 
 # Sync a group with one user and one service principal
 module "test_group_one_of_each" {
-  source               = "../../../modules/databricks/azure-groups-sync"
-  groups               = [azuread_group.one_of_each.display_name]
-  allow_cluster_create = [azuread_group.one_of_each.display_name]
-  depends_on           = [null_resource.test_dependencies]
+  source                = "../../../modules/databricks/azure-groups-sync"
+  groups                = [azuread_group.one_of_each.display_name]
+  workspace_access      = [azuread_group.one_of_each.display_name]
+  databricks_sql_access = [azuread_group.one_of_each.display_name]
+  depends_on            = [null_resource.test_dependencies]
 }
 
 # Sync two groups with mixed users and service principals including overlaps
 module "test_group_mixed" {
   source                     = "../../../modules/databricks/azure-groups-sync"
   groups                     = [azuread_group.mixed1.display_name, azuread_group.mixed2.display_name]
+  workspace_access           = [azuread_group.mixed1.display_name, azuread_group.mixed2.display_name]
+  databricks_sql_access      = [azuread_group.mixed1.display_name]
   allow_cluster_create       = [azuread_group.mixed1.display_name]
   allow_instance_pool_create = [azuread_group.mixed2.display_name]
   depends_on                 = [null_resource.test_dependencies]

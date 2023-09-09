@@ -15,6 +15,8 @@ This module will control both the groups and members:
 | Name                       | Description                                                          | Type           | Default | Required |
 |----------------------------|----------------------------------------------------------------------|----------------|---------|:--------:|
 | groups                     | The list of groups to be synced                                      | `list(string)` | n/a     |   yes    |
+| workspace_access           | A list of groups that should have access to Databricks Workspace     | `list(string)` | `[]`    |    no    |
+| databricks_sql_access      | A list of groups that should have access to Databricks SQL           | `list(string)` | `[]`    |    no    |
 | allow_cluster_create       | A sublist of groups that should have cluster create privileges       | `list(string)` | `[]`    |    no    |
 | allow_instance_pool_create | A sublist of groups that should have instance pool create privileges | `list(string)` | `[]`    |    no    |
 

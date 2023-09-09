@@ -29,8 +29,10 @@ resource "databricks_service_principal" "data_pipeline" {
 
 # Sync the AD Project group with the Databricks workspace
 module "project_group_sync" {
-  source = "../../modules/databricks/azure-groups-sync"
-  groups = [var.PROJECT_GROUP_NAME]
+  source                = "../../modules/databricks/azure-groups-sync"
+  groups                = [var.PROJECT_GROUP_NAME]
+  workspace_access      = [var.PROJECT_GROUP_NAME]
+  databricks_sql_access = [var.PROJECT_GROUP_NAME]
 }
 
 # Terraform output

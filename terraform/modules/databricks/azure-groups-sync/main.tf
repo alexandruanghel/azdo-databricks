@@ -54,8 +54,6 @@ resource "databricks_user" "users" {
   user_name                = lower(local.users[each.key]["user_principal_name"])
   display_name             = local.users[each.key]["display_name"]
   external_id              = each.key
-  workspace_access         = true
-  databricks_sql_access    = true
   active                   = true
   force                    = true
   disable_as_user_deletion = true
@@ -67,8 +65,6 @@ resource "databricks_service_principal" "sps" {
   application_id           = lower(local.service_principals[each.key]["application_id"])
   display_name             = local.service_principals[each.key]["display_name"]
   external_id              = each.key
-  workspace_access         = true
-  databricks_sql_access    = true
   active                   = true
   force                    = true
   disable_as_user_deletion = true
@@ -78,13 +74,12 @@ resource "databricks_service_principal" "sps" {
 resource "databricks_group" "groups" {
   for_each                   = toset(var.groups)
   display_name               = data.azuread_group.all[each.key].display_name
+  workspace_access           = contains(var.workspace_access, each.key) ? true : false
+  databricks_sql_access      = contains(var.databricks_sql_access, each.key) ? true : false
   allow_cluster_create       = contains(var.allow_cluster_create, each.key) ? true : false
   allow_instance_pool_create = contains(var.allow_instance_pool_create, each.key) ? true : false
-  workspace_access           = true
-  databricks_sql_access      = true
   force                      = true
 }
-
 
 # Create a flat list with all of the valid pairs of databricks_group_id - databricks_principal_id
 locals {
