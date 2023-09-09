@@ -25,7 +25,7 @@
   },
   "spark_version": {
     "type": "regex",
-    "pattern": "10.3.x-([cg]pu-ml-)?scala2.12"
+    "pattern": "13.3.x-([cg]pu-ml-)?scala2.12"
   },
   "docker_image.url": {
     "type": "forbidden",

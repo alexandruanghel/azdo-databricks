@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.5.6"
+  required_version = "~> 1.5.7"
 
   required_providers {
     azuread = {
@@ -19,7 +19,7 @@ terraform {
     }
     azuredevops = {
       source  = "microsoft/azuredevops"
-      version = "~> 0.3"
+      version = "~> 0.9"
     }
     random = {
       source  = "hashicorp/random"

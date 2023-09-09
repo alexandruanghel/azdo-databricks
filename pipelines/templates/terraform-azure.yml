@@ -10,7 +10,7 @@ parameters:
   - name: terraformVersion
     displayName: 'Terraform version to install and use'
     type: string
-    default: '1.5.6'
+    default: '1.5.7'
 
   - name: terraformWorkingDirectory
     displayName: 'Folder path containing the Terraform files'

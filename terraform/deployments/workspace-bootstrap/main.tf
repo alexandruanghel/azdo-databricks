@@ -8,7 +8,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = "~> 1.5.6"
+  required_version = "~> 1.5.7"
 
   backend "azurerm" {}
 
@@ -27,7 +27,7 @@ terraform {
     }
     databricks = {
       source  = "databricks/databricks"
-      version = "~> 1.24"
+      version = "~> 1.24.1"
     }
   }
 }
